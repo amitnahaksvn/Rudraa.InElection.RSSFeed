@@ -124,6 +124,19 @@ serialized/caller-supplied) - so a run seen in the dashboard can be traced back 
 It's also the one place enforcing that a Hangfire job can only ever do this one fixed, safe thing
 (crawl a specific already-configured provider) - never arbitrary caller-supplied code.
 
+**`HangfireCrawlJobExecutor` is tagged `[Queue("rss")]` and Worker's `AddHangfireServer()` reads
+which queues/how many concurrent workers from a new `Hangfire` config section
+(`Application/Options/HangfireOptions`, default `Queues: ["rss", "default"]`,
+`WorkerCount: null` meaning Hangfire's own `Environment.ProcessorCount * 5` default) - this exists
+specifically so a production deployment can run separate replica groups of the exact same Worker
+image, each independently scaled via ordinary replica count, without needing a second service:
+e.g. one replica group started with `Hangfire__Queues__0=rss`, another with
+`Hangfire__Queues__0=api` once a news-API-fetching executor (tagged `[Queue("api")]`) exists.
+`"default"` stays in the default queue list so untagged jobs (currently just the raw-response
+cleanup job) keep running on a single-queue deployment without extra config. All jobs still share
+one Hangfire Mongo storage/dashboard and one dedup pipeline regardless of how many queues or
+replica groups are running - only the *processing* is split, not the data model or job storage.
+
 **Recurring-job management beyond static config, all through `ICrawlJobTrigger`/`ICrawlJobStatusReader`
 (`Application/Abstractions`, implemented in `Infrastructure/Scheduling`) so Application never
 references Hangfire types directly:**

@@ -63,7 +63,20 @@ if (!initDbOnly)
                 BackupStrategy = new CollectionMongoBackupStrategy()
             }
         }));
-    builder.Services.AddHangfireServer();
+
+    // Configurable per deployment (env vars, e.g. Hangfire__Queues__0=api, Hangfire__WorkerCount=5)
+    // so a production rollout can run separate replica groups of this exact same image - one
+    // scaled for "rss" queue jobs, another for a future "api" queue - without a second service.
+    var hangfireOptions = new HangfireOptions();
+    builder.Configuration.GetSection(HangfireOptions.SectionName).Bind(hangfireOptions);
+    builder.Services.AddHangfireServer(options =>
+    {
+        options.Queues = hangfireOptions.Queues;
+        if (hangfireOptions.WorkerCount is { } workerCount)
+        {
+            options.WorkerCount = workerCount;
+        }
+    });
 }
 
 var host = builder.Build();
