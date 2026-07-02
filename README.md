@@ -14,20 +14,20 @@ Clean Architecture, dependencies point inward only:
 Rudraa.InElection.RSSFeed.slnx
 
 src/
- ├── PoliticalNews.Domain            entities/enums only, zero dependencies
- ├── PoliticalNews.Application       CQRS (Mediator + FluentValidation), abstractions, options
- ├── PoliticalNews.Infrastructure    MongoDB, RSS providers, repositories
- ├── PoliticalNews.Web               ASP.NET Core Minimal API (IEndpointGroup -> Mediator)
- ├── PoliticalNews.Worker            BackgroundService console host running the cron scheduler
- ├── PoliticalNews.ServiceDefaults   Aspire shared defaults (OpenTelemetry, health, resilience)
- └── PoliticalNews.AppHost           Aspire AppHost: orchestrates Web + Worker + Mongo locally
+ ├── Domain              entities/enums only, zero dependencies
+ ├── Application         CQRS (Mediator + FluentValidation), abstractions, options
+ ├── Infrastructure      MongoDB, RSS providers, repositories
+ ├── Web                 ASP.NET Core Minimal API (IEndpointGroup -> Mediator)
+ ├── Worker              BackgroundService console host running the cron scheduler
+ ├── ServiceDefaults     Aspire shared defaults (OpenTelemetry, health, resilience)
+ └── AppHost             Aspire AppHost: orchestrates Web + Worker + Mongo locally
 
 tests/
  └── PoliticalNews.Tests             xUnit + Moq
 ```
 
-**Two composition roots share one crawl engine.** `PoliticalNews.Worker` has no HTTP surface -
-it's a `BackgroundService` that wakes up on the configured cron schedule. `PoliticalNews.Web`
+**Two composition roots share one crawl engine.** `Worker` has no HTTP surface -
+it's a `BackgroundService` that wakes up on the configured cron schedule. `Web`
 exposes read endpoints plus a manual trigger. Both call the same
 `INewsCrawlerService.RunCrawlAsync` (`NewsCrawlerOrchestrator`), which acquires a MongoDB-backed
 distributed lock before running - a scheduled tick and a manually triggered API call, or two
@@ -100,9 +100,9 @@ Real credentials never belong in `appsettings.json` - use user-secrets locally, 
 variables/secret manager in deployment:
 
 ```bash
-dotnet user-secrets set "MongoDb:ConnectionString" "mongodb+srv://..." --project src/PoliticalNews.Worker
-dotnet user-secrets set "MongoDb:DatabaseName" "YourDbName" --project src/PoliticalNews.Worker
-# repeat for src/PoliticalNews.Web if you run it outside the Aspire AppHost
+dotnet user-secrets set "MongoDb:ConnectionString" "mongodb+srv://..." --project src/Worker
+dotnet user-secrets set "MongoDb:DatabaseName" "YourDbName" --project src/Worker
+# repeat for src/Web if you run it outside the Aspire AppHost
 ```
 
 > MongoDB database names cannot contain `.` (or `/ \ " $ * < > : | ?` / spaces). A name like
@@ -128,18 +128,18 @@ each individually verified to return valid RSS 2.0 XML. Three tak.live slugs tha
 Web and Worker, with the Aspire dashboard for logs/traces/metrics. Requires Docker running.
 
 ```bash
-dotnet run --project src/PoliticalNews.AppHost
+dotnet run --project src/AppHost
 ```
 
 To point the AppHost at an existing cluster (e.g. Atlas) instead of a local container, set
 `UseLocalMongo` to `false` and provide a `ConnectionStrings:mongodb` value via user-secrets on
-`PoliticalNews.AppHost`.
+`AppHost`.
 
 **Option B - run projects directly:**
 
 ```bash
-dotnet run --project src/PoliticalNews.Worker   # scheduled crawler, no HTTP
-dotnet run --project src/PoliticalNews.Web      # read/query API + Swagger UI in Development
+dotnet run --project src/Worker   # scheduled crawler, no HTTP
+dotnet run --project src/Web      # read/query API + Swagger UI in Development
 ```
 
 **Option C - Docker Compose** (Mongo container + both services, no Aspire/Docker-in-loop needed):
@@ -159,7 +159,7 @@ database is enough. Web's health check additionally pings the cluster at `/healt
 
 ## Scheduler
 
-`PoliticalNews.Worker/HostedServices/CrawlerBackgroundService` parses `NewsCrawler:Cron` (Cronos,
+`Worker/HostedServices/CrawlerBackgroundService` parses `NewsCrawler:Cron` (Cronos,
 standard 5-field cron) and sleeps until the next occurrence, then calls
 `INewsCrawlerService.RunCrawlAsync`. It supports `CancellationToken`-driven graceful shutdown,
 logs every tick, and a run that throws is logged and simply waits for the next tick rather than
@@ -203,8 +203,8 @@ provider's articles.
 Build the container images (one Dockerfile, parameterized by project):
 
 ```bash
-docker build --build-arg PROJECT=PoliticalNews.Worker -t politicalnews-worker .
-docker build --build-arg PROJECT=PoliticalNews.Web    -t politicalnews-web    .
+docker build --build-arg PROJECT=Worker -t politicalnews-worker .
+docker build --build-arg PROJECT=Web       -t politicalnews-web    .
 ```
 
 Run each with `MongoDb__ConnectionString` / `MongoDb__DatabaseName` environment variables

@@ -1,16 +1,16 @@
 using Microsoft.Extensions.Logging.Abstractions;
-using PoliticalNews.Application.Abstractions;
-using PoliticalNews.Application.Options;
-using PoliticalNews.Infrastructure.RssProviders;
+using Application.Abstractions;
+using Application.Options;
+using Infrastructure.RssProviders;
 using PoliticalNews.Tests.TestSupport;
 
 namespace PoliticalNews.Tests.Infrastructure;
 
 /// <summary>
-/// IndiaTV/News18/NDTV/IndianExpress/TheHindu all share BaseRssProvider's pipeline unchanged
-/// (verified against each site's real XML: spec-cased pubDate, media:thumbnail/media:content
-/// image tags), so one parameterized parse test per provider covers the provider-specific part:
-/// the Name stamped onto every normalized article.
+/// Every provider below shares BaseRssProvider's pipeline unchanged (verified against each site's
+/// real XML: spec-cased pubDate, media:thumbnail/media:content image tags), so one parameterized
+/// parse test per provider covers the provider-specific part: the Name stamped onto every
+/// normalized article.
 /// </summary>
 public class NewProvidersRssTests
 {
@@ -39,7 +39,18 @@ public class NewProvidersRssTests
         { "News18", f => new News18RssProvider(f, NullLogger<News18RssProvider>.Instance) },
         { "NDTV", f => new NdtvRssProvider(f, NullLogger<NdtvRssProvider>.Instance) },
         { "IndianExpress", f => new IndianExpressRssProvider(f, NullLogger<IndianExpressRssProvider>.Instance) },
-        { "TheHindu", f => new TheHinduRssProvider(f, NullLogger<TheHinduRssProvider>.Instance) }
+        { "TheHindu", f => new TheHinduRssProvider(f, NullLogger<TheHinduRssProvider>.Instance) },
+        { "TimesOfIndia", f => new TimesOfIndiaRssProvider(f, NullLogger<TimesOfIndiaRssProvider>.Instance) },
+        { "NavbharatTimes", f => new NavbharatTimesRssProvider(f, NullLogger<NavbharatTimesRssProvider>.Instance) },
+        { "HindustanTimes", f => new HindustanTimesRssProvider(f, NullLogger<HindustanTimesRssProvider>.Instance) },
+        { "ThePrint", f => new ThePrintRssProvider(f, NullLogger<ThePrintRssProvider>.Instance) },
+        { "ScrollIn", f => new ScrollInRssProvider(f, NullLogger<ScrollInRssProvider>.Instance) },
+        { "Mint", f => new MintRssProvider(f, NullLogger<MintRssProvider>.Instance) },
+        { "DeccanHerald", f => new DeccanHeraldRssProvider(f, NullLogger<DeccanHeraldRssProvider>.Instance) },
+        { "NewIndianExpress", f => new NewIndianExpressRssProvider(f, NullLogger<NewIndianExpressRssProvider>.Instance) },
+        { "AmarUjala", f => new AmarUjalaRssProvider(f, NullLogger<AmarUjalaRssProvider>.Instance) },
+        { "DainikBhaskar", f => new DainikBhaskarRssProvider(f, NullLogger<DainikBhaskarRssProvider>.Instance) },
+        { "LiveHindustan", f => new LiveHindustanRssProvider(f, NullLogger<LiveHindustanRssProvider>.Instance) }
     };
 
     [Theory]

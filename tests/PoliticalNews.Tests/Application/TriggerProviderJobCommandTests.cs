@@ -1,8 +1,8 @@
 using Microsoft.Extensions.Options;
 using Moq;
-using PoliticalNews.Application.Abstractions;
-using PoliticalNews.Application.Crawl.Commands.TriggerProviderJob;
-using PoliticalNews.Application.Options;
+using Application.Abstractions;
+using Application.Crawl.Commands.TriggerProviderJob;
+using Application.Options;
 
 namespace PoliticalNews.Tests.Application;
 

@@ -1,19 +1,19 @@
 # Builds either service from this one Dockerfile:
-#   docker build --build-arg PROJECT=PoliticalNews.Worker -t politicalnews-worker .
-#   docker build --build-arg PROJECT=PoliticalNews.Web    -t politicalnews-web    .
-ARG PROJECT=PoliticalNews.Worker
+#   docker build --build-arg PROJECT=Worker -t politicalnews-worker .
+#   docker build --build-arg PROJECT=Web    -t politicalnews-web    .
+ARG PROJECT=Worker
 
 FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 ARG PROJECT
 WORKDIR /src
 
 COPY Rudraa.InElection.RSSFeed.slnx ./
-COPY src/PoliticalNews.Domain/PoliticalNews.Domain.csproj src/PoliticalNews.Domain/
-COPY src/PoliticalNews.Application/PoliticalNews.Application.csproj src/PoliticalNews.Application/
-COPY src/PoliticalNews.Infrastructure/PoliticalNews.Infrastructure.csproj src/PoliticalNews.Infrastructure/
-COPY src/PoliticalNews.ServiceDefaults/PoliticalNews.ServiceDefaults.csproj src/PoliticalNews.ServiceDefaults/
-COPY src/PoliticalNews.Worker/PoliticalNews.Worker.csproj src/PoliticalNews.Worker/
-COPY src/PoliticalNews.Web/PoliticalNews.Web.csproj src/PoliticalNews.Web/
+COPY src/Domain/Domain.csproj src/Domain/
+COPY src/Application/Application.csproj src/Application/
+COPY src/Infrastructure/Infrastructure.csproj src/Infrastructure/
+COPY src/ServiceDefaults/ServiceDefaults.csproj src/ServiceDefaults/
+COPY src/Worker/Worker.csproj src/Worker/
+COPY src/Web/Web.csproj src/Web/
 RUN dotnet restore "src/${PROJECT}/${PROJECT}.csproj"
 
 COPY src/ src/

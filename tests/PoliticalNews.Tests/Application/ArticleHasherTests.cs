@@ -1,4 +1,4 @@
-using PoliticalNews.Application.Services;
+using Application.Services;
 
 namespace PoliticalNews.Tests.Application;
 

@@ -5,11 +5,13 @@
     "LockName": "news-crawler",
     "LockTtl": "00:15:00",
     "FeedTimeout": "00:00:30",
-    "SaveRawResponses": true,
+    "RawResponseRetention": "7.00:00:00",
+    "RawResponseCleanupCron": "0 5 * * *",
+    "SaveRawResponses": false,
     "Providers": [
       {
         "Name": "AajTak",
-        "Enabled": false,
+        "Enabled": true,
         "Cron": "*/5 * * * *",
         "SaveRawResponses": true,
         "Feeds": [
@@ -150,7 +152,7 @@
       },
       {
         "Name": "ABPNews",
-        "Enabled": false,
+        "Enabled": true,
         "Cron": "*/5 * * * *",
         "SaveRawResponses": true,
         "Feeds": [
@@ -969,6 +971,786 @@
             "Name": "Elections",
             "Url": "https://www.thehindu.com/elections/feeder/default.rss",
             "Category": "Politics",
+            "Language": "en",
+            "Enabled": true
+          }
+        ]
+      },
+      {
+        "Name": "TimesOfIndia",
+        "Enabled": true,
+        "Cron": "*/5 * * * *",
+        "SaveRawResponses": true,
+        "Feeds": [
+          {
+            "Name": "TopStories",
+            "Url": "https://timesofindia.indiatimes.com/rssfeedstopstories.cms",
+            "Category": "General",
+            "Language": "en",
+            "Enabled": true
+          },
+          {
+            "Name": "India",
+            "Url": "https://timesofindia.indiatimes.com/rssfeeds/-2128936835.cms",
+            "Category": "National",
+            "Language": "en",
+            "Enabled": true
+          },
+          {
+            "Name": "World",
+            "Url": "https://timesofindia.indiatimes.com/rssfeeds/296589292.cms",
+            "Category": "World",
+            "Language": "en",
+            "Enabled": true
+          },
+          {
+            "Name": "Business",
+            "Url": "https://timesofindia.indiatimes.com/rssfeeds/1898055.cms",
+            "Category": "Business",
+            "Language": "en",
+            "Enabled": true
+          },
+          {
+            "Name": "Sports",
+            "Url": "https://timesofindia.indiatimes.com/rssfeeds/4719148.cms",
+            "Category": "Sports",
+            "Language": "en",
+            "Enabled": true
+          },
+          {
+            "Name": "Cricket",
+            "Url": "https://timesofindia.indiatimes.com/rssfeeds/54829575.cms",
+            "Category": "Sports",
+            "Language": "en",
+            "Enabled": true
+          },
+          {
+            "Name": "Entertainment",
+            "Url": "https://timesofindia.indiatimes.com/rssfeeds/1081479906.cms",
+            "Category": "Entertainment",
+            "Language": "en",
+            "Enabled": true
+          },
+          {
+            "Name": "Technology",
+            "Url": "https://timesofindia.indiatimes.com/rssfeeds/66949542.cms",
+            "Category": "Technology",
+            "Language": "en",
+            "Enabled": true
+          },
+          {
+            "Name": "Elections",
+            "Url": "https://timesofindia.indiatimes.com/rssfeeds/913168846.cms",
+            "Category": "Politics",
+            "Language": "en",
+            "Enabled": true
+          }
+        ]
+      },
+      {
+        "Name": "NavbharatTimes",
+        "Enabled": true,
+        "Cron": "*/5 * * * *",
+        "SaveRawResponses": true,
+        "Feeds": [
+          {
+            "Name": "Home",
+            "Url": "https://navbharattimes.indiatimes.com/langapi/sitemap/gstandrssfeed/1217647547.xml",
+            "Category": "General",
+            "Language": "hi",
+            "Enabled": true
+          }
+        ]
+      },
+      {
+        "Name": "HindustanTimes",
+        "Enabled": true,
+        "Cron": "*/5 * * * *",
+        "SaveRawResponses": true,
+        "Feeds": [
+          {
+            "Name": "India",
+            "Url": "https://www.hindustantimes.com/feeds/rss/india-news/rssfeed.xml",
+            "Category": "National",
+            "Language": "en",
+            "Enabled": true
+          },
+          {
+            "Name": "World",
+            "Url": "https://www.hindustantimes.com/feeds/rss/world-news/rssfeed.xml",
+            "Category": "World",
+            "Language": "en",
+            "Enabled": true
+          },
+          {
+            "Name": "Business",
+            "Url": "https://www.hindustantimes.com/feeds/rss/business/rssfeed.xml",
+            "Category": "Business",
+            "Language": "en",
+            "Enabled": true
+          },
+          {
+            "Name": "Sports",
+            "Url": "https://www.hindustantimes.com/feeds/rss/sports/rssfeed.xml",
+            "Category": "Sports",
+            "Language": "en",
+            "Enabled": true
+          },
+          {
+            "Name": "Cricket",
+            "Url": "https://www.hindustantimes.com/feeds/rss/cricket/rssfeed.xml",
+            "Category": "Sports",
+            "Language": "en",
+            "Enabled": true
+          },
+          {
+            "Name": "Entertainment",
+            "Url": "https://www.hindustantimes.com/feeds/rss/entertainment/rssfeed.xml",
+            "Category": "Entertainment",
+            "Language": "en",
+            "Enabled": true
+          }
+        ]
+      },
+      {
+        "Name": "ThePrint",
+        "Enabled": true,
+        "Cron": "*/5 * * * *",
+        "SaveRawResponses": true,
+        "Feeds": [
+          {
+            "Name": "India",
+            "Url": "https://theprint.in/category/india/feed/",
+            "Category": "National",
+            "Language": "en",
+            "Enabled": true
+          },
+          {
+            "Name": "Politics",
+            "Url": "https://theprint.in/category/politics/feed/",
+            "Category": "Politics",
+            "Language": "en",
+            "Enabled": true
+          },
+          {
+            "Name": "World",
+            "Url": "https://theprint.in/category/world/feed/",
+            "Category": "World",
+            "Language": "en",
+            "Enabled": true
+          },
+          {
+            "Name": "Economy",
+            "Url": "https://theprint.in/category/economy/feed/",
+            "Category": "Business",
+            "Language": "en",
+            "Enabled": true
+          }
+        ]
+      },
+      {
+        "Name": "ScrollIn",
+        "Enabled": true,
+        "Cron": "*/5 * * * *",
+        "SaveRawResponses": true,
+        "Feeds": [
+          {
+            "Name": "Articles",
+            "Url": "https://feeds.feedburner.com/ScrollinArticles.rss",
+            "Category": "General",
+            "Language": "en",
+            "Enabled": true
+          }
+        ]
+      },
+      {
+        "Name": "Mint",
+        "Enabled": true,
+        "Cron": "*/5 * * * *",
+        "SaveRawResponses": true,
+        "Feeds": [
+          {
+            "Name": "News",
+            "Url": "https://www.livemint.com/rss/news",
+            "Category": "General",
+            "Language": "en",
+            "Enabled": true
+          },
+          {
+            "Name": "Politics",
+            "Url": "https://www.livemint.com/rss/politics",
+            "Category": "Politics",
+            "Language": "en",
+            "Enabled": true
+          },
+          {
+            "Name": "Money",
+            "Url": "https://www.livemint.com/rss/money",
+            "Category": "Business",
+            "Language": "en",
+            "Enabled": true
+          },
+          {
+            "Name": "Companies",
+            "Url": "https://www.livemint.com/rss/companies",
+            "Category": "Business",
+            "Language": "en",
+            "Enabled": true
+          },
+          {
+            "Name": "Markets",
+            "Url": "https://www.livemint.com/rss/markets",
+            "Category": "Business",
+            "Language": "en",
+            "Enabled": true
+          },
+          {
+            "Name": "Opinion",
+            "Url": "https://www.livemint.com/rss/opinion",
+            "Category": "Opinion",
+            "Language": "en",
+            "Enabled": true
+          }
+        ]
+      },
+      {
+        "Name": "DeccanHerald",
+        "Enabled": true,
+        "Cron": "*/5 * * * *",
+        "SaveRawResponses": true,
+        "Feeds": [
+          {
+            "Name": "Home",
+            "Url": "https://www.deccanherald.com/feed",
+            "Category": "General",
+            "Language": "en",
+            "Enabled": true
+          }
+        ]
+      },
+      {
+        "Name": "NewIndianExpress",
+        "Enabled": true,
+        "Cron": "*/5 * * * *",
+        "SaveRawResponses": true,
+        "Feeds": [
+          {
+            "Name": "Home",
+            "Url": "https://www.newindianexpress.com/feed",
+            "Category": "General",
+            "Language": "en",
+            "Enabled": true
+          }
+        ]
+      },
+      {
+        "Name": "AmarUjala",
+        "Enabled": true,
+        "Cron": "*/5 * * * *",
+        "SaveRawResponses": true,
+        "Feeds": [
+          {
+            "Name": "National",
+            "Url": "https://www.amarujala.com/rss/national.xml",
+            "Category": "National",
+            "Language": "hi",
+            "Enabled": true
+          },
+          {
+            "Name": "World",
+            "Url": "https://www.amarujala.com/rss/world.xml",
+            "Category": "World",
+            "Language": "hi",
+            "Enabled": true
+          },
+          {
+            "Name": "Business",
+            "Url": "https://www.amarujala.com/rss/business.xml",
+            "Category": "Business",
+            "Language": "hi",
+            "Enabled": true
+          },
+          {
+            "Name": "Cricket",
+            "Url": "https://www.amarujala.com/rss/cricket.xml",
+            "Category": "Sports",
+            "Language": "hi",
+            "Enabled": true
+          },
+          {
+            "Name": "Entertainment",
+            "Url": "https://www.amarujala.com/rss/entertainment.xml",
+            "Category": "Entertainment",
+            "Language": "hi",
+            "Enabled": true
+          },
+          {
+            "Name": "UttarPradesh",
+            "Url": "https://www.amarujala.com/rss/uttar-pradesh.xml",
+            "Category": "Uttar Pradesh",
+            "Language": "hi",
+            "Enabled": true
+          },
+          {
+            "Name": "Bihar",
+            "Url": "https://www.amarujala.com/rss/bihar.xml",
+            "Category": "Bihar",
+            "Language": "hi",
+            "Enabled": true
+          },
+          {
+            "Name": "BreakingNews",
+            "Url": "https://www.amarujala.com/rss/breaking-news.xml",
+            "Category": "Breaking",
+            "Language": "hi",
+            "Enabled": true
+          }
+        ]
+      },
+      {
+        "Name": "DainikBhaskar",
+        "Enabled": true,
+        "Cron": "*/5 * * * *",
+        "SaveRawResponses": true,
+        "Feeds": [
+          {
+            "Name": "Business",
+            "Url": "https://www.bhaskar.com/rss-v1--category-1051.xml",
+            "Category": "Business",
+            "Language": "hi",
+            "Enabled": true
+          },
+          {
+            "Name": "Sports",
+            "Url": "https://www.bhaskar.com/rss-v1--category-1053.xml",
+            "Category": "Sports",
+            "Language": "hi",
+            "Enabled": true
+          },
+          {
+            "Name": "India",
+            "Url": "https://www.bhaskar.com/rss-v1--category-1061.xml",
+            "Category": "National",
+            "Language": "hi",
+            "Enabled": true
+          },
+          {
+            "Name": "World",
+            "Url": "https://www.bhaskar.com/rss-v1--category-1125.xml",
+            "Category": "World",
+            "Language": "hi",
+            "Enabled": true
+          },
+          {
+            "Name": "Opinion",
+            "Url": "https://www.bhaskar.com/rss-v1--category-1944.xml",
+            "Category": "Opinion",
+            "Language": "hi",
+            "Enabled": true
+          },
+          {
+            "Name": "Bollywood",
+            "Url": "https://www.bhaskar.com/rss-v1--category-3998.xml",
+            "Category": "Entertainment",
+            "Language": "hi",
+            "Enabled": true
+          },
+          {
+            "Name": "TechAuto",
+            "Url": "https://www.bhaskar.com/rss-v1--category-5707.xml",
+            "Category": "Technology",
+            "Language": "hi",
+            "Enabled": true
+          },
+          {
+            "Name": "UttarPradesh",
+            "Url": "https://www.bhaskar.com/rss-v1--category-2052.xml",
+            "Category": "Uttar Pradesh",
+            "Language": "hi",
+            "Enabled": true
+          },
+          {
+            "Name": "Bihar",
+            "Url": "https://www.bhaskar.com/rss-v1--category-3679.xml",
+            "Category": "Bihar",
+            "Language": "hi",
+            "Enabled": true
+          },
+          {
+            "Name": "Delhi",
+            "Url": "https://www.bhaskar.com/rss-v1--category-7140.xml",
+            "Category": "Delhi",
+            "Language": "hi",
+            "Enabled": true
+          }
+        ]
+      },
+      {
+        "Name": "LiveHindustan",
+        "Enabled": true,
+        "Cron": "*/5 * * * *",
+        "SaveRawResponses": true,
+        "Feeds": [
+          {
+            "Name": "National",
+            "Url": "https://api.livehindustan.com/feeds/rss/national/rssfeed.xml",
+            "Category": "National",
+            "Language": "hi",
+            "Enabled": true
+          },
+          {
+            "Name": "International",
+            "Url": "https://api.livehindustan.com/feeds/rss/international/rssfeed.xml",
+            "Category": "World",
+            "Language": "hi",
+            "Enabled": true
+          },
+          {
+            "Name": "Business",
+            "Url": "https://api.livehindustan.com/feeds/rss/business/rssfeed.xml",
+            "Category": "Business",
+            "Language": "hi",
+            "Enabled": true
+          },
+          {
+            "Name": "Cricket",
+            "Url": "https://api.livehindustan.com/feeds/rss/cricket/rssfeed.xml",
+            "Category": "Sports",
+            "Language": "hi",
+            "Enabled": true
+          },
+          {
+            "Name": "Sports",
+            "Url": "https://api.livehindustan.com/feeds/rss/sports/rssfeed.xml",
+            "Category": "Sports",
+            "Language": "hi",
+            "Enabled": true
+          },
+          {
+            "Name": "Entertainment",
+            "Url": "https://api.livehindustan.com/feeds/rss/entertainment/rssfeed.xml",
+            "Category": "Entertainment",
+            "Language": "hi",
+            "Enabled": true
+          },
+          {
+            "Name": "AssemblyElections",
+            "Url": "https://api.livehindustan.com/feeds/rss/assembly-elections/rssfeed.xml",
+            "Category": "Politics",
+            "Language": "hi",
+            "Enabled": true
+          },
+          {
+            "Name": "UttarPradesh",
+            "Url": "https://api.livehindustan.com/feeds/rss/uttar-pradesh/rssfeed.xml",
+            "Category": "Uttar Pradesh",
+            "Language": "hi",
+            "Enabled": true
+          },
+          {
+            "Name": "Bihar",
+            "Url": "https://api.livehindustan.com/feeds/rss/bihar/rssfeed.xml",
+            "Category": "Bihar",
+            "Language": "hi",
+            "Enabled": true
+          }
+        ]
+      },
+      {
+        "Name": "TheWeek",
+        "Enabled": true,
+        "Cron": "*/5 * * * *",
+        "SaveRawResponses": true,
+        "Feeds": [
+          {
+            "Name": "India",
+            "Url": "https://www.theweek.in/news/india.rss",
+            "Category": "National",
+            "Language": "en",
+            "Enabled": true
+          },
+          {
+            "Name": "World",
+            "Url": "https://www.theweek.in/news/world.rss",
+            "Category": "World",
+            "Language": "en",
+            "Enabled": true
+          },
+          {
+            "Name": "BizTech",
+            "Url": "https://www.theweek.in/news/biz-tech.rss",
+            "Category": "Business",
+            "Language": "en",
+            "Enabled": true
+          },
+          {
+            "Name": "SciTech",
+            "Url": "https://www.theweek.in/news/sci-tech.rss",
+            "Category": "Technology",
+            "Language": "en",
+            "Enabled": true
+          },
+          {
+            "Name": "Sports",
+            "Url": "https://www.theweek.in/news/sports.rss",
+            "Category": "Sports",
+            "Language": "en",
+            "Enabled": true
+          },
+          {
+            "Name": "Entertainment",
+            "Url": "https://www.theweek.in/news/entertainment.rss",
+            "Category": "Entertainment",
+            "Language": "en",
+            "Enabled": true
+          },
+          {
+            "Name": "TheWeek",
+            "Url": "https://www.theweek.in/theweek.rss",
+            "Category": "Latest",
+            "Language": "en",
+            "Enabled": false
+          }
+        ]
+      },
+      {
+        "Name": "IndiaToday",
+        "Enabled": true,
+        "Cron": "*/5 * * * *",
+        "SaveRawResponses": true,
+        "Feeds": [
+          {
+            "Name": "India",
+            "Url": "https://www.indiatoday.in/rss/1206578",
+            "Category": "National",
+            "Language": "en",
+            "Enabled": true
+          },
+          {
+            "Name": "Nation",
+            "Url": "https://www.indiatoday.in/rss/1206514",
+            "Category": "National",
+            "Language": "en",
+            "Enabled": true
+          },
+          {
+            "Name": "World",
+            "Url": "https://www.indiatoday.in/rss/1206577",
+            "Category": "World",
+            "Language": "en",
+            "Enabled": true
+          },
+          {
+            "Name": "States",
+            "Url": "https://www.indiatoday.in/rss/1206500",
+            "Category": "National",
+            "Language": "en",
+            "Enabled": true
+          },
+          {
+            "Name": "Economy",
+            "Url": "https://www.indiatoday.in/rss/1206513",
+            "Category": "Business",
+            "Language": "en",
+            "Enabled": true
+          },
+          {
+            "Name": "Sport",
+            "Url": "https://www.indiatoday.in/rss/1206550",
+            "Category": "Sports",
+            "Language": "en",
+            "Enabled": true
+          },
+          {
+            "Name": "CoverStory",
+            "Url": "https://www.indiatoday.in/rss/1206509",
+            "Category": "National",
+            "Language": "en",
+            "Enabled": true
+          },
+          {
+            "Name": "TheBigStory",
+            "Url": "https://www.indiatoday.in/rss/1206614",
+            "Category": "National",
+            "Language": "en",
+            "Enabled": true
+          },
+          {
+            "Name": "Home",
+            "Url": "https://www.indiatoday.in/rss/home",
+            "Category": "Latest",
+            "Language": "en",
+            "Enabled": false
+          }
+        ]
+      },
+      {
+        "Name": "DeccanChronicle",
+        "Enabled": true,
+        "Cron": "*/5 * * * *",
+        "SaveRawResponses": true,
+        "Feeds": [
+          {
+            "Name": "Home",
+            "Url": "https://www.deccanchronicle.com/feed",
+            "Category": "General",
+            "Language": "en",
+            "Enabled": true
+          }
+        ]
+      },
+      {
+        "Name": "OneIndia",
+        "Enabled": true,
+        "Cron": "*/5 * * * *",
+        "SaveRawResponses": true,
+        "Feeds": [
+          {
+            "Name": "India",
+            "Url": "https://www.oneindia.com/rss/feeds/news-india-fb.xml",
+            "Category": "National",
+            "Language": "en",
+            "Enabled": true
+          },
+          {
+            "Name": "World",
+            "Url": "https://www.oneindia.com/rss/feeds/news-international-fb.xml",
+            "Category": "World",
+            "Language": "en",
+            "Enabled": true
+          },
+          {
+            "Name": "Business",
+            "Url": "https://www.oneindia.com/rss/feeds/news-business-fb.xml",
+            "Category": "Business",
+            "Language": "en",
+            "Enabled": true
+          },
+          {
+            "Name": "Sports",
+            "Url": "https://www.oneindia.com/rss/feeds/news-sports-fb.xml",
+            "Category": "Sports",
+            "Language": "en",
+            "Enabled": true
+          },
+          {
+            "Name": "Entertainment",
+            "Url": "https://www.oneindia.com/rss/feeds/news-entertainment-fb.xml",
+            "Category": "Entertainment",
+            "Language": "en",
+            "Enabled": true
+          },
+          {
+            "Name": "Home",
+            "Url": "https://www.oneindia.com/rss/feeds/oneindia-fb.xml",
+            "Category": "Latest",
+            "Language": "en",
+            "Enabled": false
+          }
+        ]
+      },
+      {
+        "Name": "NewsX",
+        "Enabled": true,
+        "Cron": "*/5 * * * *",
+        "SaveRawResponses": true,
+        "Feeds": [
+          {
+            "Name": "Home",
+            "Url": "https://www.newsx.com/feed",
+            "Category": "General",
+            "Language": "en",
+            "Enabled": true
+          },
+          {
+            "Name": "India",
+            "Url": "https://www.newsx.com/category/india/feed",
+            "Category": "National",
+            "Language": "en",
+            "Enabled": true
+          },
+          {
+            "Name": "World",
+            "Url": "https://www.newsx.com/category/world/feed",
+            "Category": "World",
+            "Language": "en",
+            "Enabled": true
+          },
+          {
+            "Name": "Business",
+            "Url": "https://www.newsx.com/category/business/feed",
+            "Category": "Business",
+            "Language": "en",
+            "Enabled": true
+          },
+          {
+            "Name": "Sports",
+            "Url": "https://www.newsx.com/category/sports/feed",
+            "Category": "Sports",
+            "Language": "en",
+            "Enabled": true
+          },
+          {
+            "Name": "Entertainment",
+            "Url": "https://www.newsx.com/category/entertainment/feed",
+            "Category": "Entertainment",
+            "Language": "en",
+            "Enabled": true
+          }
+        ]
+      },
+      {
+        "Name": "DnaIndia",
+        "Enabled": true,
+        "Cron": "*/5 * * * *",
+        "SaveRawResponses": true,
+        "Feeds": [
+          {
+            "Name": "India",
+            "Url": "https://www.dnaindia.com/feeds/india.xml",
+            "Category": "National",
+            "Language": "en",
+            "Enabled": true
+          },
+          {
+            "Name": "World",
+            "Url": "https://www.dnaindia.com/feeds/world.xml",
+            "Category": "World",
+            "Language": "en",
+            "Enabled": true
+          },
+          {
+            "Name": "Business",
+            "Url": "https://www.dnaindia.com/feeds/business.xml",
+            "Category": "Business",
+            "Language": "en",
+            "Enabled": true
+          },
+          {
+            "Name": "Sports",
+            "Url": "https://www.dnaindia.com/feeds/sports.xml",
+            "Category": "Sports",
+            "Language": "en",
+            "Enabled": true
+          },
+          {
+            "Name": "Entertainment",
+            "Url": "https://www.dnaindia.com/feeds/entertainment.xml",
+            "Category": "Entertainment",
+            "Language": "en",
+            "Enabled": true
+          },
+          {
+            "Name": "Technology",
+            "Url": "https://www.dnaindia.com/feeds/technology.xml",
+            "Category": "Technology",
+            "Language": "en",
+            "Enabled": true
+          },
+          {
+            "Name": "Delhi",
+            "Url": "https://www.dnaindia.com/feeds/delhi.xml",
+            "Category": "National",
             "Language": "en",
             "Enabled": true
           }

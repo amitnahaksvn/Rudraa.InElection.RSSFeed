@@ -1,6 +1,6 @@
 using Microsoft.Extensions.Logging.Abstractions;
-using PoliticalNews.Application.Options;
-using PoliticalNews.Infrastructure.RssProviders;
+using Application.Options;
+using Infrastructure.RssProviders;
 using PoliticalNews.Tests.TestSupport;
 
 namespace PoliticalNews.Tests.Infrastructure;

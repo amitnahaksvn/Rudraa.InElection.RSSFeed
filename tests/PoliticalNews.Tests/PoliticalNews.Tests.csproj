@@ -20,9 +20,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\PoliticalNews.Application\PoliticalNews.Application.csproj" />
-    <ProjectReference Include="..\..\src\PoliticalNews.Domain\PoliticalNews.Domain.csproj" />
-    <ProjectReference Include="..\..\src\PoliticalNews.Infrastructure\PoliticalNews.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\src\Application\Application.csproj" />
+    <ProjectReference Include="..\..\src\Domain\Domain.csproj" />
+    <ProjectReference Include="..\..\src\Infrastructure\Infrastructure.csproj" />
   </ItemGroup>
 
 </Project>

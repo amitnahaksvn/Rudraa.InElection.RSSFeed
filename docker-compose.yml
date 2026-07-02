@@ -13,7 +13,7 @@ services:
       context: .
       dockerfile: Dockerfile
       args:
-        PROJECT: PoliticalNews.Worker
+        PROJECT: Worker
     container_name: politicalnews-worker
     restart: unless-stopped
     depends_on:
@@ -31,7 +31,7 @@ services:
       context: .
       dockerfile: Dockerfile
       args:
-        PROJECT: PoliticalNews.Web
+        PROJECT: Web
     container_name: politicalnews-web
     restart: unless-stopped
     depends_on:

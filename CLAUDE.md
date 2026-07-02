@@ -15,14 +15,14 @@ dotnet test tests/PoliticalNews.Tests/PoliticalNews.Tests.csproj
 dotnet test tests/PoliticalNews.Tests/PoliticalNews.Tests.csproj --filter "FullyQualifiedName~NewsCrawlerOrchestratorTests.RunCrawlAsync_FeedFailure_RecordsCompletedWithErrorsAndFailedFeedName"
 
 # Run the crawler (scheduled background service, no HTTP surface)
-dotnet run --project src/PoliticalNews.Worker
+dotnet run --project src/Worker
 
 # Run the read/query API standalone (Minimal API endpoints dispatch through Mediator)
-dotnet run --project src/PoliticalNews.Web
+dotnet run --project src/Web
 
 # Run everything together via the Aspire AppHost (local Mongo container + Web + Worker,
 # with the Aspire dashboard for logs/traces/metrics) - requires Docker running
-dotnet run --project src/PoliticalNews.AppHost
+dotnet run --project src/AppHost
 
 # Or without Aspire/Docker at all
 docker compose up --build
@@ -31,11 +31,11 @@ docker compose up --build
 Real credentials (e.g. an Atlas connection string) belong in user-secrets, never in
 `appsettings.json`:
 ```bash
-dotnet user-secrets set "MongoDb:ConnectionString" "mongodb+srv://..." --project src/PoliticalNews.Worker
-dotnet user-secrets set "MongoDb:DatabaseName" "SomeDbName" --project src/PoliticalNews.Worker
-# repeat --project src/PoliticalNews.Web if running Web standalone (outside the AppHost)
-# for the AppHost itself: dotnet user-secrets set "ConnectionStrings:mongodb" "mongodb+srv://..." --project src/PoliticalNews.AppHost
-#                          dotnet user-secrets set "UseLocalMongo" "false" --project src/PoliticalNews.AppHost
+dotnet user-secrets set "MongoDb:ConnectionString" "mongodb+srv://..." --project src/Worker
+dotnet user-secrets set "MongoDb:DatabaseName" "SomeDbName" --project src/Worker
+# repeat --project src/Web if running Web standalone (outside the AppHost)
+# for the AppHost itself: dotnet user-secrets set "ConnectionStrings:mongodb" "mongodb+srv://..." --project src/AppHost
+#                          dotnet user-secrets set "UseLocalMongo" "false" --project src/AppHost
 ```
 MongoDB database names cannot contain `.` (or `/ \ " $ * < > : | ?` / spaces) - this rejects a
 name copy-pasted straight from a domain-style string like `Foo.Bar`.
@@ -47,8 +47,8 @@ Clean Architecture, dependency direction is strictly inward:
 (not even on MongoDB.Driver - entities are plain POCOs); Mongo BSON class maps are registered
 centrally in `Infrastructure/Mongo/MongoClassMapConfigurator.cs`, not via attributes on entities.
 
-**Two composition roots, one crawl engine.** `PoliticalNews.Worker` (a plain `BackgroundService`
-console host, no HTTP) runs the cron schedule; `PoliticalNews.Web` exposes read endpoints plus a
+**Two composition roots, one crawl engine.** `Worker` (a plain `BackgroundService`
+console host, no HTTP) runs the cron schedule; `Web` exposes read endpoints plus a
 manual trigger. Both ultimately call the same `INewsCrawlerService.RunCrawlAsync` implementation
 (`NewsCrawlerOrchestrator` in `Application/Services`), which internally acquires a Mongo-backed
 distributed lock (`ICrawlLockRepository`) **per provider** (`"{LockName}:{Provider}"`, e.g.
@@ -144,7 +144,7 @@ references Hangfire types directly:**
 
 **`NewsCrawler:*` config lives in one shared file, not duplicated per project:**
 `src/NewsCrawler.appsettings.json` (providers/feeds/schedules) is linked into both
-`PoliticalNews.Worker.csproj` and `PoliticalNews.Web.csproj` via a `Content Include="..\NewsCrawler.appsettings.json"`
+`Worker.csproj` and `Web.csproj` via a `Content Include="..\NewsCrawler.appsettings.json"`
 item and loaded in both `Program.cs` files via `AddJsonFile(Path.Combine(AppContext.BaseDirectory, ...))`
 - `AppContext.BaseDirectory`, not `ContentRootPath`, because `dotnet run` sets the latter to the
 project's source directory while a published/Docker deployment's is its own output folder, and
@@ -164,14 +164,14 @@ shared file, matching the same env-var-wins convention already used for `MongoDb
 **Configuration resolution for Mongo is dual-path by design:** `Infrastructure`'s
 `AddInfrastructure()` binds `MongoDb:ConnectionString` from `appsettings.json`/user-secrets, but
 `PostConfigure` overrides it with `ConnectionStrings:mongodb` when present. That second key is
-what the Aspire AppHost (`PoliticalNews.AppHost/AppHost.cs`) injects automatically via
+what the Aspire AppHost (`AppHost/AppHost.cs`) injects automatically via
 `WithReference(...)`, so the exact same `Infrastructure`/`Web`/`Worker` code runs unchanged
 whether launched through the AppHost, plain `dotnet run`, or docker-compose. `AddInfrastructure()`
 also registers `MongoIndexInitializerHostedService` (in `Infrastructure/Mongo`, shared by both
 hosts) - it runs on startup before either host starts serving, creating every collection/index
 automatically the first time either process connects to a brand-new database.
 
-**`PoliticalNews.ServiceDefaults`** (Aspire's shared-project convention) is referenced by both
+**`ServiceDefaults`** (Aspire's shared-project convention) is referenced by both
 `Web` and `Worker` and adds OpenTelemetry tracing/metrics/logging, default health checks, service
 discovery, and HTTP resilience via one `builder.AddServiceDefaults()` call. `Web` additionally
 calls `app.MapDefaultEndpoints()` to expose `/health` and `/alive` (Worker has no HTTP listener,
@@ -224,3 +224,107 @@ stripping the literal `GMT` and zero-padding single-digit offsets before re-pars
 carry **no image tags at all**, so every article image comes from the `og:image` HTML fallback -
 one extra HTTP request per new article, which is why the 191-item `latest-news.xml` aggregate feed
 is configured but `Enabled: false`.
+
+11 more providers (8 English, 3 Hindi - `Language: "hi"` for `NavbharatTimes`/`AmarUjala`/
+`DainikBhaskar`/`LiveHindustan`), same verify-every-URL-before-adding discipline, all using
+spec-cased `pubDate` so none needed `BaseRssProvider` changes: **TimesOfIndia**
+(`rssfeeds/{numericId}.cms` - a *different* numeric-id scheme from its sister paper
+`NavbharatTimes`, which uses `langapi/sitemap/gstandrssfeed/{id}.xml` and only had one publicly
+findable id). **HindustanTimes** (`feeds/rss/{section}/rssfeed.xml`; `topnews` returns 0 items and
+is excluded). **ThePrint** (WordPress `/category/{name}/feed/`; the bare `/feed/` itself returns 0
+items). **ScrollIn** (published entirely through FeedBurner - `feeds.feedburner.com/ScrollinArticles.rss`
+- discoverable only via the `<link rel="alternate">` tag on scroll.in's homepage, no working
+scroll.in URL of its own). **Mint** (`livemint.com/rss/{section}`, 35-item feeds). **DeccanHerald**
+and **NewIndianExpress** (each has exactly one working feed, the bare WordPress `/feed` - every
+section-specific guess 404s for both). **AmarUjala** (`rss/{slug}.xml`, hundreds of district-level
+feeds alongside the ~8 topical ones actually used). **DainikBhaskar**
+(`rss-v1--category-{numericId}.xml` - the id-to-category mapping isn't in the URL at all, so each
+candidate id's own `<title>` had to be fetched during discovery to identify it). **LiveHindustan**
+(served from a separate `api.livehindustan.com` subdomain, discoverable via livehindustan.com's own
+`/rss/` index page).
+
+**The Week** (`theweek.in`, English) uses a `{path}.rss` pattern under `/news/` (e.g.
+`news/india.rss`) discovered on a retry after it was initially misjudged as broken - the earlier
+`news.rss` guess was the sparse dead end, not the section-scoped feeds. 6 topical feeds are wired
+up (India, World, BizTech, SciTech, Sports, Entertainment) plus a 7th aggregate `theweek.rss`
+configured but `Enabled: false` (same "keep the narrow feeds, skip the noisy aggregate" pattern as
+ZeeNews's `latest-news.xml`). The Week needed a real `BaseRssProvider` parsing change, not just a
+new provider class: its `pubDate` is a Java `Date.toString()` string
+(`"Thu Jan 5 21:09:41 IST 2026"` - space-padded single-digit days, and `IST` instead of an
+offset) that neither of `ParsePublishDate`'s prior two tiers (plain parse, Zee's `GMT`-stripping
+path) could handle, so a third tier was added: strip a literal `IST` token to ` +05:30 ` and, if
+that alone doesn't parse, reorder the Java token sequence (`ddd MMM d HH:mm:ss zzz yyyy` ->
+`d MMM yyyy HH:mm:ss zzz`) via `JavaDateOrderRegex` before retrying - deliberately in the shared
+base rather than a Week-only override, since it's spec-tolerance for a known JVM string format,
+not something unique to this one publisher.
+
+**Six providers the user asked for could not be added - no working public RSS found, each
+verified blocked/broken rather than just guessed-and-gave-up:** **Firstpost** (its
+`commonfeeds/v1/eng/rss/*` API returns a JSON 400 "Invalid Property name" error, not XML; no
+alternative endpoint found). **Business Standard** (Akamai WAF returns "Access Denied" to every
+request pattern tried, including full browser headers - blocked at the network layer, not a
+UA/format issue). **The Wire** (every path, including the homepage itself, serves an identical
+9KB SPA-shell stub with `<meta http-equiv="refresh" content="999999">` - a bot-detection
+interstitial, not real content, from this environment). **Outlook India** (no RSS `<link>` tag or
+guessable URL pattern found). **Dainik Jagran** (robots.txt lists only XML sitemaps, no RSS; no
+`<link>` tag on the homepage). **Jansatta** (same - no discoverable feed). None of these are wired
+into `NewsCrawler.appsettings.json`; if a working feed URL turns up later, adding any of them is
+the same purely-additive pattern as every provider above.
+
+Five more English-language providers, each individually curl-verified (HTTP 200, well-formed
+`<rss>` body, correct `Content-Type`) before adding, none needing `BaseRssProvider` changes since
+all use spec-cased `pubDate`: **IndiaToday** (`indiatoday.in/rss/{numericId}` - a numeric-id scheme
+discovered via the site's own `/rss` index page, same shape as AajTak's; the id-to-category mapping
+came from that index page's link text, e.g. `1206578`→India, `1206514`→Nation; `TopStories`
+(`1206584`) returns 0 items and is excluded; the 131-item `Home` aggregate (`/rss/home`) is
+configured but `Enabled: false`, same "narrow feeds over noisy aggregate" pattern as ZeeNews/
+TheWeek; no image tags, relies on the `og:image` HTML fallback). **DeccanChronicle** (only the
+bare `/feed` works - every section-specific guess 404s, same situation as DeccanHerald/
+NewIndianExpress; 506 items on that one feed; images come from a non-standard bare `<image>` tag
+that `BaseRssProvider.ExtractImage` doesn't recognize, so these also fall through to the
+`og:image` fetch). **OneIndia** (`oneindia.com/rss/feeds/{slug}-fb.xml`, discovered via the site's
+own `/rss/` index page; its CDN returns 403 to crawler-style User-Agents while serving the same
+public feeds to browser UAs - the second provider after News18 registered with `BrowserUserAgent`
+in `InfrastructureServiceCollectionExtensions`; the 50-item `oneindia-fb` aggregate is configured
+but `Enabled: false`). **NewsX** (standard WordPress `/feed` and `/category/{name}/feed`;
+`politics` and `national-affairs` category slugs return 410 Gone and are excluded; no image tags,
+relies on `og:image` fallback). **DnaIndia** (`dnaindia.com/feeds/{slug}.xml`; `cricket`,
+`politics`, and `uttar-pradesh` slugs 404 and are excluded; uses standard `<enclosure>` for images).
+
+**Four more providers the user asked for could not be added, each verified blocked/broken:**
+**The Statesman** (Cloudflare bot-detection returns a "Just a moment..." interstitial with HTTP 403
+on every path, including with full browser headers - blocked at the network layer; the bare
+`/feed` and `/rss` paths, when reached, return WordPress's own `wp_die` "No feed available" error
+rather than real content, so even without the block there's nothing there). **The Pioneer**
+(`dailypioneer.com` is a Next.js SPA - every guessed RSS path either 404s or serves the SPA shell
+as `text/html`; no `<link rel="alternate" type="application/rss+xml">` tag on the homepage to
+discover a real endpoint from). **Patrika** (`patrika.com`'s `robots.txt` explicitly lists
+`Disallow: /patrika-rss/` - the RSS path is real and discoverable, but respecting `robots.txt`
+`Disallow` directives is a firm constraint in this codebase, the same reasoning Firstpost was
+excluded under earlier, so it was not fetched or wired in). **Punjab Kesari** (`punjabkesari.in`
+has no RSS `<link>` tag on its homepage and every guessed URL pattern 404s; `robots.txt` lists only
+sitemaps, no RSS hints). None of these four are wired into `NewsCrawler.appsettings.json`.
+
+**Raw-response retention is enforced by an active daily cleanup job, not just the passive Mongo
+TTL index.** `NewsCrawler:RawResponseRetention` (default `7.00:00:00`, 7 days) drives two
+independent mechanisms on the `RssRawResponses` collection: the TTL index
+(`ttl_rawresponse_createdat` on `CreatedAt`, set up in
+`RssRawResponseRepository.EnsureIndexesAsync`) and a Hangfire recurring job,
+`NewsCrawler:RawResponseCleanupCron` (default `"0 5 * * *"`, 5 AM `Asia/Kolkata` - hardcoded to
+IST since every provider/user of this app is India-focused, with a fallback to UTC only if the
+host's tzdata lacks that zone id rather than crashing Worker startup over it), registered as
+`cleanup-raw-responses` and executed through `HangfireRawResponseCleanupExecutor` ->
+`IRawResponseCleanupService.CleanupAsync` -> `IRssRawResponseRepository.DeleteOlderThanAsync`
+(same `PerformContext`-scoped-logging wrapper pattern as `HangfireCrawlJobExecutor`). The two
+mechanisms are redundant by design: Mongo's TTL background thread only guarantees eventual
+deletion "within 60 seconds" of expiry on its own schedule, not a specific wall-clock time, so the
+explicit 5 AM job gives a deterministic daily deletion point without removing the TTL index as a
+second, maintenance-free backstop. Because `RssRawResponseRepository.EnsureIndexesAsync` runs on
+every host startup and a TTL index's `expireAfterSeconds` cannot be changed via plain
+`createIndexes` once it already exists under that name (MongoDB rejects it outright as "an
+equivalent index already exists with the same name but different options" instead of updating it -
+unlike every other index option), that method detects a mismatch against the currently configured
+retention and drops + recreates just that one index rather than crashing
+`MongoIndexInitializerHostedService` (and therefore the whole host) the way it did when
+`RawResponseRetention` was first changed from its original 30-day default down to 7 days against
+an Atlas database that already had the old TTL value baked in.

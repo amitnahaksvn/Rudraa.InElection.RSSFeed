@@ -1,12 +1,12 @@
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 using Moq;
-using PoliticalNews.Application.Abstractions;
-using PoliticalNews.Application.Models;
-using PoliticalNews.Application.Options;
-using PoliticalNews.Application.Services;
-using PoliticalNews.Domain.Entities;
-using PoliticalNews.Domain.Enums;
+using Application.Abstractions;
+using Application.Models;
+using Application.Options;
+using Application.Services;
+using Domain.Entities;
+using Domain.Enums;
 
 namespace PoliticalNews.Tests.Application;
 
