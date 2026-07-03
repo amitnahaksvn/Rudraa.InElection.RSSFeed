@@ -14,6 +14,7 @@ using Application.Options;
 using Infrastructure.DependencyInjection;
 using Infrastructure.Scheduling;
 using Infrastructure.Seed;
+using Worker.Infrastructure;
 
 // `dotnet run --project src/Worker -- --init-db` creates every MongoDB
 // collection/index (see MongoIndexInitializerHostedService) and exits - a repeatable, idempotent
@@ -141,7 +142,7 @@ static void RegisterNewsCrawlerRecurringJobs(IServiceProvider services, ILogger 
             jobId,
             executor => executor.RunAsync(provider.Name, null!, CancellationToken.None),
             provider.Cron,
-            new RecurringJobOptions { TimeZone = TimeZoneInfo.Utc });
+            RecurringJobOptionsFactory.Create(TimeZoneInfo.Utc));
 
         logger.LogInformation(
             "Registered Hangfire recurring job '{JobId}' for provider '{Provider}' with cron '{Cron}'",
@@ -180,7 +181,7 @@ static void RegisterRawResponseCleanupRecurringJob(IServiceProvider services, IL
         HangfireJobIds.RawResponseCleanup,
         executor => executor.RunAsync(options.RawResponseRetention, null!, CancellationToken.None),
         options.RawResponseCleanupCron,
-        new RecurringJobOptions { TimeZone = timeZone });
+        RecurringJobOptionsFactory.Create(timeZone));
 
     logger.LogInformation(
         "Registered Hangfire recurring job '{JobId}' with cron '{Cron}' ({TimeZone}), retention {Retention}",
@@ -215,7 +216,7 @@ static async Task SeedAndRegisterDynamicFeedRecurringJobsAsync(IServiceProvider 
             jobId,
             executor => executor.RunAsync(feedSource.Id, null!, CancellationToken.None),
             cron,
-            new RecurringJobOptions { TimeZone = TimeZoneInfo.Utc });
+            RecurringJobOptionsFactory.Create(TimeZoneInfo.Utc));
 
         logger.LogInformation(
             "Registered Hangfire recurring job '{JobId}' for FeedSource '{SourceCode}' with cron '{Cron}'",
@@ -260,7 +261,7 @@ static void RegisterNewsApiRecurringJobs(IServiceProvider services, ILogger logg
             jobId,
             executor => executor.RunAsync(provider.Name, null!, CancellationToken.None),
             provider.Cron,
-            new RecurringJobOptions { TimeZone = TimeZoneInfo.Utc });
+            RecurringJobOptionsFactory.Create(TimeZoneInfo.Utc));
 
         // Run once immediately on startup, in addition to the normal Cron schedule from here on -
         // Trigger() enqueues the job now without altering its recurring schedule.
