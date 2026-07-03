@@ -1,15 +1,15 @@
 namespace Application.Options;
 
 /// <summary>
-/// Root configuration section ("Hangfire") controlling how Worker's Hangfire server itself is
-/// tuned - which queues it pulls jobs from and how many it processes concurrently. Only Worker
-/// reads this (it's the only host that calls <c>AddHangfireServer()</c>); Web's Hangfire
-/// registration is storage-only, for the dashboard.
+/// Root configuration section ("Hangfire") controlling how <c>Web</c>'s Hangfire server itself is
+/// tuned - which queues it pulls jobs from and how many it processes concurrently. Web is the only
+/// host that calls <c>AddHangfireServer()</c> - it owns both HTTP serving and job execution.
 ///
-/// This exists so a production deployment can run separate replica groups of the exact same
-/// Worker image, each scaled independently, by giving each group a different <see cref="Queues"/>
-/// value via environment variable (e.g. one group with <c>Hangfire__Queues__0=rss</c>, another
-/// with <c>Hangfire__Queues__0=api</c>) rather than needing a second service/codebase.
+/// This exists so a future deployment could split job processing into separate replica groups of
+/// the same image, each scaled independently, by giving each group a different
+/// <see cref="Queues"/> value via environment variable (e.g. one group with
+/// <c>Hangfire__Queues__0=rss</c>, another with <c>Hangfire__Queues__0=api</c>) - a lever kept
+/// available even though the current deployment runs everything as one free-tier-friendly process.
 /// </summary>
 public sealed class HangfireOptions
 {
@@ -20,7 +20,7 @@ public sealed class HangfireOptions
     /// crawl job is tagged <c>[Queue("rss")]</c> on <c>HangfireCrawlJobExecutor</c>, every JSON
     /// news-API fetch job <c>[Queue("api")]</c> on <c>HangfireNewsApiJobExecutor</c>; "default" is
     /// included so untagged jobs (e.g. the raw-response cleanup job) still run. All three are
-    /// listed by default so a single Worker instance processes everything out of the box; a
+    /// listed by default so a single instance processes everything out of the box; a
     /// deployment that wants RSS crawling and news-API fetching as independently scaled replica
     /// groups would set this to just <c>["rss"]</c> on one group and <c>["api"]</c> on another.
     /// </summary>

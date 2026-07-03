@@ -16,7 +16,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Web\Web.csproj" />
-    <ProjectReference Include="..\Worker\Worker.csproj" />
   </ItemGroup>
 
 </Project>

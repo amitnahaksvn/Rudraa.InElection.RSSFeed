@@ -4,7 +4,7 @@ namespace Application.Abstractions;
 
 /// <summary>
 /// Persistence for <see cref="FeedSource"/> documents - the Mongo-driven feed list read by
-/// <c>DynamicFeedIngestionService</c>/the Worker's startup recurring-job registration, as opposed
+/// <c>DynamicFeedIngestionService</c>/the startup recurring-job registration, as opposed
 /// to the file-based <c>NewsCrawler.appsettings.json</c> provider list.
 /// </summary>
 public interface IFeedSourceRepository

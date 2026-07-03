@@ -1,6 +1,6 @@
 using Hangfire;
 
-namespace Worker.Infrastructure;
+namespace Infrastructure.Scheduling;
 
 public static class RecurringJobOptionsFactory
 {

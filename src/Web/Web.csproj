@@ -8,8 +8,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <!-- Single source of truth for NewsCrawler:* (providers/feeds/schedules), shared with
-         Worker so both processes see identical feed config without duplicating it. -->
+    <!-- Single source of truth for NewsCrawler:* (providers/feeds/schedules) - lives at the src/
+         root rather than under Web/ so it stays a natural fit if a second host ever reads it again. -->
     <Content Include="..\NewsCrawler.appsettings.json" Link="NewsCrawler.appsettings.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>

@@ -8,9 +8,8 @@ namespace Infrastructure.Mongo;
 
 /// <summary>
 /// Ensures every Mongo index (and, implicitly, every collection) exists before the host starts
-/// serving requests/ticks. Registered by <c>AddInfrastructure</c> so both <c>Web</c>
-/// and <c>Worker</c> get it for free - whichever process runs first against a brand
-/// new database creates the required collections/indexes automatically.
+/// serving requests/ticks. Registered by <c>AddInfrastructure</c>, so it runs automatically
+/// against a brand new database, creating the required collections/indexes with no manual step.
 /// </summary>
 public sealed class MongoIndexInitializerHostedService : IHostedService
 {

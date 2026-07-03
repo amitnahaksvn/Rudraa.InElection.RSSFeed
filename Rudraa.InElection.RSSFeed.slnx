@@ -6,7 +6,6 @@
     <Project Path="src/Infrastructure/Infrastructure.csproj" />
     <Project Path="src/ServiceDefaults/ServiceDefaults.csproj" />
     <Project Path="src/Web/Web.csproj" />
-    <Project Path="src/Worker/Worker.csproj" />
   </Folder>
   <Folder Name="/tests/">
     <Project Path="tests/PoliticalNews.Tests/PoliticalNews.Tests.csproj" />

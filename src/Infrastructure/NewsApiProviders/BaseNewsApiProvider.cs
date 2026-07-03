@@ -57,11 +57,10 @@ public abstract class BaseNewsApiProvider : INewsApiProvider
         int? httpStatusCode = null;
         var url = BuildRequestUrl(options, endpoint, includeAuth: false);
 
-        // API keys are secrets - never checked into appsettings.json/NewsCrawler.appsettings.json,
-        // same convention as MongoDb:ConnectionString. Keyed by provider Name (not array index,
-        // which would silently break if Providers is ever reordered) under "NewsApiKeys" - set via
-        // e.g. `dotnet user-secrets set "NewsApiKeys:NewsApiOrg" "..." --project src/Worker`.
-        // AuthType.None (e.g. GDELT's public Doc API) skips this lookup entirely - there's nothing to set.
+        // Keyed by provider Name (not array index, which would silently break if Providers is
+        // ever reordered) under "NewsApiKeys" in appsettings.json (development-tier credentials,
+        // kept there by deliberate choice - see CLAUDE.md). AuthType.None (e.g. GDELT's public Doc
+        // API) skips this lookup entirely - there's nothing to set.
         var apiKey = options.AuthType == ApiAuthType.None ? null : _configuration[$"NewsApiKeys:{options.Name}"];
         if (options.AuthType != ApiAuthType.None && string.IsNullOrWhiteSpace(apiKey))
         {

@@ -1,7 +1,7 @@
 using Hangfire;
-using Worker.Infrastructure;
+using Infrastructure.Scheduling;
 
-namespace PoliticalNews.Tests.Application;
+namespace PoliticalNews.Tests.Infrastructure;
 
 public class RecurringJobOptionsFactoryTests
 {

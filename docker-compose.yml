@@ -8,30 +8,13 @@ services:
     volumes:
       - mongo-data:/data/db
 
-  worker:
-    build:
-      context: .
-      dockerfile: Dockerfile
-      args:
-        PROJECT: Worker
-    container_name: politicalnews-worker
-    restart: unless-stopped
-    depends_on:
-      - mongo
-    environment:
-      DOTNET_ENVIRONMENT: Production
-      # Points at the local `mongo` service above by default. To crawl straight into an
-      # existing cluster (e.g. MongoDB Atlas) instead, override these two and drop the
-      # `mongo` service/`depends_on` entry.
-      MongoDb__ConnectionString: "mongodb://mongo:27017"
-      MongoDb__DatabaseName: "PoliticalNewsDb"
-
+  # Web owns both the HTTP API and Hangfire job execution (RSS/API crawl schedules) - there is no
+  # separate worker service anymore, retired so this app fits a free-tier host with no paid
+  # background-worker service required.
   web:
     build:
       context: .
       dockerfile: Dockerfile
-      args:
-        PROJECT: Web
     container_name: politicalnews-web
     restart: unless-stopped
     depends_on:

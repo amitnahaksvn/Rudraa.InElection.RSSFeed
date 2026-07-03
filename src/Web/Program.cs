@@ -8,6 +8,7 @@ using Microsoft.Extensions.Configuration.Json;
 using Application.DependencyInjection;
 using Application.Options;
 using Infrastructure.DependencyInjection;
+using Infrastructure.Scheduling;
 using Web.Infrastructure;
 using Web.Options;
 using Scalar.AspNetCore;
@@ -19,15 +20,14 @@ var initDbOnly = args.Contains("--init-db", StringComparer.OrdinalIgnoreCase);
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Shared with Worker (see NewsCrawler.appsettings.json at the src/ root) so both
-// processes read the exact same provider/feed/schedule config from one file, not a duplicated copy.
-// Web needs this because POST /api/crawl/trigger runs a real crawl in-process, not just reads.
-// AppContext.BaseDirectory (not ContentRootPath, which `dotnet run` sets to the project source
-// directory) is what's consistent between `dotnet run` and a published/Docker deployment - the
-// .csproj's linked Content item copies the file there under both build and publish. Inserted
-// before the environment-variables source (rather than appended, which is CreateBuilder's default
-// for a source added afterwards) so NewsCrawler__* env vars - e.g. from an AWS/Azure secret
-// injected into the container's environment - can still override this file, not the reverse.
+// Single source of truth for NewsCrawler:* (providers/feeds/schedules) - see
+// NewsCrawler.appsettings.json at the src/ root. AppContext.BaseDirectory (not ContentRootPath,
+// which `dotnet run` sets to the project source directory) is what's consistent between
+// `dotnet run` and a published/Docker deployment - the .csproj's linked Content item copies the
+// file there under both build and publish. Inserted before the environment-variables source
+// (rather than appended, which is CreateBuilder's default for a source added afterwards) so
+// NewsCrawler__* env vars - e.g. from an AWS/Azure secret injected into the container's
+// environment - can still override this file, not the reverse.
 InsertNewsCrawlerConfigBeforeEnvironmentVariables(builder.Configuration);
 
 builder.AddServiceDefaults();
@@ -35,9 +35,6 @@ builder.AddServiceDefaults();
 builder.Services.AddApplication(builder.Configuration);
 builder.Services.AddInfrastructure(builder.Configuration);
 
-// Storage only, no AddHangfireServer() - job execution stays exclusively in Worker
-// (matching "Worker owns the cron schedule" elsewhere in this codebase); Web only needs to read
-// the same Hangfire Mongo collections to show the dashboard.
 var mongoConnectionString = InfrastructureServiceCollectionExtensions.ResolveMongoConnectionString(
     builder.Configuration, builder.Configuration[$"{MongoDbOptions.SectionName}:ConnectionString"] ?? new MongoDbOptions().ConnectionString);
 var mongoDatabaseName = builder.Configuration[$"{MongoDbOptions.SectionName}:DatabaseName"] ?? new MongoDbOptions().DatabaseName;
@@ -57,6 +54,25 @@ builder.Services.AddHangfire(config => config
             BackupStrategy = new CollectionMongoBackupStrategy()
         }
     }));
+
+if (!initDbOnly)
+{
+    // Web now owns both the HTTP API and Hangfire job execution - there is no separate Worker
+    // process anymore (retired so this app fits a free-tier host with no paid background-worker
+    // service required; see git history for the two-process version if that's ever needed again).
+    // Still configurable per deployment (env vars, e.g. Hangfire__Queues__0=api,
+    // Hangfire__WorkerCount=5) in case a future split back into replica groups is ever wanted.
+    var hangfireOptions = new HangfireOptions();
+    builder.Configuration.GetSection(HangfireOptions.SectionName).Bind(hangfireOptions);
+    builder.Services.AddHangfireServer(options =>
+    {
+        options.Queues = hangfireOptions.Queues;
+        if (hangfireOptions.WorkerCount is { } workerCount)
+        {
+            options.WorkerCount = workerCount;
+        }
+    });
+}
 
 if (initDbOnly)
 {
@@ -107,6 +123,16 @@ if (enableSwagger)
 }
 
 var app = builder.Build();
+
+// Registers/refreshes every Hangfire recurring job (RSS providers, JSON news-API providers,
+// Mongo-driven dynamic feeds, raw-response cleanup) against this process's own Hangfire server
+// registered above - re-synced on every startup, same idempotent AddOrUpdate behaviour this used
+// to have when it ran in the now-retired Worker process.
+var startupLogger = app.Services.GetRequiredService<ILogger<Program>>();
+HangfireRecurringJobRegistrar.RegisterNewsCrawlerRecurringJobs(app.Services, startupLogger);
+HangfireRecurringJobRegistrar.RegisterRawResponseCleanupRecurringJob(app.Services, startupLogger);
+await HangfireRecurringJobRegistrar.SeedAndRegisterDynamicFeedRecurringJobsAsync(app.Services, startupLogger);
+HangfireRecurringJobRegistrar.RegisterNewsApiRecurringJobs(app.Services, startupLogger);
 
 app.UseMiddleware<RequestLoggingMiddleware>();
 app.UseExceptionHandler();

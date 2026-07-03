@@ -42,7 +42,7 @@ public sealed class Crawl : IEndpointGroup
         "Enqueues one provider's own Hangfire recurring job to run now, ahead of its cron schedule, " +
         "without changing that schedule. Unlike POST /trigger this does not wait for the crawl to " +
         "finish - it only confirms the job was enqueued; actual execution happens wherever that " +
-        "job's Hangfire server is running (Worker), guarded by the same distributed lock.")]
+        "job's Hangfire server is running, guarded by the same distributed lock.")]
     public static async Task<Ok<ProviderJobTriggeredDto>> TriggerProvider(
         ISender sender, string provider, CancellationToken cancellationToken)
     {
@@ -57,7 +57,7 @@ public sealed class Crawl : IEndpointGroup
         "defaults to UTC if omitted). jobName must already be an enabled provider under " +
         "NewsCrawler:Providers - this schedules crawling that provider, not arbitrary code. This is a " +
         "live override: it takes effect immediately but does not persist to NewsCrawler.appsettings.json, " +
-        "so Worker's next restart re-syncs every provider's job back to whatever that file says.")]
+        "so this process's next restart re-syncs every provider's job back to whatever that file says.")]
     public static async Task<Ok<CrawlRecurringJobDto>> CreateOrUpdateJob(
         ISender sender, CreateOrUpdateRecurringJobCommand command, CancellationToken cancellationToken)
     {

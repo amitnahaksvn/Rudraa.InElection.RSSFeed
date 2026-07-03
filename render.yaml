@@ -1,34 +1,26 @@
-# Render Blueprint - declarative equivalent of the two manually-created dashboard services.
-# Deploy via Render Dashboard -> New -> Blueprint, pointing at this repo.
+# Render Blueprint. Deploy via Render Dashboard -> New -> Blueprint, pointing at this repo.
 #
-# Render's Blueprint spec has no field for passing --build-arg to a Dockerfile (confirmed against
-# https://render.com/schema/render.yaml.json - an earlier version of this file used a
-# `dockerBuildArgs` key that doesn't actually exist and Render rejected outright: "field
-# dockerBuildArgs not found in type file.Service"). So, unlike the single shared Dockerfile used
-# by `docker build --build-arg PROJECT=...` and docker-compose.yml, Render needs two separate
-# Dockerfiles: the root ./Dockerfile (ARG PROJECT=Worker default - unchanged, still what local
-# docker build/docker-compose use) for the worker service below, and ./Dockerfile.web (see its own
-# header comment) for the web service - each hardcodes which project it publishes so no build-arg
-# is ever needed.
+# Single service by design: Web now owns both the HTTP API and Hangfire job execution (every
+# RSS/JSON-API crawl schedule) - there is no separate Worker service anymore. That merge exists
+# specifically so this app fits Render's free tier: Background Workers require a paid plan with no
+# free option at all, while a free Web Service is available (with the platform's usual spin-down
+# after ~15 minutes of no inbound HTTP traffic - an external keep-alive ping, e.g. a free uptime
+# monitor hitting /health every ~10 minutes, is needed to keep Hangfire's in-process scheduler
+# actually firing on schedule; see git history/CLAUDE.md for the two-process paid-tier version if
+# reliability without a pinger ever matters more than cost).
 #
-# `Worker` has no HTTP surface by design (see CLAUDE.md: "a plain BackgroundService console host,
-# no HTTP") - it must be `type: worker` (Render's Background Worker), never `type: web`, or
-# Render's mandatory port scan for web services times out forever waiting for a port that will
-# never open.
-#
-# No secrets are declared here on purpose: both src/Web/appsettings.json and
-# src/Worker/appsettings.json carry a real MongoDb:ConnectionString, every NewsApiKeys:* value,
-# and Email:ApiKey baked directly into the committed file (these are development-tier
-# credentials, kept in appsettings.json by deliberate choice rather than user-secrets), so the
-# container works with zero Render environment variables configured, matching how it already
-# runs today.
+# No secrets are declared here on purpose: src/Web/appsettings.json carries a real
+# MongoDb:ConnectionString, every NewsApiKeys:* value, and Email:ApiKey baked directly into the
+# committed file (development-tier credentials, kept in appsettings.json by deliberate choice
+# rather than user-secrets), so the container works with zero Render environment variables
+# configured, matching how it already runs today.
 services:
   - type: web
     name: rudraa-inelection-rssfeed-web
     runtime: docker
-    dockerfilePath: ./Dockerfile.web
+    dockerfilePath: ./Dockerfile
     dockerContext: .
-    plan: starter
+    plan: free
     envVars:
       - key: DOTNET_ENVIRONMENT
         value: Production
@@ -38,13 +30,3 @@ services:
         value: http://+:8080
       - key: Api__EnableHangfireDashboard
         value: "false"
-
-  - type: worker
-    name: rudraa-inelection-rssfeed-worker
-    runtime: docker
-    dockerfilePath: ./Dockerfile
-    dockerContext: .
-    plan: starter
-    envVars:
-      - key: DOTNET_ENVIRONMENT
-        value: Production

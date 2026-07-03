@@ -8,7 +8,7 @@ namespace Infrastructure.Seed;
 /// <summary>
 /// Idempotent Phase 1 seed for the <see cref="FeedSource"/> collection - inserts the official PIB
 /// press-release feed if (and only if) a document with that <c>SourceCode</c> doesn't already
-/// exist, so re-running this on every Worker startup never creates duplicates. Every later feed
+/// exist, so re-running this on every startup never creates duplicates. Every later feed
 /// (AajTak, ABP, Google News, YouTube, ...) is added the same way this one was: a document insert,
 /// not a code change - this seeder exists solely to bootstrap the very first one.
 /// </summary>

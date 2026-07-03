@@ -9,7 +9,7 @@
     <!--
       Editable email branding/chrome (see the file's own header comment) - copied verbatim to
       Email/Templates/Layout.html next to the built DLL (and, via this ProjectReference, into
-      Worker's/Web's own output too) so it can be tweaked post-deploy without recompiling anything.
+      Web's own output too) so it can be tweaked post-deploy without recompiling anything.
     -->
     <Content Include="Email\Templates\Layout.html">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>

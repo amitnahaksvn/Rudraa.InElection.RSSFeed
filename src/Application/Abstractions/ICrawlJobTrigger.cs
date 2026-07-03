@@ -14,7 +14,7 @@ public interface ICrawlJobTrigger
     /// Registers (or updates, if it already exists) a provider's recurring crawl job. This is a
     /// live override of whatever <c>NewsCrawler.appsettings.json</c> currently has for that
     /// provider's <c>Cron</c> - it does not persist back to that file, so it only lasts until
-    /// <c>Worker</c> next restarts and re-registers every provider's job from config.
+    /// this process next restarts and re-registers every provider's job from config.
     /// </summary>
     /// <returns>The id of the recurring job that was created/updated.</returns>
     string CreateOrUpdate(string providerName, string cronExpression, string timeZoneId);

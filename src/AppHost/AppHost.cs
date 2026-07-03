@@ -18,15 +18,14 @@ var mongoConnectionString = useLocalMongo
 // it's the same address whether launched through the AppHost or standalone.
 const int webPort = 5096;
 
+// Web now owns both the HTTP API and Hangfire job execution - there is no separate Worker
+// resource anymore (retired so this app fits a free-tier host with no paid background-worker
+// service required).
 builder.AddProject<Projects.Web>("web")
     .WithReference(mongoConnectionString)
     .WaitFor(mongoConnectionString)
     .WithHttpEndpoint(port: webPort)
     .WithExternalHttpEndpoints();
-
-builder.AddProject<Projects.Worker>("worker")
-    .WithReference(mongoConnectionString)
-    .WaitFor(mongoConnectionString);
 
 var app = builder.Build();
 
