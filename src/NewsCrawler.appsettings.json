@@ -12,7 +12,7 @@
       {
         "Name": "AajTak",
         "Enabled": true,
-        "Cron": "*/5 * * * *",
+        "Cron": "0 5 * * *",
         "SaveRawResponses": true,
         "Feeds": [
           {
@@ -153,7 +153,7 @@
       {
         "Name": "ABPNews",
         "Enabled": true,
-        "Cron": "*/5 * * * *",
+        "Cron": "0 5 * * *",
         "SaveRawResponses": true,
         "Feeds": [
           {
@@ -539,7 +539,7 @@
       {
         "Name": "ZeeNews",
         "Enabled": true,
-        "Cron": "*/5 * * * *",
+        "Cron": "0 5 * * *",
         "SaveRawResponses": true,
         "Feeds": [
           {
@@ -624,7 +624,7 @@
       {
         "Name": "IndiaTV",
         "Enabled": true,
-        "Cron": "*/5 * * * *",
+        "Cron": "0 5 * * *",
         "SaveRawResponses": true,
         "Feeds": [
           {
@@ -681,7 +681,7 @@
       {
         "Name": "News18",
         "Enabled": true,
-        "Cron": "*/5 * * * *",
+        "Cron": "0 5 * * *",
         "SaveRawResponses": true,
         "Feeds": [
           {
@@ -773,7 +773,7 @@
       {
         "Name": "NDTV",
         "Enabled": true,
-        "Cron": "*/5 * * * *",
+        "Cron": "0 5 * * *",
         "SaveRawResponses": true,
         "Feeds": [
           {
@@ -830,7 +830,7 @@
       {
         "Name": "IndianExpress",
         "Enabled": true,
-        "Cron": "*/5 * * * *",
+        "Cron": "0 5 * * *",
         "SaveRawResponses": true,
         "Feeds": [
           {
@@ -908,7 +908,7 @@
       {
         "Name": "TheHindu",
         "Enabled": true,
-        "Cron": "*/5 * * * *",
+        "Cron": "0 5 * * *",
         "SaveRawResponses": true,
         "Feeds": [
           {
@@ -979,7 +979,7 @@
       {
         "Name": "TimesOfIndia",
         "Enabled": true,
-        "Cron": "*/5 * * * *",
+        "Cron": "0 5 * * *",
         "SaveRawResponses": true,
         "Feeds": [
           {
@@ -1050,7 +1050,7 @@
       {
         "Name": "NavbharatTimes",
         "Enabled": true,
-        "Cron": "*/5 * * * *",
+        "Cron": "0 5 * * *",
         "SaveRawResponses": true,
         "Feeds": [
           {
@@ -1065,7 +1065,7 @@
       {
         "Name": "HindustanTimes",
         "Enabled": true,
-        "Cron": "*/5 * * * *",
+        "Cron": "0 5 * * *",
         "SaveRawResponses": true,
         "Feeds": [
           {
@@ -1115,7 +1115,7 @@
       {
         "Name": "ThePrint",
         "Enabled": true,
-        "Cron": "*/5 * * * *",
+        "Cron": "0 5 * * *",
         "SaveRawResponses": true,
         "Feeds": [
           {
@@ -1151,7 +1151,7 @@
       {
         "Name": "ScrollIn",
         "Enabled": true,
-        "Cron": "*/5 * * * *",
+        "Cron": "0 5 * * *",
         "SaveRawResponses": true,
         "Feeds": [
           {
@@ -1166,7 +1166,7 @@
       {
         "Name": "Mint",
         "Enabled": true,
-        "Cron": "*/5 * * * *",
+        "Cron": "0 5 * * *",
         "SaveRawResponses": true,
         "Feeds": [
           {
@@ -1216,7 +1216,7 @@
       {
         "Name": "DeccanHerald",
         "Enabled": true,
-        "Cron": "*/5 * * * *",
+        "Cron": "0 5 * * *",
         "SaveRawResponses": true,
         "Feeds": [
           {
@@ -1231,7 +1231,7 @@
       {
         "Name": "NewIndianExpress",
         "Enabled": true,
-        "Cron": "*/5 * * * *",
+        "Cron": "0 5 * * *",
         "SaveRawResponses": true,
         "Feeds": [
           {
@@ -1246,7 +1246,7 @@
       {
         "Name": "AmarUjala",
         "Enabled": true,
-        "Cron": "*/5 * * * *",
+        "Cron": "0 5 * * *",
         "SaveRawResponses": true,
         "Feeds": [
           {
@@ -1310,7 +1310,7 @@
       {
         "Name": "DainikBhaskar",
         "Enabled": true,
-        "Cron": "*/5 * * * *",
+        "Cron": "0 5 * * *",
         "SaveRawResponses": true,
         "Feeds": [
           {
@@ -1388,7 +1388,7 @@
       {
         "Name": "LiveHindustan",
         "Enabled": true,
-        "Cron": "*/5 * * * *",
+        "Cron": "0 5 * * *",
         "SaveRawResponses": true,
         "Feeds": [
           {
@@ -1459,7 +1459,7 @@
       {
         "Name": "TheWeek",
         "Enabled": true,
-        "Cron": "*/5 * * * *",
+        "Cron": "0 5 * * *",
         "SaveRawResponses": true,
         "Feeds": [
           {
@@ -1516,7 +1516,7 @@
       {
         "Name": "IndiaToday",
         "Enabled": true,
-        "Cron": "*/5 * * * *",
+        "Cron": "0 5 * * *",
         "SaveRawResponses": true,
         "Feeds": [
           {
@@ -1587,7 +1587,7 @@
       {
         "Name": "DeccanChronicle",
         "Enabled": true,
-        "Cron": "*/5 * * * *",
+        "Cron": "0 5 * * *",
         "SaveRawResponses": true,
         "Feeds": [
           {
@@ -1602,7 +1602,7 @@
       {
         "Name": "OneIndia",
         "Enabled": true,
-        "Cron": "*/5 * * * *",
+        "Cron": "0 5 * * *",
         "SaveRawResponses": true,
         "Feeds": [
           {
@@ -1652,7 +1652,7 @@
       {
         "Name": "NewsX",
         "Enabled": true,
-        "Cron": "*/5 * * * *",
+        "Cron": "0 5 * * *",
         "SaveRawResponses": true,
         "Feeds": [
           {
@@ -1702,7 +1702,7 @@
       {
         "Name": "DnaIndia",
         "Enabled": true,
-        "Cron": "*/5 * * * *",
+        "Cron": "0 5 * * *",
         "SaveRawResponses": true,
         "Feeds": [
           {
@@ -1759,7 +1759,7 @@
       {
         "Name": "PIB",
         "Enabled": true,
-        "Cron": "*/5 * * * *",
+        "Cron": "0 5 * * *",
         "SaveRawResponses": true,
         "Feeds": [
           {
@@ -1802,7 +1802,7 @@
       {
         "Name": "NDMA",
         "Enabled": true,
-        "Cron": "*/5 * * * *",
+        "Cron": "0 5 * * *",
         "SaveRawResponses": true,
         "Feeds": [
           {
@@ -1817,7 +1817,7 @@
       {
         "Name": "MinistryOfPortsShipping",
         "Enabled": true,
-        "Cron": "*/5 * * * *",
+        "Cron": "0 5 * * *",
         "SaveRawResponses": true,
         "Feeds": [
           {
@@ -1832,7 +1832,7 @@
       {
         "Name": "MyGovIndia",
         "Enabled": true,
-        "Cron": "*/5 * * * *",
+        "Cron": "0 5 * * *",
         "SaveRawResponses": true,
         "Feeds": [
           {
@@ -1847,7 +1847,7 @@
       {
         "Name": "GoogleNews",
         "Enabled": true,
-        "Cron": "*/5 * * * *",
+        "Cron": "0 5 * * *",
         "SaveRawResponses": true,
         "Feeds": [
           {
@@ -1869,7 +1869,7 @@
       {
         "Name": "YouTube",
         "Enabled": true,
-        "Cron": "*/5 * * * *",
+        "Cron": "0 5 * * *",
         "SaveRawResponses": true,
         "Feeds": [
           {
@@ -2011,7 +2011,7 @@
       {
         "Name": "NewsApiOrg",
         "Enabled": true,
-        "Cron": "*/30 * * * *",
+        "Cron": "0 5 * * *",
         "BaseUrl": "https://newsapi.org/v2",
         "AuthType": "QueryParameter",
         "AuthParamName": "apiKey",
@@ -2047,7 +2047,7 @@
       {
         "Name": "GNews",
         "Enabled": true,
-        "Cron": "0 */2 * * *",
+        "Cron": "0 5 * * *",
         "BaseUrl": "https://gnews.io/api/v4",
         "AuthType": "QueryParameter",
         "AuthParamName": "apikey",
@@ -2084,7 +2084,7 @@
       {
         "Name": "TheNewsAPI",
         "Enabled": true,
-        "Cron": "*/30 * * * *",
+        "Cron": "0 5 * * *",
         "BaseUrl": "https://api.thenewsapi.com/v1/news",
         "AuthType": "QueryParameter",
         "AuthParamName": "api_token",
@@ -2120,7 +2120,7 @@
       {
         "Name": "CurrentsAPI",
         "Enabled": true,
-        "Cron": "*/30 * * * *",
+        "Cron": "0 5 * * *",
         "BaseUrl": "https://api.currentsapi.services/v1",
         "AuthType": "QueryParameter",
         "AuthParamName": "apiKey",
@@ -2155,7 +2155,7 @@
       {
         "Name": "Mediastack",
         "Enabled": true,
-        "Cron": "0 6,18 * * *",
+        "Cron": "0 5 * * *",
         "BaseUrl": "http://api.mediastack.com/v1",
         "AuthType": "QueryParameter",
         "AuthParamName": "access_key",
@@ -2180,7 +2180,7 @@
       {
         "Name": "NewsDataIo",
         "Enabled": true,
-        "Cron": "0 */4 * * *",
+        "Cron": "0 5 * * *",
         "BaseUrl": "https://newsdata.io/api/1",
         "AuthType": "QueryParameter",
         "AuthParamName": "apikey",
@@ -2204,7 +2204,7 @@
       {
         "Name": "WorldNewsAPI",
         "Enabled": false,
-        "Cron": "0 */6 * * *",
+        "Cron": "0 5 * * *",
         "BaseUrl": "https://api.worldnewsapi.com",
         "AuthType": "HttpHeader",
         "AuthParamName": "x-api-key",
@@ -2240,7 +2240,7 @@
       {
         "Name": "EventRegistry",
         "Enabled": true,
-        "Cron": "0 */3 * * *",
+        "Cron": "0 5 * * *",
         "BaseUrl": "https://eventregistry.org/api/v1/article/getArticles",
         "AuthType": "QueryParameter",
         "AuthParamName": "apiKey (ignored - EventRegistryProvider is a custom implementation that puts the key in the POST body itself, still read from NewsApiKeys:EventRegistry)",
@@ -2262,7 +2262,7 @@
       {
         "Name": "NewscatcherAPI",
         "Enabled": true,
-        "Cron": "0 */6 * * *",
+        "Cron": "0 5 * * *",
         "BaseUrl": "https://v3-api.newscatcherapi.com/api",
         "AuthType": "HttpHeader",
         "AuthParamName": "x-api-token",
@@ -2296,7 +2296,7 @@
       {
         "Name": "APITube",
         "Enabled": true,
-        "Cron": "0 */3 * * *",
+        "Cron": "0 5 * * *",
         "BaseUrl": "https://api.apitube.io/v1",
         "AuthType": "QueryParameter",
         "AuthParamName": "api_key",
@@ -2319,7 +2319,7 @@
       {
         "Name": "Guardian",
         "Enabled": true,
-        "Cron": "*/30 * * * *",
+        "Cron": "0 5 * * *",
         "BaseUrl": "https://content.guardianapis.com",
         "AuthType": "QueryParameter",
         "AuthParamName": "api-key",
@@ -2352,7 +2352,7 @@
       {
         "Name": "GDELT",
         "Enabled": true,
-        "Cron": "*/15 * * * *",
+        "Cron": "0 5 * * *",
         "BaseUrl": "https://api.gdeltproject.org/api/v2/doc",
         "AuthType": "None",
         "AuthParamName": "",
@@ -2376,7 +2376,7 @@
       {
         "Name": "SerpApiGoogleNews",
         "Enabled": true,
-        "Cron": "0 */6 * * *",
+        "Cron": "0 5 * * *",
         "BaseUrl": "https://serpapi.com",
         "AuthType": "QueryParameter",
         "AuthParamName": "api_key",
@@ -2400,7 +2400,7 @@
       {
         "Name": "DataGovIn",
         "Enabled": false,
-        "Cron": "0 8 * * *",
+        "Cron": "0 5 * * *",
         "BaseUrl": "https://api.data.gov.in/resource",
         "AuthType": "QueryParameter",
         "AuthParamName": "api-key",
