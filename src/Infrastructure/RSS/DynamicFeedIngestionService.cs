@@ -75,6 +75,7 @@ public sealed class DynamicFeedIngestionService : IDynamicFeedIngestionService
         string? rawXml = null;
         int? httpStatusCode = null;
         var newItems = 0;
+        var updatedItems = 0;
         var duplicateItems = 0;
         var totalItems = 0;
 
@@ -98,13 +99,17 @@ public sealed class DynamicFeedIngestionService : IDynamicFeedIngestionService
                 }
 
                 var outcome = await _articleRepository.UpsertAsync(article, linkedToken);
-                if (outcome is ArticleUpsertOutcome.Inserted or ArticleUpsertOutcome.Updated)
+                switch (outcome)
                 {
-                    newItems++;
-                }
-                else
-                {
-                    duplicateItems++;
+                    case ArticleUpsertOutcome.Inserted:
+                        newItems++;
+                        break;
+                    case ArticleUpsertOutcome.Updated:
+                        updatedItems++;
+                        break;
+                    default:
+                        duplicateItems++;
+                        break;
                 }
             }
 
@@ -129,13 +134,14 @@ public sealed class DynamicFeedIngestionService : IDynamicFeedIngestionService
             history.EndTime = DateTimeOffset.UtcNow;
             history.Duration = stopwatch.Elapsed;
             history.NewArticles = newItems;
+            history.UpdatedArticles = updatedItems;
             history.DuplicateArticles = duplicateItems;
             history.Status = CrawlStatus.Completed;
             await _historyRepository.UpdateAsync(history, cancellationToken);
 
             _logger.LogInformation(
-                "[{RunId}] Completed: {SourceCode} - {Total} items, {New} new, {Duplicate} duplicate ({DurationMs}ms)",
-                history.Id, feedSource.SourceCode, totalItems, newItems, duplicateItems, stopwatch.ElapsedMilliseconds);
+                "[{RunId}] Completed: {SourceCode} - {Total} items, {New} new, {Updated} updated, {Duplicate} duplicate ({DurationMs}ms)",
+                history.Id, feedSource.SourceCode, totalItems, newItems, updatedItems, duplicateItems, stopwatch.ElapsedMilliseconds);
         }
         catch (Exception ex) when (!cancellationToken.IsCancellationRequested)
         {

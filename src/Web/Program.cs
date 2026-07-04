@@ -30,6 +30,15 @@ var builder = WebApplication.CreateBuilder(args);
 // environment - can still override this file, not the reverse.
 InsertNewsCrawlerConfigBeforeEnvironmentVariables(builder.Configuration);
 
+// Render's "Secret Files" feature mounts an uploaded file at /etc/secrets/<filename> for
+// Docker-based services (render.com/docs/configure-environment-variables) - this lets the same
+// nested JSON shape already used here for MongoDb/Email/NewsApiKeys secrets keep working as-is in
+// production, instead of converting every key into an individual NewsApiKeys__X-style env var.
+// Optional and appended normally (highest priority in the config chain, unlike NewsCrawler's file
+// above) so it's a no-op wherever the file doesn't exist (local dev, tests) and always wins over
+// appsettings.json's own (now-empty) placeholder values when Render does provide it.
+builder.Configuration.AddJsonFile("/etc/secrets/appsettings.secrets.json", optional: true, reloadOnChange: false);
+
 builder.AddServiceDefaults();
 
 builder.Services.AddApplication(builder.Configuration);

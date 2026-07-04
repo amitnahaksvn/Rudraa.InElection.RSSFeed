@@ -35,6 +35,7 @@ public static class HangfireRecurringJobRegistrar
         // on a process-wide JobStorage.Current that only gets set once the Hangfire server hosted
         // service has actually started) is required here because this runs before host.Run()/app.Run().
         var recurringJobManager = services.GetRequiredService<IRecurringJobManager>();
+        var enabledJobIds = new HashSet<string>(StringComparer.Ordinal);
 
         foreach (var provider in options.Providers.Where(p => p.Enabled))
         {
@@ -45,6 +46,7 @@ public static class HangfireRecurringJobRegistrar
             }
 
             var jobId = HangfireJobIds.NewsCrawl(provider.Name);
+            enabledJobIds.Add(jobId);
 
             // AddOrUpdate is idempotent on jobId - re-registering on every startup keeps the recurring
             // job's cron expression in sync with config without ever creating duplicate jobs. Targets
@@ -59,6 +61,24 @@ public static class HangfireRecurringJobRegistrar
             logger.LogInformation(
                 "Registered Hangfire recurring job '{JobId}' for provider '{Provider}' with cron '{Cron}'",
                 jobId, provider.Name, provider.Cron);
+        }
+
+        // Same "zombie job" concern as RegisterNewsApiRecurringJobs below: AddOrUpdate never
+        // removes a job for a provider that was previously enabled and is now disabled (or
+        // deleted from config entirely), which would otherwise leave it firing forever on its old
+        // schedule after a redeploy. Sweep every "news-crawl-*" job actually registered in
+        // Hangfire storage and drop any that no longer corresponds to a currently-enabled provider.
+        var jobStorage = services.GetRequiredService<JobStorage>();
+        using var connection = jobStorage.GetConnection();
+        var staleJobIds = connection.GetRecurringJobs()
+            .Select(j => j.Id)
+            .Where(id => id.StartsWith("news-crawl-", StringComparison.Ordinal) && !enabledJobIds.Contains(id))
+            .ToList();
+
+        foreach (var staleJobId in staleJobIds)
+        {
+            recurringJobManager.RemoveIfExists(staleJobId);
+            logger.LogInformation("Removed stale Hangfire recurring job '{JobId}' - provider is disabled or no longer configured", staleJobId);
         }
     }
 
@@ -118,11 +138,13 @@ public static class HangfireRecurringJobRegistrar
         var activeFeedSources = await feedSourceRepository.GetActiveAsync(CancellationToken.None);
 
         var recurringJobManager = services.GetRequiredService<IRecurringJobManager>();
+        var enabledJobIds = new HashSet<string>(StringComparer.Ordinal);
 
         foreach (var feedSource in activeFeedSources)
         {
             var cron = BuildCronForInterval(feedSource.FetchIntervalMinutes);
             var jobId = HangfireJobIds.DynamicFeed(feedSource.SourceCode);
+            enabledJobIds.Add(jobId);
 
             recurringJobManager.AddOrUpdate<HangfireDynamicFeedJobExecutor>(
                 jobId,
@@ -133,6 +155,22 @@ public static class HangfireRecurringJobRegistrar
             logger.LogInformation(
                 "Registered Hangfire recurring job '{JobId}' for FeedSource '{SourceCode}' with cron '{Cron}'",
                 jobId, feedSource.SourceCode, cron);
+        }
+
+        // Same "zombie job" concern as the other two registrars: a FeedSource that's deactivated
+        // or deleted from Mongo would otherwise leave its Hangfire job firing forever on its old
+        // schedule after a redeploy, since AddOrUpdate never removes jobs on its own.
+        var jobStorage = services.GetRequiredService<JobStorage>();
+        using var connection = jobStorage.GetConnection();
+        var staleJobIds = connection.GetRecurringJobs()
+            .Select(j => j.Id)
+            .Where(id => id.StartsWith("dynamic-feed-", StringComparison.Ordinal) && !enabledJobIds.Contains(id))
+            .ToList();
+
+        foreach (var staleJobId in staleJobIds)
+        {
+            recurringJobManager.RemoveIfExists(staleJobId);
+            logger.LogInformation("Removed stale Hangfire recurring job '{JobId}' - FeedSource is inactive or no longer exists", staleJobId);
         }
     }
 
