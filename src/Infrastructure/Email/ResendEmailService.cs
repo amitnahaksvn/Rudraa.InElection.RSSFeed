@@ -1,3 +1,4 @@
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Resend;
@@ -18,15 +19,15 @@ namespace Infrastructure.Email;
 /// </summary>
 public sealed class ResendEmailService : IEmailService
 {
-    private readonly IResend _resend;
+    private readonly IServiceScopeFactory _scopeFactory;
     private readonly EmailTemplateBuilder _templateBuilder;
     private readonly EmailOptions _options;
     private readonly ILogger<ResendEmailService> _logger;
 
     public ResendEmailService(
-        IResend resend, EmailTemplateBuilder templateBuilder, IOptions<EmailOptions> options, ILogger<ResendEmailService> logger)
+        IServiceScopeFactory scopeFactory, EmailTemplateBuilder templateBuilder, IOptions<EmailOptions> options, ILogger<ResendEmailService> logger)
     {
-        _resend = resend;
+        _scopeFactory = scopeFactory;
         _templateBuilder = templateBuilder;
         _options = options.Value;
         _logger = logger;
@@ -93,7 +94,15 @@ public sealed class ResendEmailService : IEmailService
 
         try
         {
-            var response = await _resend.EmailSendAsync(message, cancellationToken);
+            // IResend (via the Resend SDK's own AddResend registration) transitively needs
+            // IOptionsSnapshot<ResendClientOptions>, which is Scoped - resolving it once into this
+            // Singleton's constructor would be a captive dependency (.NET's DI throws "Cannot
+            // resolve scoped service ... from root provider" the first time it's actually used).
+            // A short-lived scope per send keeps this service itself Singleton, matching the
+            // orchestrators that hold a direct IEmailService reference in their own constructors.
+            using var scope = _scopeFactory.CreateScope();
+            var resend = scope.ServiceProvider.GetRequiredService<IResend>();
+            var response = await resend.EmailSendAsync(message, cancellationToken);
 
             if (response.Success)
             {
