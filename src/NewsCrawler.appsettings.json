@@ -2131,8 +2131,7 @@
             "Endpoint": "latest-news",
             "QueryParameters": {
               "language": "en",
-              "category": "politics",
-              "keywords": "India"
+              "category": "politics"
             },
             "Category": "Politics",
             "Language": "en",

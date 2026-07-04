@@ -158,6 +158,15 @@ public static class HangfireRecurringJobRegistrar
         var recurringJobManager = services.GetRequiredService<IRecurringJobManager>();
         var enabledJobIds = new HashSet<string>(StringComparer.Ordinal);
 
+        // Fetched once, up front, so the loop below can tell a brand-new provider (never
+        // registered before) apart from one that already existed from a previous startup -
+        // AddOrUpdate itself can't distinguish the two, since it's idempotent either way.
+        var jobStorage = services.GetRequiredService<JobStorage>();
+        using var connection = jobStorage.GetConnection();
+        var preExistingJobIds = new HashSet<string>(
+            connection.GetRecurringJobs().Select(j => j.Id),
+            StringComparer.Ordinal);
+
         foreach (var provider in options.Providers.Where(p => p.Enabled))
         {
             if (string.IsNullOrWhiteSpace(provider.Cron))
@@ -168,6 +177,7 @@ public static class HangfireRecurringJobRegistrar
 
             var jobId = HangfireJobIds.NewsApi(provider.Name);
             enabledJobIds.Add(jobId);
+            var isNewJob = !preExistingJobIds.Contains(jobId);
 
             recurringJobManager.AddOrUpdate<HangfireNewsApiJobExecutor>(
                 jobId,
@@ -175,13 +185,19 @@ public static class HangfireRecurringJobRegistrar
                 provider.Cron,
                 RecurringJobOptionsFactory.Create(TimeZoneInfo.Utc));
 
-            // Run once immediately on startup, in addition to the normal Cron schedule from here on -
-            // Trigger() enqueues the job now without altering its recurring schedule.
-            recurringJobManager.Trigger(jobId);
+            if (isNewJob)
+            {
+                // Run once immediately the first time this provider's job is ever registered,
+                // so a newly-added provider doesn't just sit idle until its next cron tick -
+                // but not on every subsequent restart/deploy, which would otherwise re-run (and
+                // re-alert on) every provider, including ones with known unresolved issues, on
+                // every single deploy or free-tier hibernate-wake.
+                recurringJobManager.Trigger(jobId);
+            }
 
             logger.LogInformation(
-                "Registered Hangfire recurring job '{JobId}' for news API provider '{Provider}' with cron '{Cron}' (triggered immediately)",
-                jobId, provider.Name, provider.Cron);
+                "Registered Hangfire recurring job '{JobId}' for news API provider '{Provider}' with cron '{Cron}'{TriggeredSuffix}",
+                jobId, provider.Name, provider.Cron, isNewJob ? " (triggered immediately - new job)" : string.Empty);
         }
 
         // AddOrUpdate only ever adds/updates - it never removes a job for a provider that was
@@ -189,10 +205,7 @@ public static class HangfireRecurringJobRegistrar
         // otherwise leave a "zombie" recurring job firing forever on its old schedule. Sweep every
         // "news-api-*" job actually registered in Hangfire storage and drop any that no longer
         // corresponds to a currently-enabled provider.
-        var jobStorage = services.GetRequiredService<JobStorage>();
-        using var connection = jobStorage.GetConnection();
-        var staleJobIds = connection.GetRecurringJobs()
-            .Select(j => j.Id)
+        var staleJobIds = preExistingJobIds
             .Where(id => id.StartsWith("news-api-", StringComparison.Ordinal) && !enabledJobIds.Contains(id))
             .ToList();
 
