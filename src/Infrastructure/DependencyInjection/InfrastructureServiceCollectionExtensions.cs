@@ -7,6 +7,7 @@ using Polly.Extensions.Http;
 using Resend;
 using Application.Abstractions;
 using Application.Options;
+using Application.Services;
 using Infrastructure.Email;
 using Infrastructure.Mongo;
 using Infrastructure.NewsApiProviders;
@@ -15,6 +16,7 @@ using Infrastructure.RSS;
 using Infrastructure.RssProviders;
 using Infrastructure.Scheduling;
 using Infrastructure.Seed;
+using Infrastructure.Social;
 
 namespace Infrastructure.DependencyInjection;
 
@@ -57,6 +59,7 @@ public static class InfrastructureServiceCollectionExtensions
         services.AddSingleton<IFeedSourceRepository, FeedSourceRepository>();
         services.AddSingleton<IFeedErrorLogRepository, FeedErrorLogRepository>();
         services.AddSingleton<IErrorLogRepository, ErrorLogRepository>();
+        services.AddSingleton<ISocialMediaSourceRepository, SocialMediaSourceRepository>();
 
         // Monitoring-alert email, backed by the official Resend SDK. AddResend registers IResend
         // as a typed HttpClient and returns the IHttpClientBuilder, so the same Polly
@@ -399,6 +402,15 @@ public static class InfrastructureServiceCollectionExtensions
         services.AddSingleton<IDynamicFeedIngestionService, DynamicFeedIngestionService>();
         services.AddSingleton<FeedSourceSeeder>();
         services.AddTransient<HangfireDynamicFeedJobExecutor>();
+
+        // The Mongo-driven Social pipeline (YouTube first) - channel list stored in
+        // SocialMediaSources, no publisher-specific quirks/UA blocking seen with youtube.com so
+        // far, so this reuses YouTubeRssProvider's already-registered named HttpClient rather than
+        // adding a second one for the exact same target domain.
+        services.AddSingleton<ISocialPlatformFetcher, YouTubeChannelFetcher>();
+        services.AddSingleton<ISocialMediaIngestionService, SocialMediaIngestionService>();
+        services.AddSingleton<SocialMediaSourceSeeder>();
+        services.AddTransient<HangfireSocialMediaJobExecutor>();
 
         // The JSON news-API pipeline (NewsAPI.org, GNews, TheNewsAPI, Currents, Mediastack,
         // NewsData.io, WorldNewsAPI) - one shared named HttpClient (same reasoning as

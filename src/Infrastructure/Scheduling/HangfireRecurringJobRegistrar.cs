@@ -264,6 +264,60 @@ public static class HangfireRecurringJobRegistrar
     }
 
     /// <summary>
+    /// Bootstraps the Mongo-driven Social pipeline: seeds the initial YouTube channels if missing,
+    /// then registers one Hangfire recurring job per currently-enabled <c>SocialMediaSource</c>
+    /// document - same shape as <see cref="SeedAndRegisterDynamicFeedRecurringJobsAsync"/> above,
+    /// just for a multi-platform channel list instead of a single-platform (RSS) feed list.
+    /// </summary>
+    public static async Task SeedAndRegisterSocialMediaRecurringJobsAsync(IServiceProvider services, ILogger logger)
+    {
+        var seeder = services.GetRequiredService<SocialMediaSourceSeeder>();
+        await seeder.SeedAsync(CancellationToken.None);
+
+        var sourceRepository = services.GetRequiredService<ISocialMediaSourceRepository>();
+        var enabledSources = await sourceRepository.GetEnabledAsync(CancellationToken.None);
+
+        var recurringJobManager = services.GetRequiredService<IRecurringJobManager>();
+        var enabledJobIdBag = new System.Collections.Concurrent.ConcurrentBag<string>();
+        var stopwatch = Stopwatch.StartNew();
+
+        Parallel.ForEach(enabledSources, new ParallelOptions { MaxDegreeOfParallelism = RegistrationConcurrency }, source =>
+        {
+            var cron = BuildCronForInterval(source.PollIntervalMinutes);
+            var jobId = HangfireJobIds.SocialMedia(source.Id);
+            enabledJobIdBag.Add(jobId);
+
+            recurringJobManager.AddOrUpdate<HangfireSocialMediaJobExecutor>(
+                jobId,
+                executor => executor.RunAsync(source.Id, null!, CancellationToken.None),
+                cron,
+                RecurringJobOptionsFactory.Create(TimeZoneInfo.Utc));
+
+            logger.LogInformation(
+                "Registered Hangfire recurring job '{JobId}' for SocialMediaSource '{Platform}/{Name}' with cron '{Cron}'",
+                jobId, source.Platform, source.Name, cron);
+        });
+
+        var enabledJobIds = new HashSet<string>(enabledJobIdBag, StringComparer.Ordinal);
+        logger.LogInformation(
+            "Registered {Count} social-media Hangfire recurring jobs in {ElapsedMs}ms", enabledJobIds.Count, stopwatch.ElapsedMilliseconds);
+
+        // Same "zombie job" concern as every other registrar here.
+        var jobStorage = services.GetRequiredService<JobStorage>();
+        using var connection = jobStorage.GetConnection();
+        var staleJobIds = connection.GetRecurringJobs()
+            .Select(j => j.Id)
+            .Where(id => id.StartsWith("social-media-", StringComparison.Ordinal) && !enabledJobIds.Contains(id))
+            .ToList();
+
+        foreach (var staleJobId in staleJobIds)
+        {
+            recurringJobManager.RemoveIfExists(staleJobId);
+            logger.LogInformation("Removed stale Hangfire recurring job '{JobId}' - SocialMediaSource is disabled or no longer exists", staleJobId);
+        }
+    }
+
+    /// <summary>
     /// Registers one Hangfire recurring job per enabled <see cref="NewsApiCrawlerOptions"/> provider -
     /// the <see cref="RegisterNewsCrawlerRecurringJobs"/> counterpart for JSON news-API providers.
     /// Targets <see cref="HangfireNewsApiJobExecutor"/> (tagged <c>[Queue("api")]</c>), never

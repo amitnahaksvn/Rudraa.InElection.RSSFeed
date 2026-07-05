@@ -24,6 +24,7 @@ public sealed class MongoDbContext
         FeedSources = Database.GetCollection<FeedSource>(settings.FeedSourcesCollection);
         FeedErrorLogs = Database.GetCollection<FeedErrorLog>(settings.FeedErrorLogsCollection);
         ErrorLogs = Database.GetCollection<ErrorLog>(settings.ErrorLogsCollection);
+        SocialMediaSources = Database.GetCollection<SocialMediaSource>(settings.SocialMediaSourcesCollection);
     }
 
     public IMongoClient Client { get; }
@@ -44,4 +45,7 @@ public sealed class MongoDbContext
     public IMongoCollection<FeedErrorLog> FeedErrorLogs { get; }
 
     public IMongoCollection<ErrorLog> ErrorLogs { get; }
+
+    /// <summary>Mongo-driven channel list for the Social pipeline - see <see cref="Application.Options.MongoDbOptions.SocialMediaSourcesCollection"/>.</summary>
+    public IMongoCollection<SocialMediaSource> SocialMediaSources { get; }
 }

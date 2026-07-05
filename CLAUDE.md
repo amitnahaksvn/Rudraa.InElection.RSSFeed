@@ -1490,3 +1490,62 @@ keyword search with no country allowlist, is unaffected and stays on). The same 
 now applied going forward: of the 35+1 countries in this batch, 12 aren't on NewsAPI.org's list
 (Qatar, Spain, Finland, Denmark, Iran, Myanmar, Peru, Algeria, Ghana, Lebanon, Oman, Jordan) and
 have `TopHeadlines` pre-disabled from the start rather than wired in broken.
+
+**A third crawler pipeline - "Social" - added alongside RSS and JSON-API, for channel lists that
+come from MongoDB rather than either `NewsCrawler.appsettings.json` or code.** `SocialMediaSource`
+(collection `SocialMediaSources`) is the Social pipeline's counterpart to the existing
+Mongo-driven `FeedSource`/`DynamicFeedIngestionService` pattern - one document per channel
+(`Platform`, `SourceType` [Politician/Party/Government/News], `Country`/`State`, `Name`,
+`Identifier` [platform-specific: a YouTube channel id today], `Handle`, `Url`, `Enabled`,
+`Priority`, `PollIntervalMinutes`, `TimeoutSeconds`, `Language`, `Category`, `LastPolledAt`) - but
+spans multiple platforms (`SocialPlatform`: YouTube, Rss, Website, Facebook, Telegram) instead of
+being RSS-only like `FeedSource`. Only YouTube has a working fetcher
+(`Infrastructure/Social/YouTubeChannelFetcher.cs`) - the other four enum values are recognized but
+unimplemented, the same "not wired up yet, not an error" state Telegram already has elsewhere in
+this file; a `SocialMediaSource` whose platform has no matching `ISocialPlatformFetcher` is simply
+logged and skipped.
+
+`SocialMediaIngestionService` (in `Application/Services`, unlike `DynamicFeedIngestionService`
+which lives in Infrastructure) dispatches to whichever `ISocialPlatformFetcher` matches a source's
+`Platform`, then reuses `ArticlePersister` for dedup/persistence - the same helper
+`NewsCrawlerOrchestrator`/`NewsApiCrawlerOrchestrator` already share, rather than a third
+hand-rolled upsert loop. It lives in Application specifically because it only ever talks to
+abstractions (the actual HTTP/XML work is behind `ISocialPlatformFetcher`, implemented in
+Infrastructure), which is what makes reusing the `internal` `ArticlePersister` possible.
+
+Scheduling mirrors `FeedSource`'s exact shape: one Hangfire recurring job per enabled
+`SocialMediaSource` document (job id keyed by the source's own Mongo `Id`, since - unlike
+`FeedSource` - it has no separate short `SourceCode` field), cron derived from
+`PollIntervalMinutes` via the same `BuildCronForInterval` helper, registered by
+`HangfireRecurringJobRegistrar.SeedAndRegisterSocialMediaRecurringJobsAsync` (seeds first, then
+registers, then sweeps stale jobs - same three-step shape as the dynamic-feed registrar). Tagged
+its own `[Queue("social")]` on `HangfireSocialMediaJobExecutor` rather than sharing "rss" - a
+genuinely different, multi-platform pipeline that may need to scale independently later, same
+reasoning "api" got its own queue; `Hangfire:Queues` default extended to
+`["rss", "api", "social", "default"]` so a single instance still processes everything out of the
+box.
+
+**`YouTubeChannelFetcher` deliberately doesn't reuse the existing file-configured
+`YouTubeRssProvider`'s per-entry parser** - that one is tightly typed to `RssFeedOptions` (a
+config-file feed entry), while this one reads the same fields off a `SocialMediaSource` document
+instead. Both parse the identical Atom shape (`entry`/`published`/`id`/`link`/`media:group`) for
+the same underlying reason (`youtube.com/feeds/videos.xml` isn't RSS 2.0), so the parsing logic is
+intentionally near-identical between the two rather than forced into one shared method that would
+need an awkward abstraction over two different config shapes. It does reuse
+`YouTubeRssProvider.ClientName`'s already-registered named `HttpClient`, though - no reason to
+register a second one for the exact same target domain.
+
+**Seeded with two channels to prove the pipeline end-to-end**: Narendra Modi
+(`UC1NF71EwP41VdjAU1iXdLkw`, `SourceType: Politician`) and BJP (`UCrwE8kVqtIUVUzKui2WVpuQ`,
+`SourceType: Party`), both `Country: India`, via `SocialMediaSourceSeeder` (idempotent by
+`Platform`+`Identifier`, same "bootstrap the first documents only" reasoning as
+`FeedSourceSeeder`). Modi's channel id was already verified elsewhere in this file (it's the same
+one wired into the file-configured YouTube provider's India feed list) - deliberately seeded here
+too anyway, to prove out this new pipeline independently, which does mean it's now polled by both
+pipelines in parallel; harmless (ordinary Url-based dedup skips whichever copy lands second) but
+wasteful, worth collapsing to one pipeline once this one's proven out. BJP's channel id could only
+be corroborated via web search (its own search result explicitly labeled "Bharatiya Janata Party -
+YouTube") rather than a live feed fetch/title check, since this environment's network policy
+blocks youtube.com outright - the first entry in this Mongo-driven pipeline that couldn't be
+curl/fetch-verified the way almost everything else in this file was; worth re-confirming once
+network access to youtube.com is available.

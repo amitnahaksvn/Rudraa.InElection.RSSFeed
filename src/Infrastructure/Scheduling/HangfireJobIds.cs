@@ -18,4 +18,13 @@ public static class HangfireJobIds
 
     /// <summary>Job id for a JSON news-API provider (e.g. "news-api-NewsApiOrg").</summary>
     public static string NewsApi(string providerName) => $"news-api-{providerName}";
+
+    /// <summary>
+    /// Job id for a <see cref="Domain.Entities.SocialMediaSource"/>-driven channel, keyed by its
+    /// own Mongo Id rather than a short code like <see cref="DynamicFeed"/> uses - a
+    /// <see cref="Domain.Entities.SocialMediaSource"/> has no separate short-key field, only a
+    /// display <c>Name</c> (not guaranteed unique or job-id-safe) and its own Id (guaranteed
+    /// unique and stable).
+    /// </summary>
+    public static string SocialMedia(string sourceId) => $"social-media-{sourceId}";
 }

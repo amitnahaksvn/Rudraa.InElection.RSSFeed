@@ -37,4 +37,8 @@ public sealed class MongoDbOptions
     /// <summary>General app-wide exception log (crawl failures, dynamic feed failures, unhandled HTTP request exceptions) - see <c>Domain.Entities.ErrorLog</c>.</summary>
     [Required]
     public string ErrorLogsCollection { get; set; } = "ErrorLogs";
+
+    /// <summary>Mongo-driven channel list for the Social pipeline (YouTube today; Facebook/Telegram/Website/Rss recognized but not yet fetched) - see <c>Domain.Entities.SocialMediaSource</c>/<c>SocialMediaIngestionService</c>.</summary>
+    [Required]
+    public string SocialMediaSourcesCollection { get; set; } = "SocialMediaSources";
 }

@@ -156,6 +156,7 @@ _ = Task.Run(async () =>
         await HangfireRecurringJobRegistrar.SeedAndRegisterDynamicFeedRecurringJobsAsync(app.Services, startupLogger);
         HangfireRecurringJobRegistrar.RegisterNewsApiRecurringJobs(app.Services, startupLogger);
         HangfireRecurringJobRegistrar.RegisterErrorNotificationDispatchRecurringJob(app.Services, startupLogger);
+        await HangfireRecurringJobRegistrar.SeedAndRegisterSocialMediaRecurringJobsAsync(app.Services, startupLogger);
     }
     catch (Exception ex)
     {

@@ -39,6 +39,11 @@ public static class MongoClassMapConfigurator
         // legible straight out of a Mongo query/Compass view without cross-referencing the enum.
         BsonSerializer.RegisterSerializer(typeof(ArticleSourceType), new EnumSerializer<ArticleSourceType>(BsonType.String));
 
+        // Same reasoning for SocialMediaSource's own two enums - "YouTube"/"Politician" readable
+        // directly in Mongo, not a bare int32.
+        BsonSerializer.RegisterSerializer(typeof(SocialPlatform), new EnumSerializer<SocialPlatform>(BsonType.String));
+        BsonSerializer.RegisterSerializer(typeof(SourceEntityType), new EnumSerializer<SourceEntityType>(BsonType.String));
+
         BsonClassMap.RegisterClassMap<NewsArticle>(cm =>
         {
             cm.AutoMap();
@@ -76,6 +81,12 @@ public static class MongoClassMapConfigurator
         });
 
         BsonClassMap.RegisterClassMap<ErrorLog>(cm =>
+        {
+            cm.AutoMap();
+            cm.MapIdMember(x => x.Id).SetIdGenerator(StringObjectIdGenerator.Instance);
+        });
+
+        BsonClassMap.RegisterClassMap<SocialMediaSource>(cm =>
         {
             cm.AutoMap();
             cm.MapIdMember(x => x.Id).SetIdGenerator(StringObjectIdGenerator.Instance);
