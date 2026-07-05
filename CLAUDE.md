@@ -1368,3 +1368,49 @@ portal or content-syndication API a small project can sign up for; the user's ow
 flagged this row `Free Tier: No` / `Paid: Enterprise`, consistent with what turned up - the same
 "enterprise-only, no self-serve path" category as Bloomberg API, not a technical failure. Not
 wired in.
+
+**Eight more `NewsApiCrawler:Countries` entries - Germany, France, Japan, South Korea, Singapore,
+China, Indonesia, Thailand - from a 74-row user-supplied table, config-only again**: each new
+block carries the 7 provider rows the table actually asked for this time (a smaller subset than
+prior batches - no Mediastack/Currents/WorldNewsAPI/SerpApi/WebzIo here): NewsAPI.org, GNews,
+NewsData.io, TheNewsAPI, NewscatcherAPI, EventRegistry, GDELT, all reusing the same already-registered
+provider singletons with country-specific query parameters. **This batch caught and fixed a real
+bug from the Canada/Australia batch just above**: GDELT's `sourcecountry` filter uses **FIPS 10-4**
+codes, not ISO-3166 - they're identical for most countries (Canada's FIPS code is coincidentally
+`CA`, same as ISO), which is why the mistake wasn't obvious earlier, but Australia's FIPS code is
+`AS`, not the ISO `AU` that was configured - silently querying the wrong/nonexistent country code
+rather than erroring, so it would have just returned fewer or zero matching articles forever
+without ever surfacing as a failure. Corrected to `sourcecountry:AS`. The eight new countries'
+own GDELT queries use their correct FIPS codes throughout: Germany `GM`, Japan `JA`, South Korea
+`KS`, Singapore `SN`, China `CH` (all genuinely different from their ISO codes `DE`/`JP`/`KR`/
+`SG`/`CN`), while France/Indonesia/Thailand's FIPS codes happen to match ISO (`FR`/`ID`/`TH`).
+Every other provider in this batch (NewsAPI.org/GNews/NewsData.io/TheNewsAPI/NewscatcherAPI) keeps
+using plain ISO-3166 alpha-2 for its own `country`/`countries`/`locale` parameter, since none of
+those APIs use FIPS - only GDELT does.
+
+Reuters Connect and Bloomberg API (requested again for every one of these eight countries) stay
+excluded, already documented dead/enterprise-only. AP Content API (Germany) was not duplicated,
+same reasoning as every prior batch (one global newswire, no per-country config knob, already
+under United States).
+
+**Four country-specific newswire rows were requested and investigated, none wired in - for four
+different reasons, not just "blocked" for all of them.** **AFP API / AFP NewsML** (France) is a
+real, live public API - confirmed via its own OAuth2 token endpoint
+(`afp-apicore-prod.afp.com/oauth/token?grant_type=anonymous` for a no-credential test mode, or a
+username/password grant for permanent access) and a documented `v1/api/latest` article-listing
+endpoint - genuinely closer to Reddit's shape (real OAuth2 token exchange) than to
+Bloomberg/Reuters's "no public product at all." It was still **not implemented**: this session's
+network policy blocks every external host, so unlike Polygon.io/YouTube Data API (whose JSON
+response *field names* are clearly documented and could be built with reasonable confidence), no
+source could confirm AFP's actual response schema (their full API reference lives behind
+`v1/docs`, itself unreachable) - implementing blind here risks a provider that authenticates
+successfully and returns HTTP 200 forever while silently parsing zero articles because every
+guessed field name is wrong, which is worse than not shipping it. Revisit once a real account's
+live response is available to build the parser from. **Kyodo News API** (Japan) - `corp.kyodo-d.jp`
+is Kyodo News Digital's corporate/B2B site; no discoverable public self-serve developer portal,
+appears to be enterprise content distribution only (same category as Bloomberg). **Yonhap News
+API** (South Korea) - no distinct public developer API found beyond the Yonhap English RSS feed
+already wired in elsewhere in this file; the table's "API" row most likely refers to the same
+newswire product this codebase already ingests via RSS, not a separate JSON product. **Xinhua
+API** (China) - no official self-serve developer portal found; consistent with Xinhua's own RSS
+feed being independently documented elsewhere in this file as frozen since 2017-2018.
