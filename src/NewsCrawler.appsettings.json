@@ -829,7 +829,7 @@
       },
       {
         "Name": "IndianExpress",
-        "Enabled": true,
+        "Enabled": false,
         "Cron": "*/20 * * * *",
         "SaveRawResponses": true,
         "Feeds": [
@@ -1801,7 +1801,7 @@
       },
       {
         "Name": "NDMA",
-        "Enabled": true,
+        "Enabled": false,
         "Cron": "*/20 * * * *",
         "SaveRawResponses": true,
         "Feeds": [
