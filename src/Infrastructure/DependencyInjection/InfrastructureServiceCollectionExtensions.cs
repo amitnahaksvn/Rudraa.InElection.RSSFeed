@@ -446,6 +446,12 @@ public static class InfrastructureServiceCollectionExtensions
         services.AddSingleton<INewsApiProvider, FinancialModelingPrepProvider>();
         services.AddSingleton<INewsApiProvider, AlphaVantageProvider>();
         services.AddSingleton<INewsApiProvider, FinnhubProvider>();
+        services.AddSingleton<INewsApiProvider, PolygonIoProvider>();
+        services.AddSingleton<INewsApiProvider, YouTubeDataApiProvider>();
+        // Custom INewsApiProvider implementation (not BaseNewsApiProvider - see its own doc
+        // comments): Reddit needs a two-legged OAuth2 client_credentials token exchange, not a
+        // single static key.
+        services.AddSingleton<INewsApiProvider, RedditProvider>();
         services.AddTransient<HangfireNewsApiJobExecutor>();
 
         services.AddHostedService<MongoIndexInitializerHostedService>();

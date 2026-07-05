@@ -1284,3 +1284,59 @@ finished registering successfully in the background roughly 26s later with no er
 matters for Render specifically: `render.yaml`'s free-tier deploy needs the container to pass a
 health check quickly after starting, and 25+ seconds of synchronous registration blocking that was
 a real risk, not just a local dev annoyance.
+
+**A 27-row publisher table deepened United Kingdom coverage and added three new providers - the
+first pass in this codebase's history built entirely without curl-verification, because this
+session's own sandbox network policy blocks every external host outright (`api.twelvedata.com`,
+`api.polygon.io`, `reddit.com`, `t.me`, and every other domain tried all returned a 403 from the
+session's own egress proxy, not from the destination) - every claim below is best-effort from
+each API's own published documentation, the same "confirm once enabled" caveat already carried by
+`ApContentApiProvider`/`DataGovInProvider`, not the usual live-verified standard.** Thirteen
+already-existing India-configured aggregators/APIs (NewsAPI.org, GNews, TheNewsAPI, CurrentsAPI,
+Mediastack, NewsDataIo, WorldNewsAPI, EventRegistry, NewscatcherAPI, Guardian, GDELT,
+SerpApiGoogleNews, WebzIo) each gained a second `NewsApiProviderOptions` block under the existing
+**United Kingdom** country entry - same provider class/singleton instance, just a second
+config block with UK-flavored query parameters (`country`/`countries`/`source-countries`: `gb`
+per each API's own ISO-3166 convention, except GDELT's own `sourcecountry:UK` FIPS-style code and
+Google/SerpApi's own `gl=uk` exception to ISO), proving out the `NewsApiCrawlerOrchestrator`'s
+existing `providerOptions.Name`-keyed lookup (documented when `Countries` was introduced) actually
+supports the same provider fetching for two different countries with two independent configs.
+WorldNewsAPI's UK block stays `Enabled: false`, mirroring its already-disabled India entry.
+
+Two new **Finance**-category JSON-API providers joined **International**: **PolygonIo**
+(`api.polygon.io/v2/reference/news`, query param `apiKey`, free tier 5 req/min) - a genuine
+article-shaped news endpoint (title/description/article_url/published_utc/publisher), unlike
+Twelve Data below. **Twelve Data** (also requested) was **not** wired in: its public API surface
+is time-series/quote/fundamentals market data with no news-article endpoint at all - the same
+architectural mismatch already documented for World Bank/IMF/OECD (numbers, not stories), not a
+technical failure.
+
+One new **Social**-category provider, **YouTubeDataApi** (`www.googleapis.com/youtube/v3/search`,
+query param `key`), joined **International** - a genuinely different capability from the existing
+`YouTubeRssProvider`: that one reads one already-known channel's own keyless Atom feed, while this
+one keyword-searches across all of YouTube (`type=video`), so it lives in the JSON-API pipeline
+instead of the RSS one, tagging results `"video"` the same way `YouTubeRssProvider` does so both
+produce the same shape.
+
+**Reddit** joined **United Kingdom** (`r/unitedkingdom`/`r/ukpolitics`) as the one provider in
+this pipeline needing genuine two-legged OAuth2 (`client_credentials` grant against
+`www.reddit.com/api/v1/access_token`, HTTP Basic auth of a client id/secret, yielding a
+short-lived bearer token for `oauth.reddit.com`) - Reddit killed its unauthenticated `.json`
+endpoints in 2026, so the old no-key workaround other providers like GDELT rely on
+(`AuthType.None`) no longer exists for Reddit. This doesn't fit
+`NewsApiProviderOptions.AuthType`'s single-static-key model at all, so `RedditProvider` implements
+`INewsApiProvider` directly (same reasoning `EventRegistryProvider` bypasses
+`BaseNewsApiProvider` for a POST body) and manages its own in-memory token cache with expiry.
+Because two credentials are needed instead of one, `NewsApiKeys:Reddit` deliberately holds
+`"{clientId}:{clientSecret}"` (split on the first colon) rather than a plain key - a Reddit app is
+created free at reddit.com/prefs/apps.
+
+**Telegram Bot API was requested but not implemented - a genuine authorization mismatch, not a
+missing feature.** The Bot API's `getUpdates` only ever receives messages from chats/channels the
+bot has already been added to as a member/admin; there is no method for a bot to passively read an
+arbitrary public channel's (PMO India's, the Election Commission's, ...) content without that
+channel's own admins first adding the bot - which can't be done unilaterally for channels this
+codebase doesn't own. (A separate, unauthenticated technique - scraping the public
+`t.me/s/{channel}` HTML preview - exists and sidesteps this, but that is fetching/parsing HTML,
+not "the Telegram Bot API," and is a materially different, more fragile mechanism this batch does
+not implement without being asked for it specifically.)
