@@ -1450,3 +1450,43 @@ scheme, no stated terms for third-party use, most likely intended only for CNA's
 using them would be scraping an internal endpoint, not integrating "the CNA API," so neither path
 was wired in. (Taiwan is still covered via the existing English-language `FocusTaiwan`/CNA RSS
 feed documented earlier in this file - this only affects the JSON-API pipeline.)
+
+**A full RSS-vs-JSON-API coverage audit, requested directly rather than from a new publisher
+table: diff `NewsCrawler:Countries` against `NewsApiCrawler:Countries` by name.** 35 of the 65 RSS
+countries had **zero** JSON-API coverage at all - every country added for RSS-only reasons
+throughout this file's history (Qatar, Israel, Mexico, Turkey, Ukraine, Russia, South Africa,
+Brazil, Italy, Spain, Netherlands, Sweden, Norway, Finland, Belgium, Switzerland, Austria,
+Ireland, Denmark, New Zealand, Poland, Iran, UAE, Hong Kong, Argentina, Colombia, Venezuela,
+Myanmar, Peru, Morocco, Algeria, Ghana, Lebanon, Oman, Jordan) had never once been carried over to
+the JSON-API side. Each now gets the same 5-provider base set the smallest recent batches settled
+on (NewsAPI.org, GNews, NewsData.io, EventRegistry, GDELT) - config only, reusing existing
+provider classes. **United States was a second, different kind of gap**: its
+`NewsApiCrawler:Countries` entry existed but held *only* the US-specific institutional providers
+(FEC/CongressGov/APContentAPI/NYTimesAPI/ProPublicaCongress) added in an earlier government-APIs
+pass - it had never received the general aggregator set every other country (starting with India)
+carries, an inconsistency invisible to a simple by-name diff since the country entry technically
+already existed. Same 5-provider base prepended to its existing providers.
+
+**This audit also caught and fixed a real, already-shipped bug spanning two categories.** First,
+re-confirming GDELT's `sourcecountry` needs FIPS-10-4 codes (not ISO) turned up far more
+divergences among these 35+1 countries than any prior batch - 15 of 36 differ from ISO, several
+non-obviously: **Israel** `IS` (not `IL`), **Turkey** `TU` (not `TR`), **Ukraine** `UP` (not `UA`),
+**Russia** `RS` (not `RU` - and unrelated to Serbia's *ISO* code `RS`, separate namespaces),
+**South Africa** `SF` (not `ZA`), **Spain** `SP` (not `ES`), **Sweden** `SW` (not `SE`),
+**Switzerland** `SZ` (not `CH`), **Austria** `AU` (not `AT` - and unrelated to Australia's *ISO*
+code `AU`), **Ireland** `EI` (not `IE`), **Denmark** `DA` (not `DK`), **Myanmar** `BM` (not `MM`,
+the FIPS scheme still reflects the pre-1989 "Burma" naming), **Morocco** `MO` (not `MA`),
+**Algeria** `AG` (not `DZ`), **Oman** `MU` (not `OM`, reflecting the pre-1970 "Muscat and Oman"
+naming) - each verified individually against the same `mysociety/gaze`
+`fips-10-4-to-iso-country-codes.csv` reference table used to catch the original Australia mistake,
+not assumed. Second, and unrelated to GDELT: **NewsAPI.org's `top-headlines` endpoint only accepts
+`country` values from its own documented ~54-code allowlist** (confirmed directly from
+`newsapi.org/docs/endpoints/top-headlines`) - a fact never checked in any prior batch. Cross-checking
+every country added so far turned up **six already-merged countries whose `TopHeadlines` endpoint
+was silently misconfigured** with an unsupported code that would 400 on every single cron run:
+Vietnam (`vn`), Pakistan (`pk`), Bangladesh (`bd`), Nepal (`np`), Sri Lanka (`lk`), Kenya (`ke`) -
+all six now have that one endpoint set `Enabled: false` (their `Everything` endpoint, a plain
+keyword search with no country allowlist, is unaffected and stays on). The same allowlist check is
+now applied going forward: of the 35+1 countries in this batch, 12 aren't on NewsAPI.org's list
+(Qatar, Spain, Finland, Denmark, Iran, Myanmar, Peru, Algeria, Ghana, Lebanon, Oman, Jordan) and
+have `TopHeadlines` pre-disabled from the start rather than wired in broken.
