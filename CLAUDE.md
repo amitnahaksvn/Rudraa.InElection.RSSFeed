@@ -1414,3 +1414,39 @@ already wired in elsewhere in this file; the table's "API" row most likely refer
 newswire product this codebase already ingests via RSS, not a separate JSON product. **Xinhua
 API** (China) - no official self-serve developer portal found; consistent with Xinhua's own RSS
 feed being independently documented elsewhere in this file as frozen since 2017-2018.
+
+**Sixteen more `NewsApiCrawler:Countries` entries - Czech Republic, Romania, Hungary, Greece,
+Portugal, Malaysia, Vietnam, Philippines, Pakistan, Bangladesh, Nepal, Sri Lanka, Nigeria, Kenya,
+Egypt, Taiwan - from a 91-row user-supplied table, config-only, an even smaller 5-provider subset
+than the Germany/France/... batch just above:** NewsAPI.org, GNews, NewsData.io, EventRegistry,
+GDELT (no TheNewsAPI/NewscatcherAPI this time). Continuing the FIPS-vs-ISO
+discipline the Australia bug (above) forced into practice, each country's GDELT `sourcecountry`
+value was looked up individually against an authoritative FIPS-10-4-to-ISO mapping (the
+`mysociety/gaze` reference table) rather than assumed equal to its ISO code - seven of these
+sixteen genuinely differ: **Czech Republic** `EZ` (not `CZ`), **Portugal** `PO` (not `PT`),
+**Vietnam** `VM` (not `VN`, a holdover from the pre-1976 "Democratic Republic of Vietnam" naming),
+**Philippines** `RP` (not `PH`, "Republic of the Philippines"), **Bangladesh** `BG` (not `BD` -
+coincidentally the same two letters as Bulgaria's unrelated *ISO* code, but FIPS and ISO are
+separate namespaces so this isn't a collision in practice), **Sri Lanka** `CE` (not `LK`, a
+holdover from "Ceylon"), and **Nigeria** `NI` (not `NG`). The other nine (Romania, Hungary,
+Greece, Malaysia, Pakistan, Nepal, Kenya, Egypt, Taiwan) happen to share the same two letters in
+both schemes. Every other provider here keeps using plain ISO-3166 for its own country parameter,
+same as always - only GDELT needs FIPS.
+
+**Ten country-specific national-newswire "API" rows were requested (Lusa/Portugal,
+BERNAMA/Malaysia, VNA/Vietnam, PNA/Philippines, APP/Pakistan, BSS/Bangladesh, Rastriya Samachar
+Samiti/Nepal, NAN/Nigeria, KNA/Kenya, MENA/Egypt) plus an eleventh implied by the table
+(CNA/Taiwan) - none wired in, all individually checked rather than assumed dead from the pattern
+alone.** Every one of the user's own table rows already pre-labeled these `Free Tier: No` /
+`Paid: Enterprise`, and individual searches for each confirmed no discoverable public self-serve
+developer portal or API documentation - each is a national/state wire agency selling subscription
+access directly (phone/email contact, not a signup page), the same category as Bloomberg/Kyodo/
+Xinhua above. One partial exception worth recording precisely: Taiwan's **CNA** does have a
+`developer.cna.com` portal, but its own contact page reads "Thank you for your interest in CNA's
+API..." - a request-a-quote form, not self-serve signup - and separately, CNA's own website
+happens to call undocumented endpoints (`cna.com.tw/cna2018api/api/WTopic`,
+`.../WNewsList`) to render itself; those aren't a public product either (no confirmed auth
+scheme, no stated terms for third-party use, most likely intended only for CNA's own frontend) -
+using them would be scraping an internal endpoint, not integrating "the CNA API," so neither path
+was wired in. (Taiwan is still covered via the existing English-language `FocusTaiwan`/CNA RSS
+feed documented earlier in this file - this only affects the JSON-API pipeline.)
