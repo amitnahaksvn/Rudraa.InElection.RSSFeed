@@ -660,3 +660,30 @@ into `NewsCrawler.appsettings.json`.
 `Country` properties - leftover from before that fix, when `RssFeedOptions` briefly carried its
 own `Country` field - were found and removed from the JSON; harmless since the C# model no longer
 declares that property so they were silently ignored, but removed for clarity.)
+
+**United Kingdom deepened substantially** from a third user-supplied publisher table: BBCNews
+grew from 3 feeds to 9 (added UK/Business/Technology/Science/Health/Entertainment), SkyNews from
+1 to 6 (added UK/World/Politics/Business/Technology), TheGuardian from 1 to 11 (added UK/Politics/
+Business/Technology/Environment/Science/Sport/Football/Culture/Opinion) - all just config
+additions to already-existing providers, no new provider classes needed for those three. Nine
+genuinely new UK providers, all individually curl-verified: **BBCSport** (a separate BBC feed/
+section from BBCNews, not one of its categories). **FinancialTimes** (`ft.com/rss/home` plus
+per-section `?format=rss` query-parameter feeds - World/UK/Companies/Markets/Technology).
+**TheIndependent** (Home/UK/World, standard `/news/{section}/rss`). **TheTelegraph**
+(Home/News/Politics/Business/Sport, `{section}/rss.xml`) - Home/Business/Sport update multiple
+times a day, but News and Politics specifically update far less often (newest item ~1-2 weeks old
+at verification time) - not frozen/dead like CNN/Xinhua/Forbes-most-popular (dates progress
+steadily backward from that newest item, it's just a slow trickle, likely because most Telegraph
+politics coverage sits behind their paywall and only occasional pieces reach the free RSS feed) -
+kept as configured, same "keep it, note the low volume" precedent as IndiaTV's politics feed
+elsewhere in this file. **Metro**, **EveningStandard**, **DailyExpress**, **Mirror** (all standard
+WordPress-style `/feed`-shaped URLs). **PoliticsCoUk** (standard WordPress `/feed/`) - same
+low-frequency-but-genuinely-live situation as Telegraph News/Politics (newest item ~2 weeks old),
+kept for the same reason.
+
+**Two from that same UK table don't work.** **Reuters** (`reutersagency.com/feed/?best-topics=
+world` - 404 yet again, the fourth independent confirmation in this file that Reuters has no
+accessible public RSS from this environment). **Daily Mail**
+(`dailymail.co.uk/news/index.rss` - the connection itself times out outright with both a crawler
+and a browser User-Agent, a network-level block/timeout rather than an HTTP-level one). Neither
+is wired into `NewsCrawler.appsettings.json`.

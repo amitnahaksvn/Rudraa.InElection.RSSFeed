@@ -193,6 +193,17 @@ public static class InfrastructureServiceCollectionExtensions
         AddRssProvider<PbsNewsRssProvider>(services, PbsNewsRssProvider.ClientName, CrawlerUserAgent);
         AddRssProvider<VoxRssProvider>(services, VoxRssProvider.ClientName, CrawlerUserAgent);
 
+        // More United Kingdom providers, verified against a user-supplied publisher list.
+        AddRssProvider<BbcSportRssProvider>(services, BbcSportRssProvider.ClientName, CrawlerUserAgent);
+        AddRssProvider<FinancialTimesRssProvider>(services, FinancialTimesRssProvider.ClientName, CrawlerUserAgent);
+        AddRssProvider<TheIndependentRssProvider>(services, TheIndependentRssProvider.ClientName, CrawlerUserAgent);
+        AddRssProvider<TheTelegraphRssProvider>(services, TheTelegraphRssProvider.ClientName, CrawlerUserAgent);
+        AddRssProvider<MetroRssProvider>(services, MetroRssProvider.ClientName, CrawlerUserAgent);
+        AddRssProvider<EveningStandardRssProvider>(services, EveningStandardRssProvider.ClientName, CrawlerUserAgent);
+        AddRssProvider<DailyExpressRssProvider>(services, DailyExpressRssProvider.ClientName, CrawlerUserAgent);
+        AddRssProvider<MirrorRssProvider>(services, MirrorRssProvider.ClientName, CrawlerUserAgent);
+        AddRssProvider<PoliticsCoUkRssProvider>(services, PoliticsCoUkRssProvider.ClientName, CrawlerUserAgent);
+
         // The Mongo-driven FeedSource pipeline (PIB first) - a generic alternative to the
         // file-configured providers above, for feeds that need no publisher-specific quirks.
         // One shared named HttpClient (rather than one per FeedSource, which would need a DI
