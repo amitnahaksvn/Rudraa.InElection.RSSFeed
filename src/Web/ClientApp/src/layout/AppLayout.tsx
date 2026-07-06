@@ -13,17 +13,22 @@ import Box from '@mui/material/Box';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import MenuIcon from '@mui/icons-material/Menu';
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
+import HubIcon from '@mui/icons-material/Hub';
 
 const DRAWER_WIDTH = 240;
 
 // Every nav destination the sidebar shows - a single array to extend when more admin pages are
 // added later, rather than hand-wiring a new ListItemButton each time.
-const NAV_ITEMS = [{ label: 'Error Monitor', path: '/errors', icon: <ErrorOutlineIcon /> }];
+const NAV_ITEMS = [
+  { label: 'Error Monitor', path: '/errors', icon: <ErrorOutlineIcon /> },
+  { label: 'Provider Management', path: '/providers', icon: <HubIcon /> },
+];
 
 export function AppLayout({ children }: { children: ReactNode }) {
   const isDesktop = useMediaQuery('(min-width: 900px)');
   const [mobileOpen, setMobileOpen] = useState(false);
   const location = useLocation();
+  const currentNavItem = NAV_ITEMS.find((item) => location.pathname.startsWith(item.path));
 
   const drawerContent = (
     <>
@@ -69,7 +74,7 @@ export function AppLayout({ children }: { children: ReactNode }) {
             </IconButton>
           )}
           <Typography variant="h6" noWrap>
-            Error Monitor
+            {currentNavItem?.label ?? 'Rudraa Admin'}
           </Typography>
         </Toolbar>
       </AppBar>

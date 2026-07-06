@@ -27,4 +27,16 @@ public sealed class ApiOptions
     /// casually.
     /// </summary>
     public bool EnableErrorDashboard { get; set; }
+
+    /// <summary>
+    /// The Provider Management page (/providers) reads via the authenticated-nothing api/providers
+    /// endpoints - same "no built-in auth, off by default" trade-off as
+    /// <see cref="EnableErrorDashboard"/>. Its Test action also makes a real outbound HTTP request
+    /// to whichever third-party feed/API is selected on demand, so anyone who can reach it can
+    /// trigger arbitrary configured-feed fetches at will (not arbitrary URLs - only feeds/endpoints
+    /// already present in configuration - but still real, repeatable outbound traffic and, for
+    /// metered API keys, real quota usage). Enabling this on a public deployment is a deliberate
+    /// choice, not a default to flip on casually.
+    /// </summary>
+    public bool EnableProviderDashboard { get; set; }
 }

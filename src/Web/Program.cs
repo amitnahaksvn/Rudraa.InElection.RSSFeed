@@ -230,6 +230,17 @@ if (builder.Configuration.GetValue($"{ApiOptions.SectionName}:EnableErrorDashboa
     app.MapFallbackToFile("/errors/{**slug}", "index.html");
 }
 
+if (builder.Configuration.GetValue($"{ApiOptions.SectionName}:EnableProviderDashboard", false))
+{
+    // Same "no built-in auth, off by default" trade-off as EnableErrorDashboard above - see
+    // ApiOptions.EnableProviderDashboard's own doc comment for why this one specifically also
+    // gates real outbound HTTP calls, not just data visibility. The underlying api/providers/*
+    // JSON endpoints stay mapped regardless (same always-on trust model as every other endpoint
+    // in this app); only the SPA page itself is gated here.
+    app.MapFallbackToFile("/providers", "index.html");
+    app.MapFallbackToFile("/providers/{**slug}", "index.html");
+}
+
 app.Run();
 
 static void InsertNewsCrawlerConfigBeforeEnvironmentVariables(IConfigurationBuilder configuration)
