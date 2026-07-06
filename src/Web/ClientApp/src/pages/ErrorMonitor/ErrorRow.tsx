@@ -12,12 +12,18 @@ import Divider from '@mui/material/Divider';
 import Switch from '@mui/material/Switch';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import CircularProgress from '@mui/material/CircularProgress';
+import Alert from '@mui/material/Alert';
+import Button from '@mui/material/Button';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import CommentIcon from '@mui/icons-material/Comment';
 import { fetchErrorLogDetail } from '../../api/errorLogs';
 import type { ErrorLogSummary } from '../../api/types';
 import { formatAbsoluteTime, formatRelativeTime } from '../../utils/formatDate';
 import { StatusChip } from './StatusChip';
 import { useSetErrorResolved } from './useSetErrorResolved';
+import { useAddErrorLogComment } from './useAddErrorLogComment';
+import { CommentDialog } from './CommentDialog';
+import { HistoryTimeline } from './HistoryTimeline';
 
 function DetailField({ label, value }: { label: string; value: string | number | null | undefined }) {
   if (value === null || value === undefined || value === '') return null;
@@ -63,7 +69,10 @@ function CodeBlock({ label, content }: { label: string; content: string | null |
 
 export function ErrorRow({ error }: { error: ErrorLogSummary }) {
   const [expanded, setExpanded] = useState(false);
+  const [pendingResolvedTarget, setPendingResolvedTarget] = useState<boolean | null>(null);
+  const [addCommentOpen, setAddCommentOpen] = useState(false);
   const setResolved = useSetErrorResolved();
+  const addComment = useAddErrorLogComment();
 
   const detailQuery = useQuery({
     queryKey: ['errorLogDetail', error.id],
@@ -72,6 +81,37 @@ export function ErrorRow({ error }: { error: ErrorLogSummary }) {
   });
 
   const detail = detailQuery.data;
+
+  const closeResolveDialog = () => {
+    setPendingResolvedTarget(null);
+    setResolved.reset();
+  };
+
+  const confirmResolve = (comment: string) => {
+    if (pendingResolvedTarget === null) return;
+    setResolved.mutate(
+      { id: error.id, resolved: pendingResolvedTarget, comment },
+      { onSuccess: () => setPendingResolvedTarget(null) },
+    );
+  };
+
+  const closeAddCommentDialog = () => {
+    setAddCommentOpen(false);
+    addComment.reset();
+  };
+
+  const resolveSwitch = (checked: boolean) => (
+    <Stack direction="row" alignItems="center" gap={0.5}>
+      <Switch
+        size="small"
+        checked={checked}
+        disabled={setResolved.isPending}
+        onClick={(e) => e.stopPropagation()}
+        onChange={(e) => setPendingResolvedTarget(e.target.checked)}
+      />
+      {setResolved.isPending && <CircularProgress size={14} />}
+    </Stack>
+  );
 
   return (
     <Card
@@ -105,13 +145,7 @@ export function ErrorRow({ error }: { error: ErrorLogSummary }) {
           <Box sx={{ flexGrow: 1 }} />
           <FormControlLabel
             onClick={(e) => e.stopPropagation()}
-            control={
-              <Switch
-                size="small"
-                checked={error.isResolved}
-                onChange={(e) => setResolved.mutate({ id: error.id, resolved: e.target.checked })}
-              />
-            }
+            control={resolveSwitch(error.isResolved)}
             label={<Typography variant="caption">Resolved</Typography>}
             sx={{ mr: 0 }}
           />
@@ -171,12 +205,7 @@ export function ErrorRow({ error }: { error: ErrorLogSummary }) {
             <Stack gap={2}>
               <Stack direction="row" justifyContent="space-between" alignItems="center" flexWrap="wrap" gap={1}>
                 <FormControlLabel
-                  control={
-                    <Switch
-                      checked={detail.isResolved}
-                      onChange={(e) => setResolved.mutate({ id: error.id, resolved: e.target.checked })}
-                    />
-                  }
+                  control={resolveSwitch(detail.isResolved)}
                   label={detail.isResolved ? 'Marked resolved' : 'Mark as resolved'}
                 />
                 {detail.resolvedOn && (
@@ -185,6 +214,12 @@ export function ErrorRow({ error }: { error: ErrorLogSummary }) {
                   </Typography>
                 )}
               </Stack>
+
+              {setResolved.isError && (
+                <Alert severity="error" onClose={() => setResolved.reset()}>
+                  {(setResolved.error as Error).message}
+                </Alert>
+              )}
 
               <Box
                 sx={{
@@ -220,10 +255,43 @@ export function ErrorRow({ error }: { error: ErrorLogSummary }) {
               <CodeBlock label="Request Body" content={detail.requestBody} />
               <CodeBlock label="Response Body" content={detail.responseBody} />
               <CodeBlock label="Additional Data" content={detail.additionalData} />
+
+              <Divider />
+
+              <Stack direction="row" justifyContent="space-between" alignItems="center">
+                <Typography variant="subtitle2">History</Typography>
+                <Button size="small" startIcon={<CommentIcon />} onClick={() => setAddCommentOpen(true)}>
+                  Add comment
+                </Button>
+              </Stack>
+              <HistoryTimeline history={detail.history} />
             </Stack>
           )}
         </Box>
       </Collapse>
+
+      <CommentDialog
+        open={pendingResolvedTarget !== null}
+        title={pendingResolvedTarget ? 'Mark as resolved' : 'Mark as unresolved'}
+        description="A comment is required and will be recorded in this error's history."
+        confirmLabel={pendingResolvedTarget ? 'Mark resolved' : 'Mark unresolved'}
+        submitting={setResolved.isPending}
+        errorMessage={setResolved.isError ? (setResolved.error as Error).message : null}
+        onCancel={closeResolveDialog}
+        onConfirm={confirmResolve}
+      />
+
+      <CommentDialog
+        open={addCommentOpen}
+        title="Add comment"
+        confirmLabel="Add comment"
+        submitting={addComment.isPending}
+        errorMessage={addComment.isError ? (addComment.error as Error).message : null}
+        onCancel={closeAddCommentDialog}
+        onConfirm={(comment) =>
+          addComment.mutate({ id: error.id, comment }, { onSuccess: () => setAddCommentOpen(false) })
+        }
+      />
     </Card>
   );
 }

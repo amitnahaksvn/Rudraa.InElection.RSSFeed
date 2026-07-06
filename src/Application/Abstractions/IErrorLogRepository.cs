@@ -28,8 +28,15 @@ public interface IErrorLogRepository
 
     Task<ErrorLog?> GetByIdAsync(string id, CancellationToken cancellationToken);
 
-    /// <summary>Sets <see cref="ErrorLog.IsResolved"/> (and <see cref="ErrorLog.ResolvedOn"/> when resolving, clearing it when un-resolving). Returns false when no row with that id exists.</summary>
-    Task<bool> SetResolvedAsync(string id, bool resolved, CancellationToken cancellationToken);
+    /// <summary>
+    /// Sets <see cref="ErrorLog.IsResolved"/> (and <see cref="ErrorLog.ResolvedOn"/> when
+    /// resolving, clearing it when un-resolving) and appends a required-comment
+    /// <see cref="ErrorLogHistoryEntry"/>. Returns false when no row with that id exists.
+    /// </summary>
+    Task<bool> SetResolvedAsync(string id, bool resolved, string comment, CancellationToken cancellationToken);
+
+    /// <summary>Appends a standalone comment - <see cref="ErrorLog.IsResolved"/>/<see cref="ErrorLog.ResolvedOn"/> are left unchanged, the new <see cref="ErrorLogHistoryEntry"/> just records the row's current status alongside the comment. Returns false when no row with that id exists.</summary>
+    Task<bool> AddCommentAsync(string id, string comment, CancellationToken cancellationToken);
 
     Task EnsureIndexesAsync(CancellationToken cancellationToken);
 }

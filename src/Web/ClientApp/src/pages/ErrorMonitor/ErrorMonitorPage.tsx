@@ -8,6 +8,8 @@ import Chip from '@mui/material/Chip';
 import { FilterBar } from './FilterBar';
 import { ErrorRow } from './ErrorRow';
 import { useErrorLogs } from './useErrorLogs';
+import { PendingTransitionProvider } from './PendingTransitionContext';
+import { PendingTransitionToasts } from './PendingTransitionToasts';
 import type { ErrorLogFilters } from '../../api/types';
 
 const DEFAULT_FILTERS: ErrorLogFilters = {
@@ -46,56 +48,60 @@ export function ErrorMonitorPage() {
   const totalCount = data?.pages[0]?.totalCount;
 
   return (
-    <Box sx={{ maxWidth: 1100, mx: 'auto' }}>
-      <Stack direction="row" alignItems="baseline" justifyContent="space-between" sx={{ mb: 2 }} flexWrap="wrap" gap={1}>
-        <Typography variant="h5" fontWeight={700}>
-          Errors
-        </Typography>
-        {totalCount !== undefined && <Chip size="small" label={`${totalCount} matching`} />}
-      </Stack>
-
-      <FilterBar filters={filters} onChange={setFilters} />
-
-      {isLoading && (
-        <Stack alignItems="center" sx={{ py: 6 }}>
-          <CircularProgress />
-        </Stack>
-      )}
-
-      {isError && (
-        <Alert severity="error" action={<a onClick={() => refetch()} style={{ cursor: 'pointer' }}>Retry</a>}>
-          Failed to load errors.
-        </Alert>
-      )}
-
-      {!isLoading && !isError && errors.length === 0 && (
-        <Stack alignItems="center" sx={{ py: 8 }} gap={1}>
-          <Typography variant="h6">Nothing here</Typography>
-          <Typography variant="body2" color="text.secondary">
-            No errors match the current filters.
+    <PendingTransitionProvider>
+      <Box sx={{ maxWidth: 1100, mx: 'auto' }}>
+        <Stack direction="row" alignItems="baseline" justifyContent="space-between" sx={{ mb: 2 }} flexWrap="wrap" gap={1}>
+          <Typography variant="h5" fontWeight={700}>
+            Errors
           </Typography>
+          {totalCount !== undefined && <Chip size="small" label={`${totalCount} matching`} />}
         </Stack>
-      )}
 
-      <Stack gap={1.25}>
-        {errors.map((error) => (
-          <ErrorRow key={error.id} error={error} />
-        ))}
-      </Stack>
+        <FilterBar filters={filters} onChange={setFilters} />
 
-      <Box ref={sentinelRef} sx={{ height: 1 }} />
+        {isLoading && (
+          <Stack alignItems="center" sx={{ py: 6 }}>
+            <CircularProgress />
+          </Stack>
+        )}
 
-      {isFetchingNextPage && (
-        <Stack alignItems="center" sx={{ py: 3 }}>
-          <CircularProgress size={24} />
+        {isError && (
+          <Alert severity="error" action={<a onClick={() => refetch()} style={{ cursor: 'pointer' }}>Retry</a>}>
+            Failed to load errors.
+          </Alert>
+        )}
+
+        {!isLoading && !isError && errors.length === 0 && (
+          <Stack alignItems="center" sx={{ py: 8 }} gap={1}>
+            <Typography variant="h6">Nothing here</Typography>
+            <Typography variant="body2" color="text.secondary">
+              No errors match the current filters.
+            </Typography>
+          </Stack>
+        )}
+
+        <Stack gap={1.25}>
+          {errors.map((error) => (
+            <ErrorRow key={error.id} error={error} />
+          ))}
         </Stack>
-      )}
 
-      {!hasNextPage && errors.length > 0 && (
-        <Typography variant="caption" color="text.secondary" sx={{ display: 'block', textAlign: 'center', py: 2 }}>
-          You've reached the end.
-        </Typography>
-      )}
-    </Box>
+        <Box ref={sentinelRef} sx={{ height: 1 }} />
+
+        {isFetchingNextPage && (
+          <Stack alignItems="center" sx={{ py: 3 }}>
+            <CircularProgress size={24} />
+          </Stack>
+        )}
+
+        {!hasNextPage && errors.length > 0 && (
+          <Typography variant="caption" color="text.secondary" sx={{ display: 'block', textAlign: 'center', py: 2 }}>
+            You've reached the end.
+          </Typography>
+        )}
+
+        <PendingTransitionToasts />
+      </Box>
+    </PendingTransitionProvider>
   );
 }

@@ -1,5 +1,6 @@
 using Moq;
 using Application.Abstractions;
+using Application.ErrorLogs.Commands.AddErrorLogComment;
 using Application.ErrorLogs.Commands.SetErrorLogResolved;
 using Application.ErrorLogs.Queries.GetErrorLogById;
 using Application.ErrorLogs.Queries.GetErrorLogs;
@@ -115,12 +116,25 @@ public class ErrorLogsQueryHandlerTests
     public async Task SetErrorLogResolvedCommandHandler_DelegatesToRepositoryAndReturnsItsResult()
     {
         var repo = new Mock<IErrorLogRepository>();
-        repo.Setup(r => r.SetResolvedAsync("1", true, It.IsAny<CancellationToken>())).ReturnsAsync(true);
-        repo.Setup(r => r.SetResolvedAsync("missing", true, It.IsAny<CancellationToken>())).ReturnsAsync(false);
+        repo.Setup(r => r.SetResolvedAsync("1", true, "Fixed the feed URL", It.IsAny<CancellationToken>())).ReturnsAsync(true);
+        repo.Setup(r => r.SetResolvedAsync("missing", true, "Fixed the feed URL", It.IsAny<CancellationToken>())).ReturnsAsync(false);
 
         var handler = new SetErrorLogResolvedCommandHandler(repo.Object);
 
-        Assert.True(await handler.Handle(new SetErrorLogResolvedCommand("1", true), CancellationToken.None));
-        Assert.False(await handler.Handle(new SetErrorLogResolvedCommand("missing", true), CancellationToken.None));
+        Assert.True(await handler.Handle(new SetErrorLogResolvedCommand("1", true, "Fixed the feed URL"), CancellationToken.None));
+        Assert.False(await handler.Handle(new SetErrorLogResolvedCommand("missing", true, "Fixed the feed URL"), CancellationToken.None));
+    }
+
+    [Fact]
+    public async Task AddErrorLogCommentCommandHandler_DelegatesToRepositoryAndReturnsItsResult()
+    {
+        var repo = new Mock<IErrorLogRepository>();
+        repo.Setup(r => r.AddCommentAsync("1", "Investigating", It.IsAny<CancellationToken>())).ReturnsAsync(true);
+        repo.Setup(r => r.AddCommentAsync("missing", "Investigating", It.IsAny<CancellationToken>())).ReturnsAsync(false);
+
+        var handler = new AddErrorLogCommentCommandHandler(repo.Object);
+
+        Assert.True(await handler.Handle(new AddErrorLogCommentCommand("1", "Investigating"), CancellationToken.None));
+        Assert.False(await handler.Handle(new AddErrorLogCommentCommand("missing", "Investigating"), CancellationToken.None));
     }
 }

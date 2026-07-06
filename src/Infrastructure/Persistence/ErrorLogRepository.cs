@@ -54,14 +54,37 @@ public sealed class ErrorLogRepository : IErrorLogRepository
     public async Task<ErrorLog?> GetByIdAsync(string id, CancellationToken cancellationToken) =>
         await _collection.Find(e => e.Id == id).FirstOrDefaultAsync(cancellationToken);
 
-    public async Task<bool> SetResolvedAsync(string id, bool resolved, CancellationToken cancellationToken)
+    public async Task<bool> SetResolvedAsync(string id, bool resolved, string comment, CancellationToken cancellationToken)
     {
+        var entry = new ErrorLogHistoryEntry { Comment = comment, IsResolved = resolved, CreatedOn = DateTimeOffset.UtcNow };
         var update = Builders<ErrorLog>.Update
             .Set(e => e.IsResolved, resolved)
-            .Set(e => e.ResolvedOn, resolved ? DateTimeOffset.UtcNow : null);
+            .Set(e => e.ResolvedOn, resolved ? DateTimeOffset.UtcNow : null)
+            .Push(e => e.History, entry);
 
         var result = await _collection.UpdateOneAsync(e => e.Id == id, update, cancellationToken: cancellationToken);
         return result.MatchedCount > 0;
+    }
+
+    public async Task<bool> AddCommentAsync(string id, string comment, CancellationToken cancellationToken)
+    {
+        // IsResolved isn't changing here - the history entry just needs to record what the row's
+        // status already was at the moment of the comment, which means reading the current
+        // document first rather than referencing "$IsResolved" via an aggregation-pipeline update
+        // (simpler, and the rare race against a concurrent resolve/unresolve toggle is low-stakes
+        // for an audit note).
+        var existing = await _collection.Find(e => e.Id == id).FirstOrDefaultAsync(cancellationToken);
+        if (existing is null)
+        {
+            return false;
+        }
+
+        var entry = new ErrorLogHistoryEntry { Comment = comment, IsResolved = existing.IsResolved, CreatedOn = DateTimeOffset.UtcNow };
+        await _collection.UpdateOneAsync(
+            e => e.Id == id,
+            Builders<ErrorLog>.Update.Push(e => e.History, entry),
+            cancellationToken: cancellationToken);
+        return true;
     }
 
     // Every field here is an equality match except SearchText, a case-insensitive substring match

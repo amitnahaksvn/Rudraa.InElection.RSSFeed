@@ -1,6 +1,7 @@
 using Mediator;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.Extensions.Options;
+using Application.ErrorLogs.Commands.AddErrorLogComment;
 using Application.ErrorLogs.Commands.SetErrorLogResolved;
 using Application.ErrorLogs.Dtos;
 using Application.ErrorLogs.Queries.GetErrorLogById;
@@ -10,7 +11,7 @@ using Web.Options;
 
 namespace Web.Endpoints;
 
-/// <summary>Backs the error-monitor page: paged/filterable list of persisted <c>ErrorLog</c> rows, single-error detail, and marking a row resolved/unresolved.</summary>
+/// <summary>Backs the error-monitor page: paged/filterable list of persisted <c>ErrorLog</c> rows, single-error detail, marking a row resolved/unresolved (with a required comment), and standalone comments.</summary>
 public sealed class ErrorLogs : IEndpointGroup
 {
     public static void Map(RouteGroupBuilder groupBuilder)
@@ -20,6 +21,7 @@ public sealed class ErrorLogs : IEndpointGroup
         group.MapGet("", GetList);
         group.MapGet("{id}", GetById);
         group.MapPatch("{id}/resolved", SetResolved);
+        group.MapPost("{id}/comments", AddComment);
     }
 
     [EndpointSummary("List errors")]
@@ -48,7 +50,7 @@ public sealed class ErrorLogs : IEndpointGroup
     }
 
     [EndpointSummary("Get one error's full detail")]
-    [EndpointDescription("Every field for a single error, including stack trace and request/response bodies - only fetched when a row is expanded.")]
+    [EndpointDescription("Every field for a single error, including stack trace, request/response bodies, and its comment/status history - only fetched when a row is expanded.")]
     public static async Task<Results<Ok<ErrorLogDetailDto>, NotFound>> GetById(
         ISender sender, string id, CancellationToken cancellationToken)
     {
@@ -57,11 +59,20 @@ public sealed class ErrorLogs : IEndpointGroup
     }
 
     [EndpointSummary("Mark an error resolved or unresolved")]
-    [EndpointDescription("Body: { \"resolved\": true }. Used by the inline toggle in both the list row and the expanded detail view.")]
+    [EndpointDescription("Body: { \"resolved\": true, \"comment\": \"...\" } - comment is required and recorded in the row's history. Used by the inline toggle in both the list row and the expanded detail view.")]
     public static async Task<Results<Ok, NotFound>> SetResolved(
         ISender sender, string id, SetResolvedRequest request, CancellationToken cancellationToken)
     {
-        var found = await sender.Send(new SetErrorLogResolvedCommand(id, request.Resolved), cancellationToken);
+        var found = await sender.Send(new SetErrorLogResolvedCommand(id, request.Resolved, request.Comment), cancellationToken);
+        return found ? TypedResults.Ok() : TypedResults.NotFound();
+    }
+
+    [EndpointSummary("Add a comment to an error")]
+    [EndpointDescription("Body: { \"comment\": \"...\" }. Appends to the row's history without changing its resolved status - lets a user leave multiple notes on the same error over time.")]
+    public static async Task<Results<Ok, NotFound>> AddComment(
+        ISender sender, string id, AddCommentRequest request, CancellationToken cancellationToken)
+    {
+        var found = await sender.Send(new AddErrorLogCommentCommand(id, request.Comment), cancellationToken);
         return found ? TypedResults.Ok() : TypedResults.NotFound();
     }
 
@@ -69,4 +80,6 @@ public sealed class ErrorLogs : IEndpointGroup
         requested <= 0 ? options.DefaultPageSize : Math.Min(requested, options.MaxPageSize);
 }
 
-public sealed record SetResolvedRequest(bool Resolved);
+public sealed record SetResolvedRequest(bool Resolved, string Comment);
+
+public sealed record AddCommentRequest(string Comment);
