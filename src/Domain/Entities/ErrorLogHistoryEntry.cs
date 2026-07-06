@@ -10,6 +10,9 @@ public sealed class ErrorLogHistoryEntry
 {
     public string Comment { get; set; } = string.Empty;
 
+    /// <summary>Optional longer-form write-up alongside <see cref="Comment"/> - both are rich text (HTML) as authored in the error-monitor UI's editor.</summary>
+    public string? Description { get; set; }
+
     public bool IsResolved { get; set; }
 
     public DateTimeOffset CreatedOn { get; set; } = DateTimeOffset.UtcNow;

@@ -10,16 +10,20 @@ export interface PendingTransition {
 interface PendingTransitionContextValue {
   transitions: PendingTransition[];
   startTransition: (message: string, onComplete: () => void) => void;
+  leavingIds: Set<string>;
+  markLeaving: (id: string) => void;
+  unmarkLeaving: (id: string) => void;
 }
 
 const PendingTransitionContext = createContext<PendingTransitionContextValue | null>(null);
 
-// Backs the "Marked as resolved - will move to the Resolved tab in 10 seconds" toast: the row's
-// status is patched into the cache immediately (see useSetErrorResolved), but the query
-// invalidation that actually removes it from the current status-filtered tab is deferred until
-// this timer completes, so the user gets a grace period rather than an instant jump.
+// Backs two related things: the "Marked as resolved - will move to the Resolved tab in 10
+// seconds" toast (transitions), and which row ids are mid-exit-animation (leavingIds) so ErrorListRow
+// can play a Collapse-out effect instead of a row just vanishing when the cache filters it out of
+// a status tab it no longer matches - see errorLogCacheSync.removeFromMismatchedLists.
 export function PendingTransitionProvider({ children }: { children: ReactNode }) {
   const [transitions, setTransitions] = useState<PendingTransition[]>([]);
+  const [leavingIds, setLeavingIds] = useState<Set<string>>(new Set());
   const nextKey = useRef(0);
 
   const startTransition = useCallback((message: string, onComplete: () => void) => {
@@ -31,8 +35,21 @@ export function PendingTransitionProvider({ children }: { children: ReactNode })
     }, TRANSITION_DELAY_MS);
   }, []);
 
+  const markLeaving = useCallback((id: string) => {
+    setLeavingIds((prev) => (prev.has(id) ? prev : new Set(prev).add(id)));
+  }, []);
+
+  const unmarkLeaving = useCallback((id: string) => {
+    setLeavingIds((prev) => {
+      if (!prev.has(id)) return prev;
+      const next = new Set(prev);
+      next.delete(id);
+      return next;
+    });
+  }, []);
+
   return (
-    <PendingTransitionContext.Provider value={{ transitions, startTransition }}>
+    <PendingTransitionContext.Provider value={{ transitions, startTransition, leavingIds, markLeaving, unmarkLeaving }}>
       {children}
     </PendingTransitionContext.Provider>
   );

@@ -9,6 +9,8 @@ using Application.DependencyInjection;
 using Application.Options;
 using Infrastructure.DependencyInjection;
 using Infrastructure.Scheduling;
+using Application.Abstractions;
+using Web.Hubs;
 using Web.Infrastructure;
 using Web.Options;
 using Scalar.AspNetCore;
@@ -109,6 +111,11 @@ builder.Services
 builder.Services.AddExceptionHandler<ProblemDetailsExceptionHandler>();
 builder.Services.AddProblemDetails();
 
+// Backs the error-monitor's live cross-tab/cross-user sync (see IErrorLogNotifier) - a resolve or
+// comment broadcasts to every connected client instead of requiring a manual refresh elsewhere.
+builder.Services.AddSignalR();
+builder.Services.AddSingleton<IErrorLogNotifier, SignalRErrorLogNotifier>();
+
 builder.Services.AddHealthChecks().AddMongoDb(name: "mongodb");
 
 var enableSwagger = builder.Configuration.GetValue($"{ApiOptions.SectionName}:EnableSwagger", true);
@@ -201,6 +208,7 @@ if (enableSwagger)
 
 app.MapDefaultEndpoints();
 app.MapEndpoints(Assembly.GetExecutingAssembly());
+app.MapHub<ErrorLogHub>("/hubs/errorlogs");
 
 if (builder.Configuration.GetValue($"{ApiOptions.SectionName}:EnableHangfireDashboard", false))
 {

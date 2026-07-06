@@ -12,7 +12,8 @@ public sealed record GetErrorLogsQuery(
     string? Provider = null,
     string? Country = null,
     string? Source = null,
-    string? Search = null) : IRequest<PagedResult<ErrorLogSummaryDto>>;
+    string? Search = null,
+    ErrorLogCategory? Category = null) : IRequest<PagedResult<ErrorLogSummaryDto>>;
 
 public sealed class GetErrorLogsQueryHandler : IRequestHandler<GetErrorLogsQuery, PagedResult<ErrorLogSummaryDto>>
 {
@@ -25,7 +26,7 @@ public sealed class GetErrorLogsQueryHandler : IRequestHandler<GetErrorLogsQuery
 
     public async ValueTask<PagedResult<ErrorLogSummaryDto>> Handle(GetErrorLogsQuery request, CancellationToken cancellationToken)
     {
-        var filter = new ErrorLogFilter(request.IsResolved, request.Provider, request.Country, request.Source, request.Search);
+        var filter = new ErrorLogFilter(request.IsResolved, request.Provider, request.Country, request.Source, request.Search, request.Category);
         var skip = (request.Page - 1) * request.PageSize;
 
         var logs = await _errorLogs.GetPagedAsync(filter, skip, request.PageSize, cancellationToken);

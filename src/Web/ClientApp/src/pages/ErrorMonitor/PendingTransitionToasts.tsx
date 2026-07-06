@@ -12,7 +12,7 @@ export function PendingTransitionToasts() {
         <Snackbar
           key={transition.key}
           open
-          anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
+          anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
           sx={{ mb: index * 8 }}
         >
           <Box

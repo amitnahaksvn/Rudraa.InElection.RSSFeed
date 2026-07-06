@@ -54,9 +54,9 @@ public sealed class ErrorLogRepository : IErrorLogRepository
     public async Task<ErrorLog?> GetByIdAsync(string id, CancellationToken cancellationToken) =>
         await _collection.Find(e => e.Id == id).FirstOrDefaultAsync(cancellationToken);
 
-    public async Task<bool> SetResolvedAsync(string id, bool resolved, string comment, CancellationToken cancellationToken)
+    public async Task<bool> SetResolvedAsync(string id, bool resolved, string comment, string? description, CancellationToken cancellationToken)
     {
-        var entry = new ErrorLogHistoryEntry { Comment = comment, IsResolved = resolved, CreatedOn = DateTimeOffset.UtcNow };
+        var entry = new ErrorLogHistoryEntry { Comment = comment, Description = description, IsResolved = resolved, CreatedOn = DateTimeOffset.UtcNow };
         var update = Builders<ErrorLog>.Update
             .Set(e => e.IsResolved, resolved)
             .Set(e => e.ResolvedOn, resolved ? DateTimeOffset.UtcNow : null)
@@ -66,7 +66,7 @@ public sealed class ErrorLogRepository : IErrorLogRepository
         return result.MatchedCount > 0;
     }
 
-    public async Task<bool> AddCommentAsync(string id, string comment, CancellationToken cancellationToken)
+    public async Task<bool> AddCommentAsync(string id, string comment, string? description, CancellationToken cancellationToken)
     {
         // IsResolved isn't changing here - the history entry just needs to record what the row's
         // status already was at the moment of the comment, which means reading the current
@@ -79,7 +79,7 @@ public sealed class ErrorLogRepository : IErrorLogRepository
             return false;
         }
 
-        var entry = new ErrorLogHistoryEntry { Comment = comment, IsResolved = existing.IsResolved, CreatedOn = DateTimeOffset.UtcNow };
+        var entry = new ErrorLogHistoryEntry { Comment = comment, Description = description, IsResolved = existing.IsResolved, CreatedOn = DateTimeOffset.UtcNow };
         await _collection.UpdateOneAsync(
             e => e.Id == id,
             Builders<ErrorLog>.Update.Push(e => e.History, entry),
@@ -87,10 +87,10 @@ public sealed class ErrorLogRepository : IErrorLogRepository
         return true;
     }
 
-    // Every field here is an equality match except SearchText, a case-insensitive substring match
-    // (via a Regex.Escape'd pattern, so a search term containing regex metacharacters can't turn
-    // into an unintended pattern or a ReDoS risk) across the handful of fields an admin scanning
-    // the error-monitor UI would actually type into a search box.
+    // Every text field here is a case-insensitive substring match (via a Regex.Escape'd pattern,
+    // so a value containing regex metacharacters can't turn into an unintended pattern or a ReDoS
+    // risk) - Provider/Country/Source are free-text boxes in the UI, not exact-match dropdowns, so
+    // an admin typing "aajtak" needs to match the stored "AajTak" the same way SearchText already did.
     private static FilterDefinition<ErrorLog> BuildFilter(ErrorLogFilter filter)
     {
         var builder = Builders<ErrorLog>.Filter;
@@ -103,22 +103,22 @@ public sealed class ErrorLogRepository : IErrorLogRepository
 
         if (!string.IsNullOrWhiteSpace(filter.Provider))
         {
-            clauses.Add(builder.Eq(e => e.Provider, filter.Provider));
+            clauses.Add(builder.Regex(e => e.Provider, CaseInsensitiveSubstring(filter.Provider)));
         }
 
         if (!string.IsNullOrWhiteSpace(filter.Country))
         {
-            clauses.Add(builder.Eq(e => e.Country, filter.Country));
+            clauses.Add(builder.Regex(e => e.Country, CaseInsensitiveSubstring(filter.Country)));
         }
 
         if (!string.IsNullOrWhiteSpace(filter.Source))
         {
-            clauses.Add(builder.Eq(e => e.Source, filter.Source));
+            clauses.Add(builder.Regex(e => e.Source, CaseInsensitiveSubstring(filter.Source)));
         }
 
         if (!string.IsNullOrWhiteSpace(filter.SearchText))
         {
-            var pattern = new BsonRegularExpression(Regex.Escape(filter.SearchText), "i");
+            var pattern = CaseInsensitiveSubstring(filter.SearchText);
             clauses.Add(builder.Or(
                 builder.Regex(e => e.Message, pattern),
                 builder.Regex(e => e.ExceptionType, pattern),
@@ -126,8 +126,36 @@ public sealed class ErrorLogRepository : IErrorLogRepository
                 builder.Regex(e => e.Source, pattern)));
         }
 
+        if (filter.Category is { } category)
+        {
+            clauses.Add(BuildCategoryFilter(builder, category));
+        }
+
         return clauses.Count == 0 ? builder.Empty : builder.And(clauses);
     }
+
+    private static BsonRegularExpression CaseInsensitiveSubstring(string value) => new(Regex.Escape(value), "i");
+
+    // Rss/Api/Social/Http match the literal ErrorNotification.Operation strings every call site
+    // uses for ErrorLog.Source (see IErrorLogRepository.ErrorLogCategory's own doc comment) -
+    // Rss covers both RSS-proper and dynamic (Mongo-driven) feeds, since both are "a feed fetch
+    // failed" from an admin's point of view. Critical/Warning are a severity derived from
+    // HttpStatusCode since ErrorLog has no stored severity of its own: null (an unhandled
+    // exception with no HTTP context at all) or 5xx is Critical, 4xx is Warning.
+    private static FilterDefinition<ErrorLog> BuildCategoryFilter(FilterDefinitionBuilder<ErrorLog> builder, ErrorLogCategory category) => category switch
+    {
+        ErrorLogCategory.Rss => builder.In(e => e.Source, new[] { "RSS Feed Fetch", "Dynamic Feed Fetch" }),
+        ErrorLogCategory.Api => builder.Eq(e => e.Source, "News API Fetch"),
+        ErrorLogCategory.Social => builder.Eq(e => e.Source, "Social Media Fetch"),
+        ErrorLogCategory.Http => builder.Eq(e => e.Source, "HTTP Request"),
+        ErrorLogCategory.Critical => builder.Or(
+            builder.Eq(e => e.HttpStatusCode, null),
+            builder.Gte(e => e.HttpStatusCode, 500)),
+        ErrorLogCategory.Warning => builder.And(
+            builder.Gte(e => e.HttpStatusCode, 400),
+            builder.Lt(e => e.HttpStatusCode, 500)),
+        _ => builder.Empty,
+    };
 
     public async Task EnsureIndexesAsync(CancellationToken cancellationToken)
     {
