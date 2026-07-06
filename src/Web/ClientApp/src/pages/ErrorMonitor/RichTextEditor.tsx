@@ -1,4 +1,8 @@
-import { useEffect, useRef, useState, type ReactNode } from 'react';
+import { useEffect, useState, type ReactNode } from 'react';
+import { EditorContent, useEditor } from '@tiptap/react';
+import StarterKit from '@tiptap/starter-kit';
+import Underline from '@tiptap/extension-underline';
+import Placeholder from '@tiptap/extension-placeholder';
 import Box from '@mui/material/Box';
 import Stack from '@mui/material/Stack';
 import IconButton from '@mui/material/IconButton';
@@ -23,28 +27,52 @@ interface RichTextEditorProps {
   required?: boolean;
 }
 
-const TOOLBAR_ACTIONS: { command: string; label: string; icon: ReactNode }[] = [
-  { command: 'bold', label: 'Bold', icon: <FormatBoldIcon fontSize="small" /> },
-  { command: 'italic', label: 'Italic', icon: <FormatItalicIcon fontSize="small" /> },
-  { command: 'underline', label: 'Underline', icon: <FormatUnderlinedIcon fontSize="small" /> },
-  { command: 'insertUnorderedList', label: 'Bulleted list', icon: <FormatListBulletedIcon fontSize="small" /> },
-  { command: 'insertOrderedList', label: 'Numbered list', icon: <FormatListNumberedIcon fontSize="small" /> },
+interface ToolbarAction {
+  label: string;
+  icon: ReactNode;
+  isActive: (editor: NonNullable<ReturnType<typeof useEditor>>) => boolean;
+  run: (editor: NonNullable<ReturnType<typeof useEditor>>) => void;
+}
+
+const TOOLBAR_ACTIONS: ToolbarAction[] = [
+  {
+    label: 'Bold',
+    icon: <FormatBoldIcon fontSize="small" />,
+    isActive: (editor) => editor.isActive('bold'),
+    run: (editor) => editor.chain().focus().toggleBold().run(),
+  },
+  {
+    label: 'Italic',
+    icon: <FormatItalicIcon fontSize="small" />,
+    isActive: (editor) => editor.isActive('italic'),
+    run: (editor) => editor.chain().focus().toggleItalic().run(),
+  },
+  {
+    label: 'Underline',
+    icon: <FormatUnderlinedIcon fontSize="small" />,
+    isActive: (editor) => editor.isActive('underline'),
+    run: (editor) => editor.chain().focus().toggleUnderline().run(),
+  },
+  {
+    label: 'Bulleted list',
+    icon: <FormatListBulletedIcon fontSize="small" />,
+    isActive: (editor) => editor.isActive('bulletList'),
+    run: (editor) => editor.chain().focus().toggleBulletList().run(),
+  },
+  {
+    label: 'Numbered list',
+    icon: <FormatListNumberedIcon fontSize="small" />,
+    isActive: (editor) => editor.isActive('orderedList'),
+    run: (editor) => editor.chain().focus().toggleOrderedList().run(),
+  },
 ];
 
-// A minimal contentEditable-based rich text editor (bold/italic/underline/lists) with a
-// Write/Preview toggle - avoids pulling in a full WYSIWYG library for what's just light
-// formatting. Deliberately uncontrolled (like a plain <input defaultValue>, not value):
-// contentEditable fights back hard against being treated as a controlled component, so the caller
-// resets it by changing this component's `key` (e.g. when a dialog re-opens) rather than pushing
-// new HTML in on every render.
-//
-// The initial HTML is seeded into the DOM exactly once, imperatively (the effect below), rather
-// than via a `dangerouslySetInnerHTML` prop in the JSX - React's diffing for that prop compares
-// the *wrapper object's identity*, not the `__html` string inside it, so a fresh `{ __html: ... }`
-// literal on every render (which is unavoidable if it's inline in JSX) made React reset the
-// node's content back to the original empty string after every single keystroke, which is exactly
-// what made typing appear broken. The Preview tab reuses sanitizeRichText, the same sanitizer
-// every other render path (HistoryTimeline) uses before trusting this HTML.
+// A Tiptap-based rich text editor (bold/italic/underline/lists) with a Write/Preview toggle.
+// Tiptap (MIT-licensed, github.com/ueberdosis/tiptap) owns its own document model instead of
+// relying on the browser's contentEditable + document.execCommand, which is deprecated and
+// notoriously inconsistent across browsers - a hand-rolled contentEditable editor built directly
+// on it kept losing keystrokes and formatting state. The Preview tab reuses sanitizeRichText, the
+// same sanitizer every other render path (HistoryTimeline) uses before trusting this HTML.
 export function RichTextEditor({
   label,
   defaultValue = '',
@@ -54,30 +82,30 @@ export function RichTextEditor({
   minHeight = 96,
   required,
 }: RichTextEditorProps) {
-  const editorRef = useRef<HTMLDivElement | null>(null);
-  const [isEmpty, setIsEmpty] = useState(!defaultValue || !defaultValue.replace(/<[^>]*>/g, '').trim());
   const [mode, setMode] = useState<'write' | 'preview'>('write');
-  const [html, setHtml] = useState(defaultValue);
+
+  const editor = useEditor({
+    extensions: [
+      StarterKit.configure({ heading: false, blockquote: false, codeBlock: false, horizontalRule: false }),
+      Underline,
+      Placeholder.configure({ placeholder: placeholder ?? '' }),
+    ],
+    content: defaultValue,
+    editable: !disabled,
+    onUpdate: ({ editor }) => onChange(editor.getHTML()),
+    editorProps: {
+      attributes: {
+        style: `min-height:${minHeight}px`,
+      },
+    },
+  });
 
   useEffect(() => {
-    if (editorRef.current) {
-      editorRef.current.innerHTML = defaultValue;
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    editor?.setEditable(!disabled);
+  }, [disabled, editor]);
 
-  const handleInput = () => {
-    const nextHtml = editorRef.current?.innerHTML ?? '';
-    setHtml(nextHtml);
-    setIsEmpty((editorRef.current?.textContent ?? '').trim() === '');
-    onChange(nextHtml);
-  };
-
-  const runCommand = (command: string) => {
-    editorRef.current?.focus();
-    document.execCommand(command);
-    handleInput();
-  };
+  const html = editor?.getHTML() ?? defaultValue;
+  const isEmpty = editor?.isEmpty ?? true;
 
   return (
     <Box>
@@ -102,51 +130,49 @@ export function RichTextEditor({
         </ToggleButtonGroup>
       </Stack>
       <Box sx={{ border: 1, borderColor: 'divider', borderRadius: 1, overflow: 'hidden' }}>
-        {/* Kept mounted (just hidden) rather than conditionally rendered, so the imperative
-            content-seeding effect above never has to re-run against a freshly (re)mounted node. */}
+        {/* Kept mounted (just hidden), not conditionally rendered, so switching to Preview and
+            back never re-creates the underlying Tiptap editor instance. */}
         <Box sx={{ display: mode === 'write' ? 'block' : 'none' }}>
           <Stack direction="row" sx={{ borderBottom: 1, borderColor: 'divider', px: 0.5, py: 0.25, bgcolor: 'action.hover' }}>
-            {TOOLBAR_ACTIONS.map(({ command, label: actionLabel, icon }) => (
-              <Tooltip key={command} title={actionLabel}>
+            {TOOLBAR_ACTIONS.map((action) => (
+              <Tooltip key={action.label} title={action.label}>
                 <span>
                   <IconButton
                     size="small"
-                    disabled={disabled}
+                    disabled={disabled || !editor}
+                    color={editor && action.isActive(editor) ? 'primary' : 'default'}
                     onMouseDown={(e) => e.preventDefault()}
-                    onClick={() => runCommand(command)}
-                    aria-label={actionLabel}
+                    onClick={() => editor && action.run(editor)}
+                    aria-label={action.label}
                   >
-                    {icon}
+                    {action.icon}
                   </IconButton>
                 </span>
               </Tooltip>
             ))}
           </Stack>
-          <Box sx={{ position: 'relative' }}>
-            {isEmpty && placeholder && (
-              <Typography
-                variant="body2"
-                color="text.disabled"
-                sx={{ position: 'absolute', top: 10, left: 13, pointerEvents: 'none' }}
-              >
-                {placeholder}
-              </Typography>
-            )}
-            <Box
-              ref={editorRef}
-              contentEditable={!disabled}
-              suppressContentEditableWarning
-              onInput={handleInput}
-              sx={{
-                minHeight,
-                maxHeight: 260,
-                overflow: 'auto',
-                p: 1.25,
-                fontSize: 14,
-                outline: 'none',
-                '& ul, & ol': { pl: 3, my: 0.5 },
-              }}
-            />
+          <Box
+            sx={{
+              minHeight,
+              maxHeight: 260,
+              overflow: 'auto',
+              p: 1.25,
+              fontSize: 14,
+              cursor: 'text',
+              '& .tiptap': { outline: 'none' },
+              '& ul, & ol': { pl: 3, my: 0.5 },
+              '& p': { m: 0 },
+              '& p.is-editor-empty:first-of-type::before': {
+                content: 'attr(data-placeholder)',
+                color: 'text.disabled',
+                float: 'left',
+                height: 0,
+                pointerEvents: 'none',
+              },
+            }}
+            onClick={() => editor?.chain().focus().run()}
+          >
+            <EditorContent editor={editor} />
           </Box>
         </Box>
 
