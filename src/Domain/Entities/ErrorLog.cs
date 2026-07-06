@@ -96,4 +96,7 @@ public sealed class ErrorLog
     public bool IsResolved { get; set; }
 
     public DateTimeOffset? ResolvedOn { get; set; }
+
+    /// <summary>Audit trail for this row - one entry per resolved/unresolved toggle (comment required) or standalone comment (status left unchanged), newest last. See <see cref="ErrorLogHistoryEntry"/>.</summary>
+    public List<ErrorLogHistoryEntry> History { get; set; } = [];
 }

@@ -37,7 +37,8 @@ public sealed record ErrorLogDetailDto(
     bool IsSent,
     DateTimeOffset? SentOn,
     bool IsResolved,
-    DateTimeOffset? ResolvedOn)
+    DateTimeOffset? ResolvedOn,
+    IReadOnlyList<ErrorLogHistoryEntryDto> History)
 {
     public static ErrorLogDetailDto FromDomain(ErrorLog log) => new(
         log.Id,
@@ -73,5 +74,8 @@ public sealed record ErrorLogDetailDto(
         log.IsSent,
         log.SentOn,
         log.IsResolved,
-        log.ResolvedOn);
+        log.ResolvedOn,
+        // Stored oldest-appended-first (Mongo $push appends), reversed here so the UI's history
+        // timeline reads newest-first without every consumer needing to know the storage order.
+        log.History.Select(ErrorLogHistoryEntryDto.FromDomain).Reverse().ToList());
 }

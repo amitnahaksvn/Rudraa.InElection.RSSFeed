@@ -18,6 +18,12 @@ export interface ErrorLogSummary {
   resolvedOn: string | null;
 }
 
+export interface ErrorLogHistoryEntry {
+  comment: string;
+  isResolved: boolean;
+  createdOn: string;
+}
+
 export interface ErrorLogDetail extends ErrorLogSummary {
   stackTrace: string | null;
   innerException: string | null;
@@ -39,6 +45,7 @@ export interface ErrorLogDetail extends ErrorLogSummary {
   additionalData: string | null;
   isSent: boolean;
   sentOn: string | null;
+  history: ErrorLogHistoryEntry[];
 }
 
 export interface PagedResult<T> {
