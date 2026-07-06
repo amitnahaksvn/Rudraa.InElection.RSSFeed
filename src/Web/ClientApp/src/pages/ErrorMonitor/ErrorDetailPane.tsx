@@ -4,6 +4,7 @@ import Box from '@mui/material/Box';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import Chip from '@mui/material/Chip';
+import Tooltip from '@mui/material/Tooltip';
 import Divider from '@mui/material/Divider';
 import Switch from '@mui/material/Switch';
 import FormControlLabel from '@mui/material/FormControlLabel';
@@ -13,6 +14,8 @@ import Button from '@mui/material/Button';
 import IconButton from '@mui/material/IconButton';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import CommentIcon from '@mui/icons-material/Comment';
+import ContentCopyIcon from '@mui/icons-material/ContentCopy';
+import CheckIcon from '@mui/icons-material/Check';
 import { fetchErrorLogDetail } from '../../api/errorLogs';
 import { formatAbsoluteTime } from '../../utils/formatDate';
 import { useSetErrorResolved } from './useSetErrorResolved';
@@ -72,6 +75,7 @@ interface ErrorDetailPaneProps {
 export function ErrorDetailPane({ errorId, onBack }: ErrorDetailPaneProps) {
   const [pendingResolvedTarget, setPendingResolvedTarget] = useState<boolean | null>(null);
   const [addCommentOpen, setAddCommentOpen] = useState(false);
+  const [idCopied, setIdCopied] = useState(false);
   const setResolved = useSetErrorResolved();
   const addComment = useAddErrorLogComment();
 
@@ -98,6 +102,13 @@ export function ErrorDetailPane({ errorId, onBack }: ErrorDetailPaneProps) {
   const closeAddCommentDialog = () => {
     setAddCommentOpen(false);
     addComment.reset();
+  };
+
+  const copyId = (id: string) => {
+    navigator.clipboard.writeText(id).then(() => {
+      setIdCopied(true);
+      setTimeout(() => setIdCopied(false), 1500);
+    });
   };
 
   return (
@@ -133,6 +144,23 @@ export function ErrorDetailPane({ errorId, onBack }: ErrorDetailPaneProps) {
                 {detail.message}
               </Typography>
             </Box>
+          </Stack>
+
+          <Stack direction="row" alignItems="center" gap={0.75} flexWrap="wrap">
+            <Typography variant="caption" color="text.secondary">
+              Error ID
+            </Typography>
+            <Tooltip title={idCopied ? 'Copied!' : 'Copy full ID'}>
+              <Chip
+                size="small"
+                variant="outlined"
+                clickable
+                onClick={() => copyId(detail.id)}
+                icon={idCopied ? <CheckIcon fontSize="small" /> : <ContentCopyIcon fontSize="small" />}
+                label={detail.id}
+                sx={{ fontFamily: 'ui-monospace, Consolas, monospace', fontSize: 12 }}
+              />
+            </Tooltip>
           </Stack>
 
           <Stack direction="row" justifyContent="space-between" alignItems="center" flexWrap="wrap" gap={1}>

@@ -73,9 +73,17 @@ export function ErrorListRow({ error, selected, onSelect }: ErrorListRowProps) {
         >
           {error.message}
         </Typography>
-        <Stack direction="row" alignItems="center" gap={0.75} sx={{ mt: 0.75 }}>
+        <Stack direction="row" alignItems="center" gap={0.75} sx={{ mt: 0.75 }} flexWrap="wrap">
           <StatusChip isResolved={error.isResolved} />
           {error.httpStatusCode && <Chip size="small" variant="outlined" color="warning" label={`HTTP ${error.httpStatusCode}`} />}
+          <Tooltip title={`Full ID: ${error.id}`}>
+            <Chip
+              size="small"
+              variant="outlined"
+              label={`#${error.id.slice(-8)}`}
+              sx={{ fontFamily: 'ui-monospace, Consolas, monospace', fontSize: 11, color: 'text.secondary' }}
+            />
+          </Tooltip>
         </Stack>
       </Box>
     </Collapse>
