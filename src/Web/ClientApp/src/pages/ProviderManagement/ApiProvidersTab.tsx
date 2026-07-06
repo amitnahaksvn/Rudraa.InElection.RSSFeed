@@ -5,9 +5,13 @@ import CircularProgress from '@mui/material/CircularProgress';
 import Alert from '@mui/material/Alert';
 import Typography from '@mui/material/Typography';
 import InputAdornment from '@mui/material/InputAdornment';
+import IconButton from '@mui/material/IconButton';
 import Button from '@mui/material/Button';
+import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
+import ToggleButton from '@mui/material/ToggleButton';
 import Collapse from '@mui/material/Collapse';
 import SearchIcon from '@mui/icons-material/Search';
+import ClearIcon from '@mui/icons-material/Clear';
 import UnfoldLessIcon from '@mui/icons-material/UnfoldLess';
 import UnfoldMoreIcon from '@mui/icons-material/UnfoldMore';
 import { useApiProviders } from './useApiProviders';
@@ -15,17 +19,23 @@ import { ApiProviderCard } from './ApiProviderCard';
 import { CountryGroupHeader } from './CountryGroupHeader';
 import type { ApiProviderSummary } from '../../api/providerTypes';
 
+type StatusFilter = 'all' | 'enabled' | 'disabled';
+
 export function ApiProvidersTab() {
   const { data, isLoading, isError } = useApiProviders();
   const [search, setSearch] = useState('');
+  const [statusFilter, setStatusFilter] = useState<StatusFilter>('all');
   const [collapsedCountries, setCollapsedCountries] = useState<Set<string>>(new Set());
 
   const filtered = useMemo(() => {
     if (!data) return [];
     const term = search.trim().toLowerCase();
-    if (!term) return data;
-    return data.filter((p) => p.name.toLowerCase().includes(term) || p.country.toLowerCase().includes(term));
-  }, [data, search]);
+    return data.filter((p) => {
+      const matchesSearch = !term || p.name.toLowerCase().includes(term) || p.country.toLowerCase().includes(term);
+      const matchesStatus = statusFilter === 'all' || (statusFilter === 'enabled') === p.enabled;
+      return matchesSearch && matchesStatus;
+    });
+  }, [data, search, statusFilter]);
 
   const groupedByCountry = useMemo(() => {
     const groups = new Map<string, ApiProviderSummary[]>();
@@ -71,24 +81,43 @@ export function ApiProvidersTab() {
   }
 
   return (
-    <Stack gap={0.5}>
-      <Stack direction="row" alignItems="center" justifyContent="space-between" flexWrap="wrap" gap={1}>
-        <TextField
+    <Stack gap={1}>
+      <TextField
+        size="small"
+        placeholder="Search provider or country..."
+        fullWidth
+        value={search}
+        onChange={(e) => setSearch(e.target.value)}
+        slotProps={{
+          input: {
+            startAdornment: (
+              <InputAdornment position="start">
+                <SearchIcon fontSize="small" />
+              </InputAdornment>
+            ),
+            endAdornment: search && (
+              <InputAdornment position="end">
+                <IconButton size="small" edge="end" aria-label="Clear search" onClick={() => setSearch('')}>
+                  <ClearIcon fontSize="small" />
+                </IconButton>
+              </InputAdornment>
+            ),
+          },
+        }}
+      />
+
+      <Stack direction="row" alignItems="center" justifyContent="space-between" flexWrap="wrap" gap={1.5}>
+        <ToggleButtonGroup
           size="small"
-          placeholder="Search provider or country..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          sx={{ minWidth: 280 }}
-          slotProps={{
-            input: {
-              startAdornment: (
-                <InputAdornment position="start">
-                  <SearchIcon fontSize="small" />
-                </InputAdornment>
-              ),
-            },
-          }}
-        />
+          exclusive
+          value={statusFilter}
+          onChange={(_, next) => next && setStatusFilter(next)}
+        >
+          <ToggleButton value="all">All</ToggleButton>
+          <ToggleButton value="enabled">Enabled</ToggleButton>
+          <ToggleButton value="disabled">Disabled</ToggleButton>
+        </ToggleButtonGroup>
+
         <Stack direction="row" alignItems="center" gap={1.5}>
           {groupedByCountry.length > 0 && (
             <Button

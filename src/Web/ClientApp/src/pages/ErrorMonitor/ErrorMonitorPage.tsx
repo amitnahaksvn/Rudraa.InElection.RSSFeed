@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import Box from '@mui/material/Box';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
@@ -80,8 +80,21 @@ function ErrorMonitorPageContent() {
     return () => observer.disconnect();
   }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
 
-  const errors = data?.pages.flatMap((page) => page.items) ?? [];
+  const errors = useMemo(() => data?.pages.flatMap((page) => page.items) ?? [], [data]);
   const totalCount = data?.pages[0]?.totalCount;
+
+  // Sourced from whatever's currently loaded, not a dedicated "distinct values" backend endpoint -
+  // an approximation that grows as more pages load, but still a real usability step up from a
+  // blank text field for the Filters panel's Provider/Country/Source autocomplete suggestions.
+  const providerOptions = useMemo(
+    () => [...new Set(errors.map((e) => e.provider).filter((v): v is string => Boolean(v)))].sort(),
+    [errors],
+  );
+  const countryOptions = useMemo(
+    () => [...new Set(errors.map((e) => e.country).filter((v): v is string => Boolean(v)))].sort(),
+    [errors],
+  );
+  const sourceOptions = useMemo(() => [...new Set(errors.map((e) => e.source))].sort(), [errors]);
 
   // Switching status/category is "going to a different folder" - whatever was selected in the
   // old one no longer applies, so the detail pane resets to its empty state rather than keep
@@ -104,7 +117,13 @@ function ErrorMonitorPageContent() {
         )}
       </Stack>
 
-      <FilterBar filters={filters} onChange={setFilters} />
+      <FilterBar
+        filters={filters}
+        onChange={setFilters}
+        providerOptions={providerOptions}
+        countryOptions={countryOptions}
+        sourceOptions={sourceOptions}
+      />
       <Divider />
 
       <Box sx={{ flex: 1, overflow: 'auto' }}>
