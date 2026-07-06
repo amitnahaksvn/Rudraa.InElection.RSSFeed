@@ -32,7 +32,7 @@ export function RichTextEditor({
   onChange,
   placeholder,
   disabled,
-  minHeight = 96,
+  minHeight = 240,
   required,
 }: RichTextEditorProps) {
   const [mode, setMode] = useState<'write' | 'preview'>('write');
@@ -117,7 +117,7 @@ export function RichTextEditor({
         </Box>
 
         {mode === 'preview' && (
-          <Box sx={{ minHeight, maxHeight: 260, overflow: 'auto', p: 1.25, fontSize: 14, '& ul, & ol': { pl: 3, my: 0.5 } }}>
+          <Box sx={{ minHeight, maxHeight: 420, overflow: 'auto', p: 1.25, fontSize: 14, '& ul, & ol': { pl: 3, my: 0.5 } }}>
             {isEmpty ? (
               <Typography variant="body2" color="text.disabled">
                 Nothing to preview yet.
