@@ -5,6 +5,7 @@ import Chip from '@mui/material/Chip';
 import IconButton from '@mui/material/IconButton';
 import PublicIcon from '@mui/icons-material/Public';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import { getCountryFlagEmoji } from '../../utils/countryFlags';
 
 export function CountryGroupHeader({
   country,
@@ -17,6 +18,8 @@ export function CountryGroupHeader({
   expanded: boolean;
   onToggle: () => void;
 }) {
+  const flag = getCountryFlagEmoji(country);
+
   return (
     <Stack
       direction="row"
@@ -43,7 +46,13 @@ export function CountryGroupHeader({
           }}
         />
       </IconButton>
-      <PublicIcon fontSize="small" sx={{ color: 'text.secondary' }} />
+      {flag ? (
+        <Typography component="span" sx={{ fontSize: 20, lineHeight: 1 }} aria-hidden>
+          {flag}
+        </Typography>
+      ) : (
+        <PublicIcon fontSize="small" sx={{ color: 'text.secondary' }} />
+      )}
       <Typography variant="subtitle2" fontWeight={700} sx={{ textTransform: 'uppercase', letterSpacing: 0.6 }}>
         {country}
       </Typography>
