@@ -58,7 +58,7 @@ export function CommentDialog({
   const commentIsBlank = !comment.trim();
 
   return (
-    <Dialog open={open} onClose={onCancel} fullWidth maxWidth="sm">
+    <Dialog open={open} onClose={onCancel} fullWidth maxWidth="md">
       <DialogTitle>{title}</DialogTitle>
       <DialogContent>
         {helperText && <DialogContentText sx={{ mb: 2 }}>{helperText}</DialogContentText>}
