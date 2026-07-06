@@ -5,13 +5,12 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogActions from '@mui/material/DialogActions';
 import Stack from '@mui/material/Stack';
+import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
 import Alert from '@mui/material/Alert';
 import { RichTextEditor } from './RichTextEditor';
 
-function isBlankHtml(html: string): boolean {
-  return html.replace(/<[^>]*>/g, '').trim() === '';
-}
+const COMMENT_MAX_LENGTH = 500;
 
 interface CommentDialogProps {
   open: boolean;
@@ -36,9 +35,9 @@ export function CommentDialog({
 }: CommentDialogProps) {
   const [comment, setComment] = useState('');
   const [descriptionHtml, setDescriptionHtml] = useState('');
-  // Bumped every time the dialog transitions closed -> open, so the two RichTextEditors below
-  // remount (via key) and clear their contentEditable DOM instead of carrying over stale HTML -
-  // contentEditable is inherently uncontrolled, so this is how it gets "reset".
+  // Bumped every time the dialog transitions closed -> open, so the Description RichTextEditor
+  // below remounts (via key) and clears its contentEditable DOM instead of carrying over stale
+  // HTML - contentEditable is inherently uncontrolled, so this is how it gets "reset".
   const [instanceKey, setInstanceKey] = useState(0);
   const wasOpen = useRef(false);
 
@@ -52,11 +51,11 @@ export function CommentDialog({
   }, [open]);
 
   const handleConfirm = () => {
-    if (isBlankHtml(comment)) return;
-    onConfirm(comment, descriptionHtml);
+    if (!comment.trim()) return;
+    onConfirm(comment.trim(), descriptionHtml);
   };
 
-  const commentIsBlank = isBlankHtml(comment);
+  const commentIsBlank = !comment.trim();
 
   return (
     <Dialog open={open} onClose={onCancel} fullWidth maxWidth="sm">
@@ -64,13 +63,19 @@ export function CommentDialog({
       <DialogContent>
         {helperText && <DialogContentText sx={{ mb: 2 }}>{helperText}</DialogContentText>}
         <Stack gap={2}>
-          <RichTextEditor
-            key={`comment-${instanceKey}`}
+          <TextField
+            autoFocus
+            fullWidth
+            multiline
+            minRows={3}
             label="Comment"
             required
             placeholder="What happened, or what did you do..."
-            onChange={setComment}
+            value={comment}
+            onChange={(e) => setComment(e.target.value.slice(0, COMMENT_MAX_LENGTH))}
             disabled={submitting}
+            slotProps={{ htmlInput: { maxLength: COMMENT_MAX_LENGTH } }}
+            helperText={`${comment.length}/${COMMENT_MAX_LENGTH}`}
           />
           <RichTextEditor
             key={`description-${instanceKey}`}

@@ -7,6 +7,8 @@ public sealed class SetErrorLogResolvedCommandValidator : AbstractValidator<SetE
     public SetErrorLogResolvedCommandValidator()
     {
         RuleFor(c => c.Id).NotEmpty();
-        RuleFor(c => c.Comment).NotEmpty().WithMessage("A comment is required when changing an error's resolved status.");
+        RuleFor(c => c.Comment)
+            .NotEmpty().WithMessage("A comment is required when changing an error's resolved status.")
+            .MaximumLength(500);
     }
 }

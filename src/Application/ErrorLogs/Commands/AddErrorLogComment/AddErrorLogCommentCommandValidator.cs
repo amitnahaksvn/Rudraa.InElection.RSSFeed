@@ -7,6 +7,6 @@ public sealed class AddErrorLogCommentCommandValidator : AbstractValidator<AddEr
     public AddErrorLogCommentCommandValidator()
     {
         RuleFor(c => c.Id).NotEmpty();
-        RuleFor(c => c.Comment).NotEmpty();
+        RuleFor(c => c.Comment).NotEmpty().MaximumLength(500);
     }
 }

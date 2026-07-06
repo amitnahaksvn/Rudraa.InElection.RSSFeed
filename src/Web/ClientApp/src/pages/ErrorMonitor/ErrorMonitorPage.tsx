@@ -74,6 +74,14 @@ function ErrorMonitorPageContent() {
   const errors = data?.pages.flatMap((page) => page.items) ?? [];
   const totalCount = data?.pages[0]?.totalCount;
 
+  // Switching status/category is "going to a different folder" - whatever was selected in the
+  // old one no longer applies, so the detail pane resets to its empty state rather than keep
+  // showing a row that may not even be in the new view.
+  const handleSidebarChange = (next: ErrorLogFilters) => {
+    setFilters(next);
+    setSelectedId(null);
+  };
+
   const listPane = (
     <Stack sx={{ height: '100%' }}>
       <Stack direction="row" alignItems="baseline" justifyContent="space-between" sx={{ px: 1.5, pt: 1.5 }} gap={1}>
@@ -135,13 +143,13 @@ function ErrorMonitorPageContent() {
 
   return (
     <Box sx={{ height: 'calc(100vh - 96px)', display: 'flex', flexDirection: 'column' }}>
-      {isMobile && <StatusSidebar direction="row" filters={filters} counts={counts.data} onChange={setFilters} />}
+      {isMobile && <StatusSidebar direction="row" filters={filters} counts={counts.data} onChange={handleSidebarChange} />}
 
       <Box sx={{ flex: 1, display: 'flex', minHeight: 0, border: 1, borderColor: 'divider', borderRadius: 1, overflow: 'hidden' }}>
         {!isMobile && (
           <>
             <Box sx={{ width: SIDEBAR_WIDTH, flexShrink: 0, overflow: 'auto' }}>
-              <StatusSidebar filters={filters} counts={counts.data} onChange={setFilters} />
+              <StatusSidebar filters={filters} counts={counts.data} onChange={handleSidebarChange} />
             </Box>
             <Divider orientation="vertical" flexItem />
           </>
