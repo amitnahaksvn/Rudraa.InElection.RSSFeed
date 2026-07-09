@@ -31,6 +31,9 @@ public enum ErrorLogCategory
     Warning,
 }
 
+/// <summary>One (Source, Provider) group's raw counts from <see cref="IErrorLogRepository.GetProviderCountsAsync"/> - <see cref="Provider"/> is "Unknown" when the underlying <see cref="Domain.Entities.ErrorLog.Provider"/> was null, so every matching row is accounted for. The caller maps <see cref="Source"/> to an <see cref="ErrorLogCategory"/> to build the feed/provider-wise breakdown (e.g. AajTak, ABPNews under Rss).</summary>
+public sealed record ErrorLogProviderCount(string Source, string Provider, long Count, long UnresolvedCount);
+
 /// <summary>Persistence for <see cref="ErrorLog"/> - the general app-wide exception log.</summary>
 public interface IErrorLogRepository
 {
@@ -46,6 +49,9 @@ public interface IErrorLogRepository
     Task<IReadOnlyList<ErrorLog>> GetPagedAsync(ErrorLogFilter filter, int skip, int limit, CancellationToken cancellationToken);
 
     Task<long> CountAsync(ErrorLogFilter filter, CancellationToken cancellationToken);
+
+    /// <summary>Raw per-(Source, Provider) counts under the same filter as <see cref="GetPagedAsync"/>/<see cref="CountAsync"/> (its <see cref="ErrorLogFilter.Category"/> is ignored - this always computes across every category at once) - the source data for the feed/provider-wise error breakdown. See <see cref="ErrorLogProviderCount"/>.</summary>
+    Task<IReadOnlyList<ErrorLogProviderCount>> GetProviderCountsAsync(ErrorLogFilter filter, CancellationToken cancellationToken);
 
     Task<ErrorLog?> GetByIdAsync(string id, CancellationToken cancellationToken);
 

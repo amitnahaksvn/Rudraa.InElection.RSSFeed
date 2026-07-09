@@ -54,6 +54,20 @@ public sealed class ErrorLogRepository : IErrorLogRepository
     public async Task<ErrorLog?> GetByIdAsync(string id, CancellationToken cancellationToken) =>
         await _collection.Find(e => e.Id == id).FirstOrDefaultAsync(cancellationToken);
 
+    // Category is intentionally ignored here (this computes the breakdown across every category at
+    // once) - everything else in the filter still applies, so a provider/country/source/search
+    // filter narrows the breakdown the same way it narrows the plain list/counts. Provider is
+    // coalesced to "Unknown" in the group key so a null-Provider row (e.g. a bare "HTTP Request"
+    // failure) still shows up in its pipeline's total rather than silently vanishing from the
+    // per-provider sum.
+    public async Task<IReadOnlyList<ErrorLogProviderCount>> GetProviderCountsAsync(ErrorLogFilter filter, CancellationToken cancellationToken) =>
+        await _collection.Aggregate()
+            .Match(BuildFilter(filter with { Category = null }))
+            .Group(
+                e => new { e.Source, Provider = e.Provider ?? "Unknown" },
+                g => new ErrorLogProviderCount(g.Key.Source, g.Key.Provider, g.Count(), g.Sum(e => e.IsResolved ? 0 : 1)))
+            .ToListAsync(cancellationToken);
+
     public async Task<bool> SetResolvedAsync(string id, bool resolved, string comment, string? description, CancellationToken cancellationToken)
     {
         var entry = new ErrorLogHistoryEntry { Comment = comment, Description = description, IsResolved = resolved, CreatedOn = DateTimeOffset.UtcNow };

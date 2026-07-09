@@ -13,6 +13,7 @@ import { ErrorDetailPane } from './ErrorDetailPane';
 import { StatusSidebar } from './StatusSidebar';
 import { useErrorLogs } from './useErrorLogs';
 import { useErrorLogCounts } from './useErrorLogCounts';
+import { useErrorLogProviderBreakdown } from './useErrorLogProviderBreakdown';
 import { useErrorLogRealtime } from './useErrorLogRealtime';
 import { PendingTransitionProvider } from './PendingTransitionContext';
 import { PendingTransitionToasts } from './PendingTransitionToasts';
@@ -49,6 +50,7 @@ function ErrorMonitorPageContent() {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading, isError, refetch } = useErrorLogs(filters);
   const counts = useErrorLogCounts(filters);
+  const breakdown = useErrorLogProviderBreakdown(filters);
   const sentinelRef = useRef<HTMLDivElement | null>(null);
   const theme = useTheme();
   // Three tiers, not two: a phone (<600px) can't show more than one pane at a time, but a tablet
@@ -171,13 +173,28 @@ function ErrorMonitorPageContent() {
 
   return (
     <Box sx={{ height: { xs: 'calc(100vh - 88px)', sm: 'calc(100vh - 96px)' }, display: 'flex', flexDirection: 'column', minWidth: 0 }}>
-      {showTopStatusBar && <StatusSidebar direction="row" filters={filters} counts={counts.data} onChange={handleSidebarChange} />}
+      {showTopStatusBar && (
+        <StatusSidebar
+          direction="row"
+          filters={filters}
+          counts={counts.data}
+          breakdown={breakdown.data}
+          isBreakdownLoading={breakdown.isLoading}
+          onChange={handleSidebarChange}
+        />
+      )}
 
       <Box sx={{ flex: 1, display: 'flex', minHeight: 0, minWidth: 0, border: 1, borderColor: 'divider', borderRadius: 1, overflow: 'hidden' }}>
         {showSidebarColumn && (
           <>
             <Box sx={{ width: SIDEBAR_WIDTH, flexShrink: 0, overflow: 'auto' }}>
-              <StatusSidebar filters={filters} counts={counts.data} onChange={handleSidebarChange} />
+              <StatusSidebar
+                filters={filters}
+                counts={counts.data}
+                breakdown={breakdown.data}
+                isBreakdownLoading={breakdown.isLoading}
+                onChange={handleSidebarChange}
+              />
             </Box>
             <Divider orientation="vertical" flexItem />
           </>

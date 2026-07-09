@@ -41,6 +41,22 @@ export interface ErrorLogCounts {
 // shortcuts below the All/Unresolved/Resolved status group.
 export type ErrorLogCategory = 'Rss' | 'Api' | 'Social' | 'Http' | 'Critical' | 'Warning';
 
+// Mirrors Application.ErrorLogs.Dtos.ErrorLogProviderGroupDto/ErrorLogCategoryBreakdownDto - the
+// feed/provider-wise breakdown shown nested under each pipeline (Rss/Api/Social/Http) in the
+// sidebar, e.g. Rss -> [{ provider: 'AajTak', count: 6 }, { provider: 'ABPNews', count: 2 }].
+export interface ErrorLogProviderGroup {
+  provider: string;
+  count: number;
+  unresolvedCount: number;
+}
+
+export interface ErrorLogCategoryBreakdown {
+  category: ErrorLogCategory;
+  totalCount: number;
+  unresolvedCount: number;
+  providers: ErrorLogProviderGroup[];
+}
+
 export interface ErrorLogDetail extends ErrorLogSummary {
   stackTrace: string | null;
   innerException: string | null;
