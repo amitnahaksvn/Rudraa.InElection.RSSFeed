@@ -14,16 +14,13 @@ public enum ArticleUpsertOutcome
 
 public interface INewsArticleRepository
 {
-    Task<NewsArticle?> FindByUrlAsync(string url, CancellationToken cancellationToken);
-
-    Task<NewsArticle?> FindByOriginalGuidAsync(string originalGuid, CancellationToken cancellationToken);
-
-    Task<NewsArticle?> FindByHashAsync(string hash, CancellationToken cancellationToken);
-
     /// <summary>
     /// Inserts a brand new article, updates an existing one whose content changed, or reports
     /// a duplicate skip when the incoming article matches an existing one with no changes.
-    /// Duplicate detection order: Url, then OriginalGuid, then Hash.
+    /// Duplicate detection order: Url, then OriginalGuid, then Hash - resolved entirely against
+    /// the lean <see cref="Domain.Entities.ArticleFingerprint"/> collection
+    /// (<see cref="IArticleFingerprintRepository"/>), so a duplicate/no-change skip never loads
+    /// the full article.
     /// </summary>
     Task<ArticleUpsertOutcome> UpsertAsync(NewsArticle article, CancellationToken cancellationToken);
 
@@ -41,6 +38,6 @@ public interface INewsArticleRepository
     /// <summary>Every distinct, non-empty country currently represented among active articles (optionally narrowed to one pipeline) - backs the News Feed page's country filter.</summary>
     Task<IReadOnlyList<string>> GetDistinctCountriesAsync(ArticleSourceType? sourceType, CancellationToken cancellationToken);
 
-    /// <summary>Ensures the Url (unique), OriginalGuid, Hash, PublishedAt, Provider and Category indexes exist.</summary>
+    /// <summary>Ensures the PublishedAt, Provider and Category indexes exist - Url/OriginalGuid/Hash uniqueness now lives on <see cref="IArticleFingerprintRepository"/> instead.</summary>
     Task EnsureIndexesAsync(CancellationToken cancellationToken);
 }

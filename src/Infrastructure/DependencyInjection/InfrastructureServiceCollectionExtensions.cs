@@ -53,6 +53,7 @@ public static class InfrastructureServiceCollectionExtensions
         services.AddSingleton<IMongoClient>(sp => sp.GetRequiredService<MongoDbContext>().Client);
 
         services.AddSingleton<INewsArticleRepository, NewsArticleRepository>();
+        services.AddSingleton<IArticleFingerprintRepository, ArticleFingerprintRepository>();
         services.AddSingleton<ICrawlHistoryRepository, CrawlHistoryRepository>();
         services.AddSingleton<ICrawlLockRepository, CrawlLockRepository>();
         services.AddSingleton<IRssRawResponseRepository, RssRawResponseRepository>();

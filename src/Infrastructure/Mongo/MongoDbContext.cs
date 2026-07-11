@@ -18,6 +18,7 @@ public sealed class MongoDbContext
         Database = Client.GetDatabase(settings.DatabaseName);
 
         NewsArticles = Database.GetCollection<NewsArticle>(settings.NewsArticlesCollection);
+        ArticleFingerprints = Database.GetCollection<ArticleFingerprint>(settings.ArticleFingerprintsCollection);
         CrawlHistory = Database.GetCollection<CrawlHistory>(settings.CrawlHistoryCollection);
         CrawlLocks = Database.GetCollection<CrawlLock>(settings.CrawlLockCollection);
         RssRawResponses = Database.GetCollection<RssRawResponse>(settings.RssRawResponsesCollection);
@@ -33,6 +34,9 @@ public sealed class MongoDbContext
     public IMongoDatabase Database { get; }
 
     public IMongoCollection<NewsArticle> NewsArticles { get; }
+
+    /// <summary>Lean duplicate-detection records - see <see cref="Application.Options.MongoDbOptions.ArticleFingerprintsCollection"/>.</summary>
+    public IMongoCollection<ArticleFingerprint> ArticleFingerprints { get; }
 
     public IMongoCollection<CrawlHistory> CrawlHistory { get; }
 

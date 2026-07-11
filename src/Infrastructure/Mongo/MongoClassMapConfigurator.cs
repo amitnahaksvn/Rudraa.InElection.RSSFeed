@@ -56,6 +56,12 @@ public static class MongoClassMapConfigurator
             cm.MapIdMember(x => x.Id).SetIdGenerator(StringObjectIdGenerator.Instance);
         });
 
+        BsonClassMap.RegisterClassMap<ArticleFingerprint>(cm =>
+        {
+            cm.AutoMap();
+            cm.MapIdMember(x => x.Id).SetIdGenerator(StringObjectIdGenerator.Instance);
+        });
+
         BsonClassMap.RegisterClassMap<CrawlHistory>(cm =>
         {
             cm.AutoMap();

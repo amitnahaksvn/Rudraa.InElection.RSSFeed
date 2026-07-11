@@ -1,6 +1,7 @@
 using MongoDB.Driver;
 using Application.Abstractions;
 using Application.Models;
+using Application.Services;
 using Domain.Entities;
 using Domain.Enums;
 using Infrastructure.Mongo;
@@ -10,88 +11,133 @@ namespace Infrastructure.Persistence;
 public sealed class NewsArticleRepository : INewsArticleRepository
 {
     private readonly IMongoCollection<NewsArticle> _collection;
+    private readonly IArticleFingerprintRepository _fingerprints;
 
-    public NewsArticleRepository(MongoDbContext context)
+    public NewsArticleRepository(MongoDbContext context, IArticleFingerprintRepository fingerprints)
     {
         _collection = context.NewsArticles;
+        _fingerprints = fingerprints;
     }
 
-    public Task<NewsArticle?> FindByUrlAsync(string url, CancellationToken cancellationToken) =>
-        _collection.Find(a => a.Url == url).FirstOrDefaultAsync(cancellationToken)!;
-
-    public Task<NewsArticle?> FindByOriginalGuidAsync(string originalGuid, CancellationToken cancellationToken) =>
-        _collection.Find(a => a.OriginalGuid == originalGuid).FirstOrDefaultAsync(cancellationToken)!;
-
-    public Task<NewsArticle?> FindByHashAsync(string hash, CancellationToken cancellationToken) =>
-        _collection.Find(a => a.Hash == hash).FirstOrDefaultAsync(cancellationToken)!;
-
+    /// <summary>
+    /// Every dedup check below is resolved against <see cref="IArticleFingerprintRepository"/> -
+    /// a lean per-article record (Url/OriginalGuid/Hash/ContentHash/CrawledAt) - so a duplicate or
+    /// no-change skip (the overwhelming majority of crawls, since most ticks just re-see articles
+    /// already stored) never loads the full NewsArticle document (Title/Summary/Content/ImageUrl/
+    /// Tags/Metadata, the bulk of a document's actual size).
+    /// </summary>
     public async Task<ArticleUpsertOutcome> UpsertAsync(NewsArticle article, CancellationToken cancellationToken)
     {
-        var existing = await FindByUrlAsync(article.Url, cancellationToken);
+        var contentHash = ArticleHasher.ComputeContentHash(article.Title, article.Summary, article.Content, article.ImageUrl);
+
+        var existing = await _fingerprints.FindByUrlAsync(article.Url, cancellationToken);
 
         existing ??= !string.IsNullOrEmpty(article.OriginalGuid)
-            ? await FindByOriginalGuidAsync(article.OriginalGuid, cancellationToken)
+            ? await _fingerprints.FindByOriginalGuidAsync(article.OriginalGuid, cancellationToken)
             : null;
 
         if (existing is null)
         {
-            var byHash = await FindByHashAsync(article.Hash, cancellationToken);
+            var byHash = await _fingerprints.FindByHashAsync(article.Hash, cancellationToken);
             if (byHash is not null)
             {
                 // Same story (Title + PublishedAt) already stored under a different Url/guid.
                 return ArticleUpsertOutcome.DuplicateSkipped;
             }
 
-            try
-            {
-                await _collection.InsertOneAsync(article, options: null, cancellationToken);
-                return ArticleUpsertOutcome.Inserted;
-            }
-            catch (MongoWriteException ex) when (ex.WriteError.Category == ServerErrorCategory.DuplicateKey)
-            {
-                // Another concurrent insert (a different provider's parallel crawl, or a manual
-                // trigger overlapping a still-running scheduled one) won the race on the Url/Hash
-                // unique index between this method's find-checks above and this InsertOneAsync -
-                // the article is already persisted, so this is a duplicate, not a real failure.
-                // Without this, an uncaught MongoWriteException here would abort the *entire*
-                // crawl run as Failed over what is actually a successful dedup.
-                return ArticleUpsertOutcome.DuplicateSkipped;
-            }
+            return await InsertAsync(article, contentHash, cancellationToken);
         }
 
-        var contentChanged =
-            existing.Url != article.Url ||
-            existing.Title != article.Title ||
-            existing.Summary != article.Summary ||
-            existing.Content != article.Content ||
-            existing.ImageUrl != article.ImageUrl;
+        var contentChanged = existing.Url != article.Url || existing.ContentHash != contentHash;
 
         if (!contentChanged)
         {
             return ArticleUpsertOutcome.DuplicateSkipped;
         }
 
+        return await ReplaceAsync(article, existing, contentHash, cancellationToken);
+    }
+
+    /// <summary>
+    /// Reserves the fingerprint first (cheap - just a handful of strings, gated by its own unique
+    /// Url/Hash indexes) and only inserts the full article once that succeeds, so two providers
+    /// racing on the same new story never both write a full duplicate document - the fingerprint
+    /// insert alone decides the race. The narrow trade-off: a crash between the two inserts leaves
+    /// an orphaned fingerprint with no article, which would make every future crawl of that same
+    /// Url/story silently skip it forever. Accepted as-is (same category as this codebase's other
+    /// documented narrow-race trade-offs) rather than adding a multi-document transaction for a
+    /// window this small.
+    /// </summary>
+    private async Task<ArticleUpsertOutcome> InsertAsync(NewsArticle article, string contentHash, CancellationToken cancellationToken)
+    {
+        var fingerprint = new ArticleFingerprint
+        {
+            Url = article.Url,
+            OriginalGuid = article.OriginalGuid,
+            Hash = article.Hash,
+            ContentHash = contentHash,
+            CrawledAt = article.CrawledAt
+        };
+
+        try
+        {
+            await _fingerprints.InsertAsync(fingerprint, cancellationToken);
+        }
+        catch (MongoWriteException ex) when (ex.WriteError.Category == ServerErrorCategory.DuplicateKey)
+        {
+            // Another concurrent insert (a different provider's parallel crawl, or a manual
+            // trigger overlapping a still-running scheduled one) won the race on the fingerprint's
+            // Url/Hash unique index between this method's find-checks and this InsertAsync - the
+            // article is already persisted (or about to be), so this is a duplicate, not a real
+            // failure. Without this, an uncaught exception here would abort the *entire* crawl run
+            // as Failed over what is actually a successful dedup.
+            return ArticleUpsertOutcome.DuplicateSkipped;
+        }
+
+        // Shares the fingerprint's own client-generated Id 1:1 - StringObjectIdGenerator already
+        // populated fingerprint.Id above, so InsertOneAsync below sees a non-empty Id and won't
+        // generate a second one.
+        article.Id = fingerprint.Id;
+        await _collection.InsertOneAsync(article, options: null, cancellationToken);
+        return ArticleUpsertOutcome.Inserted;
+    }
+
+    private async Task<ArticleUpsertOutcome> ReplaceAsync(
+        NewsArticle article, ArticleFingerprint existing, string contentHash, CancellationToken cancellationToken)
+    {
         article.Id = existing.Id;
         article.CrawledAt = existing.CrawledAt;
         article.UpdatedAt = DateTimeOffset.UtcNow;
 
+        var updatedFingerprint = new ArticleFingerprint
+        {
+            Id = existing.Id,
+            Url = article.Url,
+            OriginalGuid = article.OriginalGuid,
+            Hash = article.Hash,
+            ContentHash = contentHash,
+            CrawledAt = existing.CrawledAt
+        };
+
         try
         {
-            await _collection.ReplaceOneAsync(a => a.Id == existing.Id, article, cancellationToken: cancellationToken);
-            return ArticleUpsertOutcome.Updated;
+            await _fingerprints.ReplaceAsync(updatedFingerprint, cancellationToken);
         }
         catch (MongoWriteException ex) when (ex.WriteError.Category == ServerErrorCategory.DuplicateKey)
         {
             // The article's own content changed enough to recompute its Hash (Title/PublishedAt),
-            // and that new Hash now collides with a *different* document's Hash - typically two
-            // providers independently carrying the same wire story (identical normalized title +
+            // and that new Hash now collides with a *different* fingerprint's Hash - typically two
+            // providers independently carrying the same wire story (identical normalized title and
             // identical PublishedAt) under different Urls. Per the documented dedup contract
             // (Url -> OriginalGuid -> Hash, any Hash match is a no-op duplicate), leave the existing
             // document as-is rather than crash the whole run over what is, by design, "the same
-            // story already recorded elsewhere" - the ReplaceOneAsync counterpart to the
-            // InsertOneAsync race guard above.
+            // story already recorded elsewhere" - resolved here without ever touching the full
+            // NewsArticle document.
             return ArticleUpsertOutcome.DuplicateSkipped;
         }
+
+        await _collection.ReplaceOneAsync(a => a.Id == existing.Id, article, cancellationToken: cancellationToken);
+        return ArticleUpsertOutcome.Updated;
     }
 
     public async Task<IReadOnlyList<NewsArticle>> GetLatestAsync(int count, CancellationToken cancellationToken) =>
@@ -175,10 +221,6 @@ public sealed class NewsArticleRepository : INewsArticleRepository
     {
         var models = new List<CreateIndexModel<NewsArticle>>
         {
-            new(Builders<NewsArticle>.IndexKeys.Ascending(a => a.Url),
-                new CreateIndexOptions { Unique = true, Name = "ux_news_url" }),
-            new(Builders<NewsArticle>.IndexKeys.Ascending(a => a.OriginalGuid),
-                new CreateIndexOptions { Name = "ix_news_originalguid" }),
             new(Builders<NewsArticle>.IndexKeys.Descending(a => a.PublishedAt),
                 new CreateIndexOptions { Name = "ix_news_publishedat" }),
             // Compound, not single-field, because every actual read query
@@ -198,19 +240,24 @@ public sealed class NewsArticleRepository : INewsArticleRepository
 
         await _collection.Indexes.CreateManyAsync(models, cancellationToken);
 
-        await EnsureUniqueHashIndexAsync(cancellationToken);
         await DropSupersededSingleFieldIndexesAsync(cancellationToken);
     }
 
-    private const string HashIndexName = "ux_news_hash";
-    private const string LegacyHashIndexName = "ix_news_hash";
-
-    private static readonly string[] SupersededIndexNames = ["ix_news_crawledat", "ix_news_provider", "ix_news_category"];
+    // ux_news_url/ux_news_hash/ix_news_hash/ix_news_originalguid are superseded by
+    // ArticleFingerprintRepository's own indexes now that dedup no longer queries NewsArticles
+    // directly - dropped here (rather than left behind) purely to reclaim their storage, the same
+    // reasoning that already applied to ix_news_crawledat/ix_news_provider/ix_news_category below.
+    private static readonly string[] SupersededIndexNames =
+    [
+        "ix_news_crawledat", "ix_news_provider", "ix_news_category",
+        "ux_news_url", "ux_news_hash", "ix_news_hash", "ix_news_originalguid"
+    ];
 
     /// <summary>
-    /// Drops the three single-field indexes the compound ones above replaced, if they still exist
-    /// from before this change - an existing database would otherwise carry both, paying the
-    /// write overhead of five indexes doing the job three compound ones already cover in full.
+    /// Drops indexes superseded by a later change (see <see cref="SupersededIndexNames"/>'s own
+    /// comment for what replaced each one) - an existing database would otherwise carry both the
+    /// old and new indexes forever, paying the write/storage overhead of indexes nothing queries
+    /// anymore.
     /// </summary>
     private async Task DropSupersededSingleFieldIndexesAsync(CancellationToken cancellationToken)
     {
@@ -223,49 +270,6 @@ public sealed class NewsArticleRepository : INewsArticleRepository
             {
                 await _collection.Indexes.DropOneAsync(indexName, cancellationToken);
             }
-        }
-    }
-
-    /// <summary>
-    /// The Hash tier of <c>UpsertAsync</c>'s dedup check (Url -&gt; OriginalGuid -&gt; Hash) was
-    /// only ever a non-atomic check-then-act over a plain, non-unique index - two providers
-    /// crawling the same story in the same tick (parallel by design, see
-    /// NewsCrawlerOrchestrator) could both pass FindByHashAsync before either had inserted,
-    /// violating the "articles are never duplicated" invariant. A unique index makes the DB
-    /// itself the source of truth; InsertOneAsync's catch for ServerErrorCategory.DuplicateKey
-    /// in UpsertAsync now closes the race for both the Url and Hash tiers.
-    /// </summary>
-    private async Task EnsureUniqueHashIndexAsync(CancellationToken cancellationToken)
-    {
-        var existingIndexes = await (await _collection.Indexes.ListAsync(cancellationToken)).ToListAsync(cancellationToken);
-
-        if (existingIndexes.Any(i => i["name"].AsString == HashIndexName))
-        {
-            return;
-        }
-
-        if (existingIndexes.Any(i => i["name"].AsString == LegacyHashIndexName))
-        {
-            await _collection.Indexes.DropOneAsync(LegacyHashIndexName, cancellationToken);
-        }
-
-        try
-        {
-            await _collection.Indexes.CreateOneAsync(
-                new CreateIndexModel<NewsArticle>(
-                    Builders<NewsArticle>.IndexKeys.Ascending(a => a.Hash),
-                    new CreateIndexOptions { Unique = true, Name = HashIndexName }),
-                cancellationToken: cancellationToken);
-        }
-        catch (MongoCommandException ex) when (ex.Code == 11000)
-        {
-            // Data from before this constraint existed already has two articles sharing the same
-            // Hash (same normalized title + PublishedAt) - the unique index build itself fails
-            // over pre-existing duplicates, so this falls back to the application-level
-            // FindByHashAsync pre-check rather than crashing MongoIndexInitializerHostedService
-            // (and the whole host) over data that needs a manual cleanup pass, not a startup
-            // failure. Concurrent inserts racing on a brand-new hash remain unprotected until the
-            // existing duplicates are removed and this index is retried.
         }
     }
 }

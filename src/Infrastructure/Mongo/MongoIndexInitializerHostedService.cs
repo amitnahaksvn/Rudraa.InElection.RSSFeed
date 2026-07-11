@@ -14,6 +14,7 @@ namespace Infrastructure.Mongo;
 public sealed class MongoIndexInitializerHostedService : IHostedService
 {
     private readonly INewsArticleRepository _articles;
+    private readonly IArticleFingerprintRepository _articleFingerprints;
     private readonly ICrawlHistoryRepository _history;
     private readonly ICrawlLockRepository _locks;
     private readonly IRssRawResponseRepository _rawResponses;
@@ -27,6 +28,7 @@ public sealed class MongoIndexInitializerHostedService : IHostedService
 
     public MongoIndexInitializerHostedService(
         INewsArticleRepository articles,
+        IArticleFingerprintRepository articleFingerprints,
         ICrawlHistoryRepository history,
         ICrawlLockRepository locks,
         IRssRawResponseRepository rawResponses,
@@ -39,6 +41,7 @@ public sealed class MongoIndexInitializerHostedService : IHostedService
         ILogger<MongoIndexInitializerHostedService> logger)
     {
         _articles = articles;
+        _articleFingerprints = articleFingerprints;
         _history = history;
         _locks = locks;
         _rawResponses = rawResponses;
@@ -55,6 +58,7 @@ public sealed class MongoIndexInitializerHostedService : IHostedService
     {
         _logger.LogInformation("Ensuring MongoDB indexes");
         await _articles.EnsureIndexesAsync(cancellationToken);
+        await _articleFingerprints.EnsureIndexesAsync(cancellationToken);
         await _history.EnsureIndexesAsync(cancellationToken);
         await _locks.EnsureIndexesAsync(cancellationToken);
         await _rawResponses.EnsureIndexesAsync(_options.RawResponseRetention, cancellationToken);

@@ -18,6 +18,10 @@ public sealed class MongoDbOptions
     [Required]
     public string NewsArticlesCollection { get; set; } = "NewsArticles";
 
+    /// <summary>Lean duplicate-detection record per article (Url/OriginalGuid/Hash/ContentHash/CrawledAt only) - see <c>Domain.Entities.ArticleFingerprint</c> for why dedup checks no longer query <see cref="NewsArticlesCollection"/> directly.</summary>
+    [Required]
+    public string ArticleFingerprintsCollection { get; set; } = "ArticleFingerprints";
+
     [Required]
     public string CrawlHistoryCollection { get; set; } = "CrawlHistory";
 
