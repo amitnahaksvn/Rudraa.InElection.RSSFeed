@@ -9,6 +9,9 @@ import TableRow from '@mui/material/TableRow';
 import Typography from '@mui/material/Typography';
 import Tooltip from '@mui/material/Tooltip';
 import CircularProgress from '@mui/material/CircularProgress';
+import IconButton from '@mui/material/IconButton';
+import Stack from '@mui/material/Stack';
+import RefreshIcon from '@mui/icons-material/Refresh';
 import Box from '@mui/material/Box';
 import type { JobExecutionLog, JobExecutionStatusName } from '../../api/jobReportTypes';
 import { useJobExecutionLogs } from './useJobExecutionLogs';
@@ -33,11 +36,30 @@ export function JobExecutionLogsTable({
   const [page, setPage] = useState(0);
   const [pageSize, setPageSize] = useState(25);
 
-  const { data, isLoading, isFetching } = useJobExecutionLogs(jobId, status, page, pageSize);
+  const { data, isLoading, isFetching, refetch } = useJobExecutionLogs(jobId, status, page, pageSize);
   const logs: JobExecutionLog[] = data ?? [];
 
   return (
     <Box sx={{ position: 'relative' }}>
+      <Stack direction="row" justifyContent="flex-end" sx={{ px: 1, pt: 1 }}>
+        <Tooltip title="Refresh">
+          <span>
+            <IconButton size="small" onClick={() => refetch()} disabled={isFetching} aria-label="Refresh job executions">
+              <RefreshIcon
+                fontSize="small"
+                sx={{
+                  animation: isFetching ? 'jobReportRefreshSpin 1s linear infinite' : 'none',
+                  '@keyframes jobReportRefreshSpin': {
+                    from: { transform: 'rotate(0deg)' },
+                    to: { transform: 'rotate(360deg)' },
+                  },
+                }}
+              />
+            </IconButton>
+          </span>
+        </Tooltip>
+      </Stack>
+
       <TableContainer sx={{ maxHeight: 560, opacity: isFetching && !isLoading ? 0.6 : 1, transition: 'opacity 0.15s' }}>
         <Table size="small" stickyHeader>
           <TableHead>
