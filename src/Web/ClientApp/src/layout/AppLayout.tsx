@@ -16,6 +16,7 @@ import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
 import HubIcon from '@mui/icons-material/Hub';
 import AssessmentIcon from '@mui/icons-material/Assessment';
 import DynamicFeedIcon from '@mui/icons-material/DynamicFeed';
+import FactCheckIcon from '@mui/icons-material/FactCheck';
 
 const DRAWER_WIDTH = 240;
 
@@ -26,6 +27,7 @@ const NAV_ITEMS = [
   { label: 'Error Monitor', path: '/errors', icon: <ErrorOutlineIcon /> },
   { label: 'Provider Management', path: '/providers', icon: <HubIcon /> },
   { label: 'Crawl Report', path: '/reports', icon: <AssessmentIcon /> },
+  { label: 'Job Report', path: '/job-reports', icon: <FactCheckIcon /> },
 ];
 
 export function AppLayout({ children }: { children: ReactNode }) {

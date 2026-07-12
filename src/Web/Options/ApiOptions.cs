@@ -49,4 +49,12 @@ public sealed class ApiOptions
     /// casually.
     /// </summary>
     public bool EnableCrawlReportDashboard { get; set; }
+
+    /// <summary>
+    /// The Job Report page (/job-reports) reads via the authenticated-nothing api/job-reports
+    /// endpoint - same "no built-in auth, off by default" trade-off as
+    /// <see cref="EnableCrawlReportDashboard"/>. Read-only, same lower-risk category; still off by
+    /// default for consistency with every other admin dashboard in this app.
+    /// </summary>
+    public bool EnableJobReportDashboard { get; set; }
 }

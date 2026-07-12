@@ -27,6 +27,7 @@ public sealed class MongoDbContext
         ErrorLogs = Database.GetCollection<ErrorLog>(settings.ErrorLogsCollection);
         SocialMediaSources = Database.GetCollection<SocialMediaSource>(settings.SocialMediaSourcesCollection);
         ProviderSchedules = Database.GetCollection<ProviderSchedule>(settings.ProviderSchedulesCollection);
+        JobExecutionLogs = Database.GetCollection<JobExecutionLog>(settings.JobExecutionLogsCollection);
     }
 
     public IMongoClient Client { get; }
@@ -56,4 +57,7 @@ public sealed class MongoDbContext
 
     /// <summary>Database-backed provider Enabled/Cron/TimeZone - see <see cref="Application.Options.MongoDbOptions.ProviderSchedulesCollection"/>.</summary>
     public IMongoCollection<ProviderSchedule> ProviderSchedules { get; }
+
+    /// <summary>Generic recurring-job execution log - see <see cref="Application.Options.MongoDbOptions.JobExecutionLogsCollection"/>.</summary>
+    public IMongoCollection<JobExecutionLog> JobExecutionLogs { get; }
 }

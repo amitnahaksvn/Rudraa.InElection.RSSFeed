@@ -2,6 +2,7 @@ using Hangfire;
 using Hangfire.Server;
 using Microsoft.Extensions.Logging;
 using Application.Abstractions;
+using Application.Services;
 
 namespace Infrastructure.Scheduling;
 
@@ -13,11 +14,14 @@ namespace Infrastructure.Scheduling;
 public sealed class HangfireRawResponseCleanupExecutor
 {
     private readonly IRawResponseCleanupService _cleanupService;
+    private readonly JobExecutionLogger _executionLogger;
     private readonly ILogger<HangfireRawResponseCleanupExecutor> _logger;
 
-    public HangfireRawResponseCleanupExecutor(IRawResponseCleanupService cleanupService, ILogger<HangfireRawResponseCleanupExecutor> logger)
+    public HangfireRawResponseCleanupExecutor(
+        IRawResponseCleanupService cleanupService, JobExecutionLogger executionLogger, ILogger<HangfireRawResponseCleanupExecutor> logger)
     {
         _cleanupService = cleanupService;
+        _executionLogger = executionLogger;
         _logger = logger;
     }
 
@@ -26,6 +30,11 @@ public sealed class HangfireRawResponseCleanupExecutor
     {
         using var scope = _logger.BeginScope(new Dictionary<string, object> { ["HangfireJobId"] = context.BackgroundJob.Id });
 
-        await _cleanupService.CleanupAsync(retention, cancellationToken);
+        await _executionLogger.RunAsync(
+            HangfireJobIds.RawResponseCleanup,
+            "Cleanup raw responses",
+            context.BackgroundJob.Id,
+            () => _cleanupService.CleanupAsync(retention, cancellationToken),
+            cancellationToken);
     }
 }

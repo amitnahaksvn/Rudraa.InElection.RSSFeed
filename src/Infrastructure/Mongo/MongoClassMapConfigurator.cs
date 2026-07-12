@@ -50,6 +50,9 @@ public static class MongoClassMapConfigurator
         // which BsonType it's configured to *write* going forward.
         BsonSerializer.RegisterSerializer(typeof(CrawlPipeline), new EnumSerializer<CrawlPipeline>(BsonType.String));
 
+        // Same reasoning again - "Running"/"Succeeded"/"Failed" readable directly in Mongo.
+        BsonSerializer.RegisterSerializer(typeof(JobExecutionStatus), new EnumSerializer<JobExecutionStatus>(BsonType.String));
+
         BsonClassMap.RegisterClassMap<NewsArticle>(cm =>
         {
             cm.AutoMap();
@@ -105,6 +108,12 @@ public static class MongoClassMapConfigurator
         });
 
         BsonClassMap.RegisterClassMap<ProviderSchedule>(cm =>
+        {
+            cm.AutoMap();
+            cm.MapIdMember(x => x.Id).SetIdGenerator(StringObjectIdGenerator.Instance);
+        });
+
+        BsonClassMap.RegisterClassMap<JobExecutionLog>(cm =>
         {
             cm.AutoMap();
             cm.MapIdMember(x => x.Id).SetIdGenerator(StringObjectIdGenerator.Instance);

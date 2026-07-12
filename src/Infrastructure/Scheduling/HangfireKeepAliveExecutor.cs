@@ -4,6 +4,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Application.Options;
+using Application.Services;
 
 namespace Infrastructure.Scheduling;
 
@@ -23,17 +24,20 @@ public sealed class HangfireKeepAliveExecutor
     private readonly IHttpClientFactory _httpClientFactory;
     private readonly IConfiguration _configuration;
     private readonly KeepAliveOptions _options;
+    private readonly JobExecutionLogger _executionLogger;
     private readonly ILogger<HangfireKeepAliveExecutor> _logger;
 
     public HangfireKeepAliveExecutor(
         IHttpClientFactory httpClientFactory,
         IConfiguration configuration,
         IOptions<KeepAliveOptions> options,
+        JobExecutionLogger executionLogger,
         ILogger<HangfireKeepAliveExecutor> logger)
     {
         _httpClientFactory = httpClientFactory;
         _configuration = configuration;
         _options = options.Value;
+        _executionLogger = executionLogger;
         _logger = logger;
     }
 
@@ -56,10 +60,21 @@ public sealed class HangfireKeepAliveExecutor
             pingUrl = $"{externalUrl.TrimEnd('/')}/alive";
         }
 
-        var client = _httpClientFactory.CreateClient("SelfPing");
-        using var response = await client.GetAsync(pingUrl, cancellationToken);
-        response.EnsureSuccessStatusCode();
+        // Only a real ping attempt gets a JobExecutionLog row - the "not on Render" no-op above
+        // would otherwise write one every single minute forever in local dev/docker-compose, for
+        // no diagnostic value.
+        await _executionLogger.RunAsync(
+            HangfireJobIds.KeepAlivePing,
+            "Keep-alive self-ping",
+            context.BackgroundJob.Id,
+            async () =>
+            {
+                var client = _httpClientFactory.CreateClient("SelfPing");
+                using var response = await client.GetAsync(pingUrl, cancellationToken);
+                response.EnsureSuccessStatusCode();
 
-        _logger.LogDebug("Self-ping to {Url} returned {StatusCode}", pingUrl, (int)response.StatusCode);
+                _logger.LogDebug("Self-ping to {Url} returned {StatusCode}", pingUrl, (int)response.StatusCode);
+            },
+            cancellationToken);
     }
 }

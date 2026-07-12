@@ -276,6 +276,15 @@ if (builder.Configuration.GetValue($"{ApiOptions.SectionName}:EnableCrawlReportD
     app.MapFallbackToFile("/reports/{**slug}", "index.html");
 }
 
+if (builder.Configuration.GetValue($"{ApiOptions.SectionName}:EnableJobReportDashboard", false))
+{
+    // Same "no built-in auth, off by default" trade-off as EnableCrawlReportDashboard above - the
+    // underlying api/job-reports endpoint stays mapped regardless (same always-on trust model as
+    // every other endpoint in this app); only the SPA page itself is gated here.
+    app.MapFallbackToFile("/job-reports", "index.html");
+    app.MapFallbackToFile("/job-reports/{**slug}", "index.html");
+}
+
 app.Run();
 
 static void InsertNewsCrawlerConfigBeforeEnvironmentVariables(IConfigurationBuilder configuration)

@@ -62,6 +62,8 @@ public static class InfrastructureServiceCollectionExtensions
         services.AddSingleton<IErrorLogRepository, ErrorLogRepository>();
         services.AddSingleton<ISocialMediaSourceRepository, SocialMediaSourceRepository>();
         services.AddSingleton<IProviderScheduleRepository, ProviderScheduleRepository>();
+        services.AddSingleton<IJobExecutionLogRepository, JobExecutionLogRepository>();
+        services.AddSingleton<JobExecutionLogger>();
 
         // Monitoring-alert email, backed by the official Resend SDK. AddResend registers IResend
         // as a typed HttpClient and returns the IHttpClientBuilder, so the same Polly

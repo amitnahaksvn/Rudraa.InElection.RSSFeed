@@ -2,6 +2,7 @@ using Hangfire;
 using Hangfire.Server;
 using Microsoft.Extensions.Logging;
 using Application.Abstractions;
+using Application.Services;
 
 namespace Infrastructure.Scheduling;
 
@@ -13,12 +14,14 @@ namespace Infrastructure.Scheduling;
 public sealed class HangfireErrorNotificationDispatchExecutor
 {
     private readonly IErrorNotificationDispatchService _dispatchService;
+    private readonly JobExecutionLogger _executionLogger;
     private readonly ILogger<HangfireErrorNotificationDispatchExecutor> _logger;
 
     public HangfireErrorNotificationDispatchExecutor(
-        IErrorNotificationDispatchService dispatchService, ILogger<HangfireErrorNotificationDispatchExecutor> logger)
+        IErrorNotificationDispatchService dispatchService, JobExecutionLogger executionLogger, ILogger<HangfireErrorNotificationDispatchExecutor> logger)
     {
         _dispatchService = dispatchService;
+        _executionLogger = executionLogger;
         _logger = logger;
     }
 
@@ -27,6 +30,11 @@ public sealed class HangfireErrorNotificationDispatchExecutor
     {
         using var scope = _logger.BeginScope(new Dictionary<string, object> { ["HangfireJobId"] = context.BackgroundJob.Id });
 
-        await _dispatchService.DispatchPendingAsync(cancellationToken);
+        await _executionLogger.RunAsync(
+            HangfireJobIds.ErrorNotificationDispatch,
+            "Dispatch pending error notifications",
+            context.BackgroundJob.Id,
+            () => _dispatchService.DispatchPendingAsync(cancellationToken),
+            cancellationToken);
     }
 }

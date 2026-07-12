@@ -49,4 +49,8 @@ public sealed class MongoDbOptions
     /// <summary>Database-backed Enabled/Cron/TimeZone per RSS/API provider - see <c>Domain.Entities.ProviderSchedule</c> for why this replaced <c>NewsCrawler.appsettings.json</c>'s own Enabled/Cron fields as the source of truth.</summary>
     [Required]
     public string ProviderSchedulesCollection { get; set; } = "ProviderSchedules";
+
+    /// <summary>Start/end/status per execution of a generic (non-crawl) recurring job - see <c>Domain.Entities.JobExecutionLog</c>.</summary>
+    [Required]
+    public string JobExecutionLogsCollection { get; set; } = "JobExecutionLogs";
 }
