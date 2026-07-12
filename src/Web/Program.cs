@@ -154,6 +154,21 @@ var app = builder.Build();
 // time to become reachable at startup" - moving it off the startup path fixes that directly,
 // rather than only shaving the registration work itself down further.
 var startupLogger = app.Services.GetRequiredService<ILogger<Program>>();
+
+// Registered synchronously, in its own try/catch, deliberately outside the fire-and-forget block
+// below - this job's entire purpose is keeping the host from spinning down, so it shouldn't be
+// left unregistered just because an unrelated step (seeding 260+ provider schedules, say) throws
+// first inside that same all-or-nothing background task. It's also cheap (one AddOrUpdate call,
+// not 260+ of them), so there's no startup-latency reason to defer it either.
+try
+{
+    HangfireRecurringJobRegistrar.RegisterKeepAliveRecurringJob(app.Services, startupLogger);
+}
+catch (Exception ex)
+{
+    startupLogger.LogCritical(ex, "Failed to register the keep-alive self-ping recurring job");
+}
+
 _ = Task.Run(async () =>
 {
     try
