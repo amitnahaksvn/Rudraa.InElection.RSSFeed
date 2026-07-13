@@ -9,22 +9,32 @@ namespace Application.Services;
 /// Shared normalized-article persistence logic (hash computation + upsert + outcome logging) used
 /// by every crawler orchestrator - <see cref="NewsCrawlerOrchestrator"/> (RSS) and
 /// <see cref="NewsApiCrawlerOrchestrator"/> (JSON APIs) alike - so the dedup/upsert path only
-/// exists once regardless of how an article was fetched.
+/// exists once regardless of how an article was fetched. Also the one place
+/// <see cref="IArticleNormalizer"/> gets applied (by <see cref="NormalizedArticle.Provider"/>,
+/// at most one match per article) - being the single choke point both pipelines already share
+/// means a provider's normalizer runs the same way regardless of which pipeline fetched it.
 /// </summary>
 internal static class ArticlePersister
 {
     public static async Task<(int Inserted, int Updated, int Duplicates)> PersistAsync(
         INewsArticleRepository articleRepository,
         IEnumerable<NormalizedArticle> articles,
+        IEnumerable<IArticleNormalizer> normalizers,
         ILogger logger,
         CancellationToken cancellationToken)
     {
+        var normalizersByProvider = normalizers.ToDictionary(n => n.Provider, StringComparer.OrdinalIgnoreCase);
+
         var inserted = 0;
         var updated = 0;
         var duplicates = 0;
 
-        foreach (var normalized in articles)
+        foreach (var rawNormalized in articles)
         {
+            var normalized = normalizersByProvider.TryGetValue(rawNormalized.Provider, out var normalizer)
+                ? normalizer.Normalize(rawNormalized)
+                : rawNormalized;
+
             var now = DateTimeOffset.UtcNow;
 
             // A source's own PublishedAt is occasionally ahead of real time - a publisher's CMS

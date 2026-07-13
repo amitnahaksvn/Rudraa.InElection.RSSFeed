@@ -58,6 +58,7 @@ public class SocialMediaIngestionServiceTests
             historyRepository.Object,
             Mock.Of<IErrorLogRepository>(),
             BuildHostEnvironment().Object,
+            [],
             NullLogger<SocialMediaIngestionService>.Instance);
 
         await service.RunAsync("missing", CancellationToken.None);
@@ -79,6 +80,7 @@ public class SocialMediaIngestionServiceTests
             historyRepository.Object,
             Mock.Of<IErrorLogRepository>(),
             BuildHostEnvironment().Object,
+            [],
             NullLogger<SocialMediaIngestionService>.Instance);
 
         await service.RunAsync("source-1", CancellationToken.None);
@@ -100,6 +102,7 @@ public class SocialMediaIngestionServiceTests
             historyRepository.Object,
             Mock.Of<IErrorLogRepository>(),
             BuildHostEnvironment().Object,
+            [],
             NullLogger<SocialMediaIngestionService>.Instance);
 
         await service.RunAsync("source-1", CancellationToken.None);
@@ -142,6 +145,7 @@ public class SocialMediaIngestionServiceTests
             historyRepository.Object,
             Mock.Of<IErrorLogRepository>(),
             BuildHostEnvironment().Object,
+            [],
             NullLogger<SocialMediaIngestionService>.Instance);
 
         await service.RunAsync("source-1", CancellationToken.None);
@@ -180,6 +184,7 @@ public class SocialMediaIngestionServiceTests
             historyRepository.Object,
             errorLogRepository.Object,
             BuildHostEnvironment().Object,
+            [],
             NullLogger<SocialMediaIngestionService>.Instance);
 
         await service.RunAsync("source-1", CancellationToken.None);

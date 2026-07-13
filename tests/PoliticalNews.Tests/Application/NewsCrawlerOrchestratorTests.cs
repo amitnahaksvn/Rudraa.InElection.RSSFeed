@@ -141,6 +141,7 @@ public class NewsCrawlerOrchestratorTests
             Mock.Of<IErrorLogRepository>(),
             new PoliticalNews.Tests.TestSupport.FakeHostEnvironment(),
             BuildScheduleRepo().Object,
+            [],
             Options.Create(BuildOptions("Home")),
             NullLogger<NewsCrawlerOrchestrator>.Instance);
 
@@ -184,6 +185,7 @@ public class NewsCrawlerOrchestratorTests
             errorLogRepo.Object,
             new PoliticalNews.Tests.TestSupport.FakeHostEnvironment(),
             BuildScheduleRepo().Object,
+            [],
             Options.Create(BuildOptions("Home")),
             NullLogger<NewsCrawlerOrchestrator>.Instance);
 
@@ -229,6 +231,7 @@ public class NewsCrawlerOrchestratorTests
             Mock.Of<IErrorLogRepository>(),
             new PoliticalNews.Tests.TestSupport.FakeHostEnvironment(),
             BuildScheduleRepo().Object,
+            [],
             Options.Create(BuildOptions("Home")),
             NullLogger<NewsCrawlerOrchestrator>.Instance);
 
@@ -261,6 +264,7 @@ public class NewsCrawlerOrchestratorTests
             Mock.Of<IErrorLogRepository>(),
             new PoliticalNews.Tests.TestSupport.FakeHostEnvironment(),
             BuildScheduleRepo().Object,
+            [],
             Options.Create(BuildOptions("Home")),
             NullLogger<NewsCrawlerOrchestrator>.Instance);
 
@@ -292,6 +296,7 @@ public class NewsCrawlerOrchestratorTests
             Mock.Of<IErrorLogRepository>(),
             new PoliticalNews.Tests.TestSupport.FakeHostEnvironment(),
             BuildScheduleRepo().Object,
+            [],
             Options.Create(options),
             NullLogger<NewsCrawlerOrchestrator>.Instance);
 
@@ -333,6 +338,7 @@ public class NewsCrawlerOrchestratorTests
             Mock.Of<IErrorLogRepository>(),
             new PoliticalNews.Tests.TestSupport.FakeHostEnvironment(),
             BuildScheduleRepo().Object,
+            [],
             Options.Create(BuildTwoProviderOptions()),
             NullLogger<NewsCrawlerOrchestrator>.Instance);
 
@@ -381,6 +387,7 @@ public class NewsCrawlerOrchestratorTests
             Mock.Of<IErrorLogRepository>(),
             new PoliticalNews.Tests.TestSupport.FakeHostEnvironment(),
             BuildScheduleRepo().Object,
+            [],
             Options.Create(BuildTwoProviderOptions()),
             NullLogger<NewsCrawlerOrchestrator>.Instance);
 
@@ -434,6 +441,7 @@ public class NewsCrawlerOrchestratorTests
             Mock.Of<IErrorLogRepository>(),
             new PoliticalNews.Tests.TestSupport.FakeHostEnvironment(),
             BuildScheduleRepo().Object,
+            [],
             Options.Create(options),
             NullLogger<NewsCrawlerOrchestrator>.Instance);
 

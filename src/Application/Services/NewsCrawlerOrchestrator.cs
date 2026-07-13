@@ -25,6 +25,7 @@ public sealed class NewsCrawlerOrchestrator : INewsCrawlerService
     private readonly IErrorLogRepository _errorLogRepository;
     private readonly IHostEnvironment _hostEnvironment;
     private readonly IProviderScheduleRepository _scheduleRepository;
+    private readonly IEnumerable<IArticleNormalizer> _normalizers;
     private readonly NewsCrawlerOptions _options;
     private readonly ILogger<NewsCrawlerOrchestrator> _logger;
     private readonly string _ownerId = $"{Environment.MachineName}:{Environment.ProcessId}:{Guid.NewGuid():N}";
@@ -38,6 +39,7 @@ public sealed class NewsCrawlerOrchestrator : INewsCrawlerService
         IErrorLogRepository errorLogRepository,
         IHostEnvironment hostEnvironment,
         IProviderScheduleRepository scheduleRepository,
+        IEnumerable<IArticleNormalizer> normalizers,
         IOptions<NewsCrawlerOptions> options,
         ILogger<NewsCrawlerOrchestrator> logger)
     {
@@ -49,6 +51,7 @@ public sealed class NewsCrawlerOrchestrator : INewsCrawlerService
         _errorLogRepository = errorLogRepository;
         _hostEnvironment = hostEnvironment;
         _scheduleRepository = scheduleRepository;
+        _normalizers = normalizers;
         _options = options.Value;
         _logger = logger;
     }
@@ -288,5 +291,5 @@ public sealed class NewsCrawlerOrchestrator : INewsCrawlerService
     private Task<(int Inserted, int Updated, int Duplicates)> PersistArticlesAsync(
         IEnumerable<NormalizedArticle> articles,
         CancellationToken cancellationToken) =>
-        ArticlePersister.PersistAsync(_articleRepository, articles, _logger, cancellationToken);
+        ArticlePersister.PersistAsync(_articleRepository, articles, _normalizers, _logger, cancellationToken);
 }

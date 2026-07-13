@@ -28,6 +28,7 @@ public sealed class NewsApiCrawlerOrchestrator : INewsApiCrawlerService
     private readonly IErrorLogRepository _errorLogRepository;
     private readonly IHostEnvironment _hostEnvironment;
     private readonly IProviderScheduleRepository _scheduleRepository;
+    private readonly IEnumerable<IArticleNormalizer> _normalizers;
     private readonly NewsApiCrawlerOptions _options;
     private readonly ILogger<NewsApiCrawlerOrchestrator> _logger;
     private readonly string _ownerId = $"{Environment.MachineName}:{Environment.ProcessId}:{Guid.NewGuid():N}";
@@ -40,6 +41,7 @@ public sealed class NewsApiCrawlerOrchestrator : INewsApiCrawlerService
         IErrorLogRepository errorLogRepository,
         IHostEnvironment hostEnvironment,
         IProviderScheduleRepository scheduleRepository,
+        IEnumerable<IArticleNormalizer> normalizers,
         IOptions<NewsApiCrawlerOptions> options,
         ILogger<NewsApiCrawlerOrchestrator> logger)
     {
@@ -50,6 +52,7 @@ public sealed class NewsApiCrawlerOrchestrator : INewsApiCrawlerService
         _errorLogRepository = errorLogRepository;
         _hostEnvironment = hostEnvironment;
         _scheduleRepository = scheduleRepository;
+        _normalizers = normalizers;
         _options = options.Value;
         _logger = logger;
     }
@@ -195,6 +198,7 @@ public sealed class NewsApiCrawlerOrchestrator : INewsApiCrawlerService
                     var (inserted, updated, duplicates) = await ArticlePersister.PersistAsync(
                         _articleRepository,
                         result.Articles.Take(_options.BatchSize).Select(a => a with { Country = country }),
+                        _normalizers,
                         _logger,
                         cancellationToken);
 

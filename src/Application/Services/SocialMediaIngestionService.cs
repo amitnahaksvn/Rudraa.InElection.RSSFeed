@@ -25,6 +25,7 @@ public sealed class SocialMediaIngestionService : ISocialMediaIngestionService
     private readonly ICrawlHistoryRepository _historyRepository;
     private readonly IErrorLogRepository _errorLogRepository;
     private readonly IHostEnvironment _hostEnvironment;
+    private readonly IEnumerable<IArticleNormalizer> _normalizers;
     private readonly ILogger<SocialMediaIngestionService> _logger;
 
     public SocialMediaIngestionService(
@@ -34,6 +35,7 @@ public sealed class SocialMediaIngestionService : ISocialMediaIngestionService
         ICrawlHistoryRepository historyRepository,
         IErrorLogRepository errorLogRepository,
         IHostEnvironment hostEnvironment,
+        IEnumerable<IArticleNormalizer> normalizers,
         ILogger<SocialMediaIngestionService> logger)
     {
         _sourceRepository = sourceRepository;
@@ -42,6 +44,7 @@ public sealed class SocialMediaIngestionService : ISocialMediaIngestionService
         _historyRepository = historyRepository;
         _errorLogRepository = errorLogRepository;
         _hostEnvironment = hostEnvironment;
+        _normalizers = normalizers;
         _logger = logger;
     }
 
@@ -90,6 +93,7 @@ public sealed class SocialMediaIngestionService : ISocialMediaIngestionService
             var (inserted, updated, duplicates) = await ArticlePersister.PersistAsync(
                 _articleRepository,
                 articles.Select(a => a with { Country = source.Country }),
+                _normalizers,
                 _logger,
                 cancellationToken);
 

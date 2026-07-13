@@ -8,6 +8,7 @@ using Resend;
 using Application.Abstractions;
 using Application.Options;
 using Application.Services;
+using Infrastructure.ArticleNormalizers;
 using Infrastructure.Email;
 using Infrastructure.Mongo;
 using Infrastructure.NewsApiProviders;
@@ -100,6 +101,16 @@ public static class InfrastructureServiceCollectionExtensions
                 .WaitAndRetryAsync(emailMaxRetryAttempts, retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt))));
         services.AddSingleton<EmailTemplateBuilder>();
         services.AddSingleton<IEmailService, ResendEmailService>();
+
+        // IArticleNormalizer: per-provider content cleanup (stray whitespace, HTML entity
+        // artifacts, etc.) applied by ArticlePersister right before persisting - see
+        // Infrastructure/ArticleNormalizers/. Register one here only once a concrete need is
+        // confirmed live against that provider's real feed/response, same discipline as every
+        // other provider-specific fix in this file - not speculatively for providers that might
+        // need one someday.
+        services.AddSingleton<IArticleNormalizer, TheHinduArticleNormalizer>();
+        services.AddSingleton<IArticleNormalizer, FreePressJournalArticleNormalizer>();
+        services.AddSingleton<IArticleNormalizer, IndianExpressArticleNormalizer>();
 
         AddRssProvider<AajTakRssProvider>(services, AajTakRssProvider.ClientName, CrawlerUserAgent);
         AddRssProvider<AbpNewsRssProvider>(services, AbpNewsRssProvider.ClientName, CrawlerUserAgent);
