@@ -135,8 +135,9 @@ public sealed class YouTubeRssProvider : IRssProvider
 
         var videoId = entry.Element(Yt + "videoId")?.Value.Trim();
         var author = entry.Element(Atom + "author")?.Element(Atom + "name")?.Value.Trim();
+        // .ToUniversalTime() so PublishedAt is consistently UTC (Offset=00:00).
         var publishedAt = DateTimeOffset.TryParse(entry.Element(Atom + "published")?.Value, out var parsed)
-            ? parsed
+            ? parsed.ToUniversalTime()
             : (DateTimeOffset?)null;
 
         var mediaGroup = entry.Element(Media + "group");

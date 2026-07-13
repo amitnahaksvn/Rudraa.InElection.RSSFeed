@@ -128,7 +128,9 @@ public abstract class BaseAtomRssProvider : IRssProvider
         var author = entry.Element(Atom + "author")?.Element(Atom + "name")?.Value.Trim();
         var summary = entry.Element(Atom + "summary")?.Value.Trim();
         var publishedRaw = entry.Element(Atom + "published")?.Value ?? entry.Element(Atom + "updated")?.Value;
-        var publishedAt = DateTimeOffset.TryParse(publishedRaw, out var parsed) ? parsed : (DateTimeOffset?)null;
+        // .ToUniversalTime() so PublishedAt is consistently UTC (Offset=00:00) regardless of
+        // whatever offset the feed's own <published>/<updated> timestamp carries.
+        var publishedAt = DateTimeOffset.TryParse(publishedRaw, out var parsed) ? parsed.ToUniversalTime() : (DateTimeOffset?)null;
         var tags = entry.Elements(Atom + "category")
             .Select(c => c.Attribute("term")?.Value)
             .Where(t => !string.IsNullOrWhiteSpace(t))

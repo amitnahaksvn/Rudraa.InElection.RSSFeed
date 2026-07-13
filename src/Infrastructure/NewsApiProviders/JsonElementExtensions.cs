@@ -18,12 +18,15 @@ internal static class JsonElementExtensions
             ? value.GetString()
             : null;
 
+    // A provider's own published-date field carries whatever offset it reported - converted with
+    // .ToUniversalTime() so what's actually stored in NewsArticle.PublishedAt is consistently UTC
+    // (Offset=00:00), same as every other provider's date parsing, rather than varying per API.
     public static DateTimeOffset? GetDateTimeOrNull(this JsonElement element, string propertyName)
     {
         var raw = element.GetStringOrNull(propertyName);
         return !string.IsNullOrWhiteSpace(raw) &&
             DateTimeOffset.TryParse(raw, CultureInfo.InvariantCulture, DateTimeStyles.None, out var parsed)
-                ? parsed
+                ? parsed.ToUniversalTime()
                 : null;
     }
 

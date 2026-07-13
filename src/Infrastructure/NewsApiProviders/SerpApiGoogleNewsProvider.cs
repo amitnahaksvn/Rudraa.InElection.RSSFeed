@@ -62,7 +62,7 @@ public sealed class SerpApiGoogleNewsProvider : BaseNewsApiProvider
         return articles;
     }
 
-    /// <summary>SerpAPI's Google News "date" field is often a relative string ("2 hours ago") rather than a timestamp - only the absolute-date case is parseable; relative strings correctly fall through to null (CrawledAt still records when this crawler saw it).</summary>
+    /// <summary>SerpAPI's Google News "date" field is often a relative string ("2 hours ago") rather than a timestamp - only the absolute-date case is parseable; relative strings correctly fall through to null (CrawledAt still records when this crawler saw it). .ToUniversalTime() so a successful parse is consistently UTC (Offset=00:00).</summary>
     private static DateTimeOffset? ParseRelativeOrAbsoluteDate(string? raw) =>
-        !string.IsNullOrWhiteSpace(raw) && DateTimeOffset.TryParse(raw, out var parsed) ? parsed : null;
+        !string.IsNullOrWhiteSpace(raw) && DateTimeOffset.TryParse(raw, out var parsed) ? parsed.ToUniversalTime() : null;
 }

@@ -237,6 +237,12 @@ public abstract partial class BaseRssProvider : IRssProvider
     }
 
     /// <summary>Widened to internal so <c>DynamicFeedIngestionService</c> (Mongo-driven feeds) reuses the exact same parsing, not a duplicate.</summary>
+    // A feed's own pubDate carries whatever offset the publisher happened to report (IST, EDT,
+    // GMT, ...) - DateTimeOffset.TryParse preserves that offset as-is rather than normalizing it,
+    // so every successful parse below is explicitly converted with .ToUniversalTime() before
+    // returning. The point in time is identical either way; this just makes what's actually stored
+    // in NewsArticle.PublishedAt consistently UTC (Offset=00:00) like CrawledAt/UpdatedAt already
+    // are, instead of varying per publisher's own reported zone.
     internal static DateTimeOffset? ParsePublishDate(string? raw)
     {
         if (string.IsNullOrWhiteSpace(raw))
@@ -247,7 +253,7 @@ public abstract partial class BaseRssProvider : IRssProvider
         var trimmed = raw.Trim();
         if (DateTimeOffset.TryParse(trimmed, CultureInfo.InvariantCulture, DateTimeStyles.None, out var parsed))
         {
-            return parsed;
+            return parsed.ToUniversalTime();
         }
 
         // Zee News emits a nonstandard "Thursday, July 02, 2026, 14:08 GMT +5:30" - drop the
@@ -269,7 +275,7 @@ public abstract partial class BaseRssProvider : IRssProvider
 
         if (DateTimeOffset.TryParse(cleaned, CultureInfo.InvariantCulture, DateTimeStyles.None, out parsed))
         {
-            return parsed;
+            return parsed.ToUniversalTime();
         }
 
         // Java's Date.toString() token order ("ddd MMM d HH:mm:ss zzz yyyy" - weekday, month, day,
@@ -286,7 +292,7 @@ public abstract partial class BaseRssProvider : IRssProvider
             $"{reorderMatch.Groups["time"].Value} {reorderMatch.Groups["offset"].Value}";
 
         return DateTimeOffset.TryParse(reordered, CultureInfo.InvariantCulture, DateTimeStyles.None, out parsed)
-            ? parsed
+            ? parsed.ToUniversalTime()
             : null;
     }
 
