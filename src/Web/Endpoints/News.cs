@@ -7,6 +7,7 @@ using Application.News.Queries.GetNewsByCategory;
 using Application.News.Queries.GetNewsByProvider;
 using Application.News.Queries.GetNewsCountries;
 using Application.News.Queries.GetNewsFeed;
+using Application.News.Queries.GetNewsFeedCount;
 using Application.News.Queries.SearchNews;
 using Domain.Enums;
 using Web.Infrastructure;
@@ -26,6 +27,7 @@ public sealed class News : IEndpointGroup
         group.MapGet("category/{category}", GetByCategory);
         group.MapGet("search", Search);
         group.MapGet("feed", GetFeed);
+        group.MapGet("feed/count", GetFeedCount);
         group.MapGet("countries", GetCountries);
     }
 
@@ -79,6 +81,15 @@ public sealed class News : IEndpointGroup
         var result = await sender.Send(
             new GetNewsFeedQuery(sourceType, country, Math.Max(0, skip), ResolvePageSize(count, apiOptions.Value)),
             cancellationToken);
+        return TypedResults.Ok(result);
+    }
+
+    [EndpointSummary("News feed total count")]
+    [EndpointDescription("Total articles matching the same 'sourceType'/'country' narrowing as the feed endpoint - backs the News Feed page's total-count header.")]
+    public static async Task<Ok<long>> GetFeedCount(
+        ISender sender, ArticleSourceType? sourceType, string? country, CancellationToken cancellationToken)
+    {
+        var result = await sender.Send(new GetNewsFeedCountQuery(sourceType, country), cancellationToken);
         return TypedResults.Ok(result);
     }
 

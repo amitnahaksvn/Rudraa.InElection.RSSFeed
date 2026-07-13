@@ -10,6 +10,7 @@ import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
 import type { ArticleSourceType } from '../../api/newsTypes';
 import { useNewsFeed } from './useNewsFeed';
+import { useNewsFeedCount } from './useNewsFeedCount';
 import { useNewsCountries } from './useNewsCountries';
 import { useInfiniteScrollSentinel } from './useInfiniteScrollSentinel';
 import { ArticleCard } from './ArticleCard';
@@ -19,6 +20,7 @@ export function NewsFeedTab({ sourceType }: { sourceType: ArticleSourceType }) {
   const [country, setCountry] = useState<string | null>(null);
 
   const { data: countries } = useNewsCountries(sourceType);
+  const { data: totalCount } = useNewsFeedCount(sourceType, country);
   const {
     data,
     isLoading,
@@ -34,22 +36,30 @@ export function NewsFeedTab({ sourceType }: { sourceType: ArticleSourceType }) {
 
   return (
     <Stack gap={1.5}>
-      <FormControl size="small" sx={{ minWidth: 220 }}>
-        <InputLabel id={`country-filter-${sourceType}`}>Country</InputLabel>
-        <Select
-          labelId={`country-filter-${sourceType}`}
-          label="Country"
-          value={country ?? ''}
-          onChange={(e) => setCountry(e.target.value || null)}
-        >
-          <MenuItem value="">All countries</MenuItem>
-          {countries?.map((c) => (
-            <MenuItem key={c} value={c}>
-              {getCountryFlagEmoji(c) ? `${getCountryFlagEmoji(c)} ${c}` : c}
-            </MenuItem>
-          ))}
-        </Select>
-      </FormControl>
+      <Stack direction="row" alignItems="center" justifyContent="space-between" gap={1} flexWrap="wrap">
+        <FormControl size="small" sx={{ minWidth: 220 }}>
+          <InputLabel id={`country-filter-${sourceType}`}>Country</InputLabel>
+          <Select
+            labelId={`country-filter-${sourceType}`}
+            label="Country"
+            value={country ?? ''}
+            onChange={(e) => setCountry(e.target.value || null)}
+          >
+            <MenuItem value="">All countries</MenuItem>
+            {countries?.map((c) => (
+              <MenuItem key={c} value={c}>
+                {getCountryFlagEmoji(c) ? `${getCountryFlagEmoji(c)} ${c}` : c}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+
+        {totalCount !== undefined && (
+          <Typography variant="caption" color="text.secondary">
+            {totalCount} article{totalCount === 1 ? '' : 's'} total
+          </Typography>
+        )}
+      </Stack>
 
       {isLoading && (
         <Stack alignItems="center" sx={{ py: 6 }}>

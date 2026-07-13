@@ -1,4 +1,4 @@
-import type { ErrorLogCounts, ErrorLogDetail, ErrorLogFilters, PagedResult, ErrorLogSummary } from './types';
+import type { ErrorLogCategoryBreakdown, ErrorLogCounts, ErrorLogDetail, ErrorLogFilters, PagedResult, ErrorLogSummary } from './types';
 import { ERROR_LOG_CLIENT_ID } from './errorLogClientId';
 import { throwIfNotOk } from './httpUtils';
 
@@ -37,6 +37,12 @@ export async function fetchErrorLogs(page: number, filters: ErrorLogFilters): Pr
 
 export async function fetchErrorLogCounts(filters: ErrorLogFilters): Promise<ErrorLogCounts> {
   const response = await fetch(`/api/errors/counts?${buildNonStatusFilterParams(filters).toString()}`);
+  await throwIfNotOk(response);
+  return response.json();
+}
+
+export async function fetchErrorLogProviderBreakdown(filters: ErrorLogFilters): Promise<ErrorLogCategoryBreakdown[]> {
+  const response = await fetch(`/api/errors/breakdown?${buildNonStatusFilterParams(filters).toString()}`);
   await throwIfNotOk(response);
   return response.json();
 }

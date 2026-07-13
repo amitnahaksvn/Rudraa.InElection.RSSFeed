@@ -187,7 +187,30 @@ public sealed class NewsArticleRepository : INewsArticleRepository
     // make that worse, not better. Mongo still uses ix_news_active_crawledat for the IsActive
     // equality + CrawledAt sort here and filters SourceType/Country per-document from there; add
     // dedicated compound indexes once there's headroom again if this needs to scale further.
-    public async Task<IReadOnlyList<NewsArticle>> GetFeedAsync(NewsArticleFeedFilter filter, CancellationToken cancellationToken)
+    //
+    // Sorted by PublishedAt (falling back to CrawledAt, both descending) rather than CrawledAt
+    // alone - the News Feed page's own card (ArticleCard.tsx) displays
+    // `article.publishedAt ?? article.crawledAt`, so sorting purely by CrawledAt made the
+    // *displayed* timestamps jump around non-monotonically (a feed mixing providers with very
+    // different publish-to-crawl lag looks "out of order" even though the crawl-time order was
+    // technically consistent). Sorting by the same field the UI shows fixes that, and doesn't cost
+    // a new index either - ix_news_publishedat (a plain descending index) already exists. A
+    // ThenByDescending(CrawledAt) breaks ties for the minority of articles with no PublishedAt at
+    // all (sorted to the end by Mongo's null-last descending order) and for same-instant PublishedAt
+    // values.
+    public async Task<IReadOnlyList<NewsArticle>> GetFeedAsync(NewsArticleFeedFilter filter, CancellationToken cancellationToken) =>
+        await _collection.Find(BuildFeedFilter(filter))
+            .SortByDescending(a => a.PublishedAt)
+            .ThenByDescending(a => a.CrawledAt)
+            .Skip(filter.Skip)
+            .Limit(filter.Take)
+            .ToListAsync(cancellationToken);
+
+    /// <summary>Total articles matching the same pipeline/country narrowing as <see cref="GetFeedAsync"/> (its Skip/Take are irrelevant here) - backs the News Feed page's total-count header.</summary>
+    public Task<long> CountFeedAsync(NewsArticleFeedFilter filter, CancellationToken cancellationToken) =>
+        _collection.CountDocumentsAsync(BuildFeedFilter(filter), cancellationToken: cancellationToken);
+
+    private static FilterDefinition<NewsArticle> BuildFeedFilter(NewsArticleFeedFilter filter)
     {
         var builder = Builders<NewsArticle>.Filter;
         var clauses = new List<FilterDefinition<NewsArticle>> { builder.Eq(a => a.IsActive, true) };
@@ -202,11 +225,7 @@ public sealed class NewsArticleRepository : INewsArticleRepository
             clauses.Add(builder.Eq(a => a.Country, filter.Country));
         }
 
-        return await _collection.Find(builder.And(clauses))
-            .SortByDescending(a => a.CrawledAt)
-            .Skip(filter.Skip)
-            .Limit(filter.Take)
-            .ToListAsync(cancellationToken);
+        return builder.And(clauses);
     }
 
     public async Task<IReadOnlyList<string>> GetDistinctCountriesAsync(ArticleSourceType? sourceType, CancellationToken cancellationToken)

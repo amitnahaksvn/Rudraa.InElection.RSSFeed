@@ -8,6 +8,7 @@ using Application.ErrorLogs.Commands.SetErrorLogResolved;
 using Application.ErrorLogs.Dtos;
 using Application.ErrorLogs.Queries.GetErrorLogById;
 using Application.ErrorLogs.Queries.GetErrorLogCounts;
+using Application.ErrorLogs.Queries.GetErrorLogProviderBreakdown;
 using Application.ErrorLogs.Queries.GetErrorLogs;
 using Web.Infrastructure;
 using Web.Options;
@@ -23,6 +24,7 @@ public sealed class ErrorLogs : IEndpointGroup
 
         group.MapGet("", GetList);
         group.MapGet("counts", GetCounts);
+        group.MapGet("breakdown", GetProviderBreakdown);
         group.MapGet("{id}", GetById);
         group.MapPatch("{id}/resolved", SetResolved);
         group.MapPost("{id}/comments", AddComment);
@@ -65,6 +67,20 @@ public sealed class ErrorLogs : IEndpointGroup
         CancellationToken cancellationToken)
     {
         var result = await sender.Send(new GetErrorLogCountsQuery(provider, country, source, search), cancellationToken);
+        return TypedResults.Ok(result);
+    }
+
+    [EndpointSummary("Get feed/provider-wise error breakdown")]
+    [EndpointDescription("Errors grouped by pipeline (Rss/Api/Social/Http) and, within each, by the specific provider/feed they came from (e.g. AajTak, ABPNews under Rss) with each provider's own error count - under the same optional provider/country/source/search filters as the counts endpoint.")]
+    public static async Task<Ok<IReadOnlyList<ErrorLogCategoryBreakdownDto>>> GetProviderBreakdown(
+        ISender sender,
+        string? provider,
+        string? country,
+        string? source,
+        string? search,
+        CancellationToken cancellationToken)
+    {
+        var result = await sender.Send(new GetErrorLogProviderBreakdownQuery(provider, country, source, search), cancellationToken);
         return TypedResults.Ok(result);
     }
 

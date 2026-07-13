@@ -28,3 +28,13 @@ export async function fetchNewsCountries(sourceType: ArticleSourceType): Promise
   await throwIfNotOk(response);
   return response.json();
 }
+
+export async function fetchNewsFeedCount(sourceType: ArticleSourceType, country: string | null): Promise<number> {
+  const params = new URLSearchParams({ sourceType });
+  if (country) {
+    params.set('country', country);
+  }
+  const response = await fetch(`/api/news/feed/count?${params}`);
+  await throwIfNotOk(response);
+  return response.json();
+}

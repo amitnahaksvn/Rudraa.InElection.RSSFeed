@@ -4,6 +4,7 @@ using Application.ErrorLogs.Commands.AddErrorLogComment;
 using Application.ErrorLogs.Commands.SetErrorLogResolved;
 using Application.ErrorLogs.Queries.GetErrorLogById;
 using Application.ErrorLogs.Queries.GetErrorLogCounts;
+using Application.ErrorLogs.Queries.GetErrorLogProviderBreakdown;
 using Application.ErrorLogs.Queries.GetErrorLogs;
 using Domain.Entities;
 
@@ -181,5 +182,67 @@ public class ErrorLogsQueryHandlerTests
         Assert.Equal(2, result.Warning);
         Assert.Equal(7, result.Unresolved);
         Assert.Equal(3, result.Resolved);
+    }
+
+    [Fact]
+    public async Task GetErrorLogProviderBreakdownQueryHandler_GroupsRawCountsByCategoryThenProvider()
+    {
+        var repo = new Mock<IErrorLogRepository>();
+        repo
+            .Setup(r => r.GetProviderCountsAsync(It.IsAny<ErrorLogFilter>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+            [
+                new ErrorLogProviderCount("RSS Feed Fetch", "AajTak", 5, 3),
+                new ErrorLogProviderCount("Dynamic Feed Fetch", "AajTak", 1, 1),
+                new ErrorLogProviderCount("RSS Feed Fetch", "ABPNews", 2, 0),
+                new ErrorLogProviderCount("News API Fetch", "NewsApiOrg", 4, 4),
+                new ErrorLogProviderCount("HTTP Request", "Unknown", 1, 1),
+            ]);
+
+        var handler = new GetErrorLogProviderBreakdownQueryHandler(repo.Object);
+        var result = await handler.Handle(new GetErrorLogProviderBreakdownQuery(), CancellationToken.None);
+
+        var rss = result.Single(g => g.Category == ErrorLogCategory.Rss);
+        Assert.Equal(8, rss.TotalCount);
+        Assert.Equal(4, rss.UnresolvedCount);
+        Assert.Equal(2, rss.Providers.Count);
+        // AajTak's two Source rows (RSS Feed Fetch + Dynamic Feed Fetch) collapse into one entry.
+        Assert.Equal("AajTak", rss.Providers[0].Provider);
+        Assert.Equal(6, rss.Providers[0].Count);
+        Assert.Equal(4, rss.Providers[0].UnresolvedCount);
+        Assert.Equal("ABPNews", rss.Providers[1].Provider);
+        Assert.Equal(2, rss.Providers[1].Count);
+
+        var api = result.Single(g => g.Category == ErrorLogCategory.Api);
+        Assert.Equal(4, api.TotalCount);
+        Assert.Single(api.Providers);
+        Assert.Equal("NewsApiOrg", api.Providers[0].Provider);
+
+        var social = result.Single(g => g.Category == ErrorLogCategory.Social);
+        Assert.Equal(0, social.TotalCount);
+        Assert.Empty(social.Providers);
+
+        var http = result.Single(g => g.Category == ErrorLogCategory.Http);
+        Assert.Equal(1, http.TotalCount);
+        Assert.Equal("Unknown", http.Providers[0].Provider);
+    }
+
+    [Fact]
+    public async Task GetErrorLogProviderBreakdownQueryHandler_PassesFiltersThrough()
+    {
+        var repo = new Mock<IErrorLogRepository>();
+        ErrorLogFilter? capturedFilter = null;
+        repo
+            .Setup(r => r.GetProviderCountsAsync(It.IsAny<ErrorLogFilter>(), It.IsAny<CancellationToken>()))
+            .Callback<ErrorLogFilter, CancellationToken>((f, _) => capturedFilter = f)
+            .ReturnsAsync([]);
+
+        var handler = new GetErrorLogProviderBreakdownQueryHandler(repo.Object);
+        await handler.Handle(new GetErrorLogProviderBreakdownQuery(Country: "India", Search: "timeout"), CancellationToken.None);
+
+        Assert.NotNull(capturedFilter);
+        Assert.Equal("India", capturedFilter!.Country);
+        Assert.Equal("timeout", capturedFilter.SearchText);
+        Assert.Null(capturedFilter.Category);
     }
 }
