@@ -3,6 +3,10 @@
 
 export type ArticleSourceType = 'Rss' | 'Api';
 
+// Mirrors Application.Models.NewsFeedSortBy - which timestamp the News Feed page's infinite
+// scroll is ordered by.
+export type NewsFeedSortBy = 'PublishedAt' | 'CrawledAt';
+
 export interface NewsArticle {
   id: string;
   provider: string;

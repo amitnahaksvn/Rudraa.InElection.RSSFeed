@@ -1,6 +1,7 @@
 using Mediator;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.Extensions.Options;
+using Application.Models;
 using Application.News.Dtos;
 using Application.News.Queries.GetLatestNews;
 using Application.News.Queries.GetNewsByCategory;
@@ -72,14 +73,15 @@ public sealed class News : IEndpointGroup
     [EndpointSummary("News feed, paged")]
     [EndpointDescription(
         "Newest-first articles for the News Feed page's infinite scroll - 'sourceType' (Rss/Api) " +
-        "picks the tab, 'country' optionally narrows to one publisher country, and 'skip'/'count' " +
-        "page through the results as the reader scrolls.")]
+        "picks the tab, 'country' optionally narrows to one publisher country, 'sortBy' " +
+        "(PublishedAt/CrawledAt, defaults to PublishedAt) picks which timestamp 'newest' means, and " +
+        "'skip'/'count' page through the results as the reader scrolls.")]
     public static async Task<Ok<IReadOnlyList<NewsArticleDto>>> GetFeed(
         ISender sender, IOptions<ApiOptions> apiOptions, ArticleSourceType? sourceType, string? country, int skip, int count,
-        CancellationToken cancellationToken)
+        NewsFeedSortBy sortBy = NewsFeedSortBy.PublishedAt, CancellationToken cancellationToken = default)
     {
         var result = await sender.Send(
-            new GetNewsFeedQuery(sourceType, country, Math.Max(0, skip), ResolvePageSize(count, apiOptions.Value)),
+            new GetNewsFeedQuery(sourceType, country, Math.Max(0, skip), ResolvePageSize(count, apiOptions.Value), sortBy),
             cancellationToken);
         return TypedResults.Ok(result);
     }

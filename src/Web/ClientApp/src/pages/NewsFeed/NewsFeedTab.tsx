@@ -4,11 +4,13 @@ import FormControl from '@mui/material/FormControl';
 import InputLabel from '@mui/material/InputLabel';
 import Select from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
+import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
+import ToggleButton from '@mui/material/ToggleButton';
 import CircularProgress from '@mui/material/CircularProgress';
 import Alert from '@mui/material/Alert';
 import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
-import type { ArticleSourceType } from '../../api/newsTypes';
+import type { ArticleSourceType, NewsFeedSortBy } from '../../api/newsTypes';
 import { useNewsFeed } from './useNewsFeed';
 import { useNewsFeedCount } from './useNewsFeedCount';
 import { useNewsCountries } from './useNewsCountries';
@@ -18,6 +20,7 @@ import { getCountryFlagEmoji } from '../../utils/countryFlags';
 
 export function NewsFeedTab({ sourceType }: { sourceType: ArticleSourceType }) {
   const [country, setCountry] = useState<string | null>(null);
+  const [sortBy, setSortBy] = useState<NewsFeedSortBy>('PublishedAt');
 
   const { data: countries } = useNewsCountries(sourceType);
   const { data: totalCount } = useNewsFeedCount(sourceType, country);
@@ -28,7 +31,7 @@ export function NewsFeedTab({ sourceType }: { sourceType: ArticleSourceType }) {
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage,
-  } = useNewsFeed(sourceType, country);
+  } = useNewsFeed(sourceType, country, sortBy);
 
   const sentinelRef = useInfiniteScrollSentinel(() => fetchNextPage(), Boolean(hasNextPage) && !isFetchingNextPage);
 
@@ -36,23 +39,38 @@ export function NewsFeedTab({ sourceType }: { sourceType: ArticleSourceType }) {
 
   return (
     <Stack gap={1.5}>
-      <Stack direction="row" alignItems="center" justifyContent="space-between" gap={1} flexWrap="wrap">
-        <FormControl size="small" sx={{ minWidth: 220 }}>
-          <InputLabel id={`country-filter-${sourceType}`}>Country</InputLabel>
-          <Select
-            labelId={`country-filter-${sourceType}`}
-            label="Country"
-            value={country ?? ''}
-            onChange={(e) => setCountry(e.target.value || null)}
+      <Stack direction="row" alignItems="center" justifyContent="space-between" gap={1.5} flexWrap="wrap">
+        <Stack direction="row" alignItems="center" gap={1.5} flexWrap="wrap">
+          <FormControl size="small" sx={{ minWidth: 220 }}>
+            <InputLabel id={`country-filter-${sourceType}`}>Country</InputLabel>
+            <Select
+              labelId={`country-filter-${sourceType}`}
+              label="Country"
+              value={country ?? ''}
+              onChange={(e) => setCountry(e.target.value || null)}
+            >
+              <MenuItem value="">All countries</MenuItem>
+              {countries?.map((c) => (
+                <MenuItem key={c} value={c}>
+                  {getCountryFlagEmoji(c) ? `${getCountryFlagEmoji(c)} ${c}` : c}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+
+          {/* onChange fires with `null` when clicking the already-selected button - ignored so
+              exactly one of Published/Crawled is always active, matching a single sort order. */}
+          <ToggleButtonGroup
+            size="small"
+            exclusive
+            value={sortBy}
+            onChange={(_, value: NewsFeedSortBy | null) => value && setSortBy(value)}
+            aria-label="Sort by"
           >
-            <MenuItem value="">All countries</MenuItem>
-            {countries?.map((c) => (
-              <MenuItem key={c} value={c}>
-                {getCountryFlagEmoji(c) ? `${getCountryFlagEmoji(c)} ${c}` : c}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
+            <ToggleButton value="PublishedAt">Published</ToggleButton>
+            <ToggleButton value="CrawledAt">Crawled</ToggleButton>
+          </ToggleButtonGroup>
+        </Stack>
 
         {totalCount !== undefined && (
           <Typography variant="caption" color="text.secondary">

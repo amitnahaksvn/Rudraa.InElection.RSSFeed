@@ -188,23 +188,28 @@ public sealed class NewsArticleRepository : INewsArticleRepository
     // equality + CrawledAt sort here and filters SourceType/Country per-document from there; add
     // dedicated compound indexes once there's headroom again if this needs to scale further.
     //
-    // Sorted by PublishedAt (falling back to CrawledAt, both descending) rather than CrawledAt
-    // alone - the News Feed page's own card (ArticleCard.tsx) displays
+    // Defaults to sorting by PublishedAt (falling back to CrawledAt, both descending) rather than
+    // CrawledAt alone - the News Feed page's own card (ArticleCard.tsx) displays
     // `article.publishedAt ?? article.crawledAt`, so sorting purely by CrawledAt made the
     // *displayed* timestamps jump around non-monotonically (a feed mixing providers with very
     // different publish-to-crawl lag looks "out of order" even though the crawl-time order was
-    // technically consistent). Sorting by the same field the UI shows fixes that, and doesn't cost
-    // a new index either - ix_news_publishedat (a plain descending index) already exists. A
-    // ThenByDescending(CrawledAt) breaks ties for the minority of articles with no PublishedAt at
-    // all (sorted to the end by Mongo's null-last descending order) and for same-instant PublishedAt
-    // values.
-    public async Task<IReadOnlyList<NewsArticle>> GetFeedAsync(NewsArticleFeedFilter filter, CancellationToken cancellationToken) =>
-        await _collection.Find(BuildFeedFilter(filter))
-            .SortByDescending(a => a.PublishedAt)
-            .ThenByDescending(a => a.CrawledAt)
-            .Skip(filter.Skip)
-            .Limit(filter.Take)
-            .ToListAsync(cancellationToken);
+    // technically consistent). filter.SortBy also lets the page switch to pure CrawledAt order on
+    // request (e.g. "what did we actually just fetch"), which some readers want instead. Neither
+    // option costs a new index - ix_news_publishedat (a plain descending index) already existed
+    // unused, and ix_news_active_crawledat already backed the old default. A
+    // ThenByDescending(CrawledAt) on the PublishedAt branch breaks ties for the minority of
+    // articles with no PublishedAt at all (sorted to the end by Mongo's null-last descending
+    // order) and for same-instant PublishedAt values.
+    public async Task<IReadOnlyList<NewsArticle>> GetFeedAsync(NewsArticleFeedFilter filter, CancellationToken cancellationToken)
+    {
+        var query = _collection.Find(BuildFeedFilter(filter));
+
+        var sorted = filter.SortBy == NewsFeedSortBy.CrawledAt
+            ? query.SortByDescending(a => a.CrawledAt)
+            : query.SortByDescending(a => a.PublishedAt).ThenByDescending(a => a.CrawledAt);
+
+        return await sorted.Skip(filter.Skip).Limit(filter.Take).ToListAsync(cancellationToken);
+    }
 
     /// <summary>Total articles matching the same pipeline/country narrowing as <see cref="GetFeedAsync"/> (its Skip/Take are irrelevant here) - backs the News Feed page's total-count header.</summary>
     public Task<long> CountFeedAsync(NewsArticleFeedFilter filter, CancellationToken cancellationToken) =>
