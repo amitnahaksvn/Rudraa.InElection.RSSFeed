@@ -8,9 +8,17 @@
   </ItemGroup>
 
   <ItemGroup>
-    <!-- Single source of truth for NewsCrawler:* (providers/feeds/schedules) - lives at the src/
-         root rather than under Web/ so it stays a natural fit if a second host ever reads it again. -->
+    <!-- NewsCrawler:*/NewsApiCrawler:* config - lives at the src/ root rather than under Web/ so
+         it stays a natural fit if a second host ever reads it again. NewsCrawler.appsettings.json
+         holds the shared scalar settings (Enabled/BatchSize/LockName/...) with each country's own
+         Providers carved out into its own file under src/Countries/ - Program.cs's
+         InsertNewsCrawlerConfigBeforeEnvironmentVariables merges them back into one config blob at
+         startup, so adding a country is just dropping a new file here, never touching this csproj. -->
     <Content Include="..\NewsCrawler.appsettings.json" Link="NewsCrawler.appsettings.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Include="..\Countries\*.json" Link="Countries\%(Filename)%(Extension)">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
     </Content>

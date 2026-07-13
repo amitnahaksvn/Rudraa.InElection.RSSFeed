@@ -1,4 +1,6 @@
 using System.Reflection;
+using System.Text;
+using System.Text.Json.Nodes;
 using Hangfire;
 using Hangfire.Mongo;
 using Hangfire.Mongo.Migration.Strategies;
@@ -23,13 +25,15 @@ var initDbOnly = args.Contains("--init-db", StringComparer.OrdinalIgnoreCase);
 var builder = WebApplication.CreateBuilder(args);
 
 // Single source of truth for NewsCrawler:* (providers/feeds/schedules) - see
-// NewsCrawler.appsettings.json at the src/ root. AppContext.BaseDirectory (not ContentRootPath,
-// which `dotnet run` sets to the project source directory) is what's consistent between
-// `dotnet run` and a published/Docker deployment - the .csproj's linked Content item copies the
-// file there under both build and publish. Inserted before the environment-variables source
-// (rather than appended, which is CreateBuilder's default for a source added afterwards) so
-// NewsCrawler__* env vars - e.g. from an AWS/Azure secret injected into the container's
-// environment - can still override this file, not the reverse.
+// NewsCrawler.appsettings.json (shared scalar settings) and src/Countries/*.json (one file per
+// country's own Providers, merged back into NewsCrawler:Countries/NewsApiCrawler:Countries in
+// code - see InsertNewsCrawlerConfigBeforeEnvironmentVariables) at the src/ root.
+// AppContext.BaseDirectory (not ContentRootPath, which `dotnet run` sets to the project source
+// directory) is what's consistent between `dotnet run` and a published/Docker deployment - the
+// .csproj's linked Content items copy these files there under both build and publish. Inserted
+// before the environment-variables source (rather than appended, which is CreateBuilder's default
+// for a source added afterwards) so NewsCrawler__* env vars - e.g. from an AWS/Azure secret
+// injected into the container's environment - can still override this file, not the reverse.
 InsertNewsCrawlerConfigBeforeEnvironmentVariables(builder.Configuration);
 
 // Render's "Secret Files" feature mounts an uploaded file at /etc/secrets/<filename> for
@@ -289,13 +293,10 @@ app.Run();
 
 static void InsertNewsCrawlerConfigBeforeEnvironmentVariables(IConfigurationBuilder configuration)
 {
-    var source = new JsonConfigurationSource
+    var source = new JsonStreamConfigurationSource
     {
-        Path = Path.Combine(AppContext.BaseDirectory, "NewsCrawler.appsettings.json"),
-        Optional = false,
-        ReloadOnChange = true
+        Stream = BuildMergedNewsCrawlerConfigStream(AppContext.BaseDirectory)
     };
-    source.ResolveFileProvider();
 
     var envVariablesIndex = configuration.Sources.ToList().FindIndex(s => s is EnvironmentVariablesConfigurationSource);
     if (envVariablesIndex < 0)
@@ -305,4 +306,41 @@ static void InsertNewsCrawlerConfigBeforeEnvironmentVariables(IConfigurationBuil
     }
 
     configuration.Sources.Insert(envVariablesIndex, source);
+}
+
+// NewsCrawler.appsettings.json carries only the shared NewsCrawler:*/NewsApiCrawler:* scalar
+// settings plus whatever countries haven't been split out yet; each src/Countries/*.json file
+// carries one country's own slice - { "NewsCrawler": { "Name", "Enabled", "Providers": [...] },
+// "NewsApiCrawler": { same shape } } - appended here into the base file's two Countries arrays
+// before configuration ever sees them. This has to happen in code rather than relying on
+// IConfiguration's own multi-source JSON merging because config binds arrays by index, not by
+// appending - every country file's own "Countries:0" would otherwise land at the same config key
+// and just overwrite each other across sources instead of accumulating. Merging up front into one
+// in-memory JSON document means every other line in this app (options binding, orchestrators,
+// validators) keeps working against a single NewsCrawler:Countries/NewsApiCrawler:Countries list
+// exactly as before, with zero awareness the source was ever split across files.
+static Stream BuildMergedNewsCrawlerConfigStream(string baseDirectory)
+{
+    var root = JsonNode.Parse(File.ReadAllText(Path.Combine(baseDirectory, "NewsCrawler.appsettings.json")))!.AsObject();
+    var rssCountries = root["NewsCrawler"]!["Countries"]!.AsArray();
+    var apiCountries = root["NewsApiCrawler"]!["Countries"]!.AsArray();
+
+    var countriesDirectory = Path.Combine(baseDirectory, "Countries");
+    if (Directory.Exists(countriesDirectory))
+    {
+        foreach (var file in Directory.EnumerateFiles(countriesDirectory, "*.json").OrderBy(f => f, StringComparer.Ordinal))
+        {
+            var country = JsonNode.Parse(File.ReadAllText(file))!.AsObject();
+            if (country["NewsCrawler"] is JsonObject rssCountry)
+            {
+                rssCountries.Add(rssCountry.DeepClone());
+            }
+            if (country["NewsApiCrawler"] is JsonObject apiCountry)
+            {
+                apiCountries.Add(apiCountry.DeepClone());
+            }
+        }
+    }
+
+    return new MemoryStream(Encoding.UTF8.GetBytes(root.ToJsonString()));
 }
