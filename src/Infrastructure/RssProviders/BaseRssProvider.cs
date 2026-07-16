@@ -159,7 +159,8 @@ public abstract partial class BaseRssProvider : IRssProvider
             ?? item.Element(DublinCore + "date")?.Value;
         var publishedAt = ParsePublishDate(pubDateRaw);
         var imageUrl = ExtractImage(item)
-            ?? await TryExtractOgImageAsync(_httpClientFactory.CreateClient(HttpClientName), link, _logger, cancellationToken);
+            ?? await TryExtractOgImageAsync(_httpClientFactory.CreateClient(HttpClientName), link, _logger, cancellationToken)
+            ?? feed.DefaultImageUrl;
 
         return new NormalizedArticle
         {

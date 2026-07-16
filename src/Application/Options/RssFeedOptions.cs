@@ -16,4 +16,12 @@ public sealed class RssFeedOptions
     public string Language { get; set; } = "hi";
 
     public bool Enabled { get; set; } = true;
+
+    /// <summary>
+    /// Fallback image URL used when an item carries no image of its own (no media/enclosure tag,
+    /// and the og:image HTML fallback comes up empty too - e.g. PIB's feeds, which have neither).
+    /// Purely a config knob: adding a fallback image for a future feed/provider that never ships
+    /// its own images is a one-line JSON addition, no code change.
+    /// </summary>
+    public string? DefaultImageUrl { get; set; }
 }

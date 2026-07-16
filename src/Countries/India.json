@@ -2272,35 +2272,40 @@
             "Url": "https://pib.gov.in/RssMain.aspx?ModId=6&Mod=1&reg=3&lang=1",
             "Category": "National",
             "Language": "en",
-            "Enabled": true
+            "Enabled": true,
+            "DefaultImageUrl": "https://qxydqiyqingyojqdbtvf.supabase.co/storage/v1/object/public/images/RSSFeed/PIB.png"
           },
           {
             "Name": "Hindi",
             "Url": "https://pib.gov.in/RssMain.aspx?ModId=6&Mod=1&reg=3&lang=2",
             "Category": "National",
             "Language": "hi",
-            "Enabled": true
+            "Enabled": true,
+            "DefaultImageUrl": "https://qxydqiyqingyojqdbtvf.supabase.co/storage/v1/object/public/images/RSSFeed/PIB.png"
           },
           {
             "Name": "Urdu",
             "Url": "https://pib.gov.in/RssMain.aspx?ModId=6&Mod=1&reg=3&lang=3",
             "Category": "National",
             "Language": "ur",
-            "Enabled": false
+            "Enabled": false,
+            "DefaultImageUrl": "https://qxydqiyqingyojqdbtvf.supabase.co/storage/v1/object/public/images/RSSFeed/PIB.png"
           },
           {
             "Name": "PhotoFeature",
             "Url": "https://pib.gov.in/RssMain.aspx?ModId=8&Mod=1&reg=3&lang=1",
             "Category": "Photo",
             "Language": "en",
-            "Enabled": true
+            "Enabled": false,
+            "DefaultImageUrl": "https://qxydqiyqingyojqdbtvf.supabase.co/storage/v1/object/public/images/RSSFeed/PIB.png"
           },
           {
             "Name": "MediaInvitation",
             "Url": "https://pib.gov.in/RssMain.aspx?ModId=9&Mod=1&reg=3&lang=1",
             "Category": "Media",
             "Language": "en",
-            "Enabled": true
+            "Enabled": false,
+            "DefaultImageUrl": "https://qxydqiyqingyojqdbtvf.supabase.co/storage/v1/object/public/images/RSSFeed/PIB.png"
           }
         ]
       },

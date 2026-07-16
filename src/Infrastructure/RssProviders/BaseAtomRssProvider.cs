@@ -138,7 +138,8 @@ public abstract class BaseAtomRssProvider : IRssProvider
             .ToList();
 
         var imageUrl = await BaseRssProvider.TryExtractOgImageAsync(
-            _httpClientFactory.CreateClient(HttpClientName), link, _logger, cancellationToken);
+            _httpClientFactory.CreateClient(HttpClientName), link, _logger, cancellationToken)
+            ?? feed.DefaultImageUrl;
 
         return new NormalizedArticle
         {
