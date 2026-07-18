@@ -135,9 +135,14 @@ if (enableSwagger)
         options.WithOpenApiRoutePattern("/swagger/{documentName}/swagger.json");
         options.Title = "Political News Crawler API";
     });
-
-    app.MapGet("/", () => Results.Redirect("/scalar/v1")).ExcludeFromDescription();
 }
+
+// The News Feed page is the actual product this app produces (already-crawled, already-public
+// articles), so a bare URL with no path goes straight there - not gated behind EnableSwagger,
+// unlike the redirect this replaced, which stopped existing at all whenever Swagger was disabled.
+// API docs are still reachable directly at /scalar/v1 when EnableSwagger is on, just no longer
+// the default landing page.
+app.MapGet("/", () => Results.Redirect("/feed")).ExcludeFromDescription();
 
 app.MapDefaultEndpoints();
 // Scans both this host's own executing assembly (CrawlTrigger, Providers) and the shared

@@ -129,9 +129,18 @@ _ = Task.Run(async () =>
     }
 });
 
-// The entire HTTP surface this process exposes: /health and /alive (from ServiceDefaults). No
-// SPA, no read API, no Swagger, no Hangfire dashboard - see WebApp for all of that. /alive is
-// also the self-ping target for HangfireKeepAliveExecutor's own recurring job, registered above.
+// The entire HTTP surface this process exposes: /health and /alive (from ServiceDefaults) plus
+// its own Hangfire dashboard - no SPA, no read API, no Swagger, see WebApp for all of that.
+// /alive is also the self-ping target for HangfireKeepAliveExecutor's own recurring job,
+// registered above. Reads the same shared Hangfire Mongo storage as WebApp/RssService, so it
+// technically shows every job from all three processes, not just this one's own api/social/
+// keepalive queues - open by default (no config flag), same "deliberately open, by request"
+// reasoning as WebApp's own dashboard. Authorization must be set explicitly to an empty filter
+// list - Hangfire.AspNetCore's own UseHangfireDashboard default (when no DashboardOptions is
+// passed) is LocalRequestsOnlyAuthorizationFilter, which 401s any request that isn't from
+// localhost.
+app.UseHangfireDashboard("/hangfire", new DashboardOptions { Authorization = [] });
+
 app.MapDefaultEndpoints();
 
 app.Run();
