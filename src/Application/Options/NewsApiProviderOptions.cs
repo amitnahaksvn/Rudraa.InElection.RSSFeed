@@ -28,7 +28,7 @@ public sealed class NewsApiProviderOptions
     /// <summary>Query-string key (when <see cref="AuthType"/> is <see cref="ApiAuthType.QueryParameter"/>) or header name (when <see cref="ApiAuthType.HttpHeader"/>) the API key is attached under.</summary>
     public string AuthParamName { get; set; } = "apiKey";
 
-    public int TimeoutSeconds { get; set; } = 30;
+    public int TimeoutSeconds { get; set; } = 120;
 
     public List<NewsApiEndpointOptions> Endpoints { get; set; } = [];
 }

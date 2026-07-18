@@ -64,14 +64,21 @@ if (initDbOnly)
 // Azure F1's tight CPU-minute budget.
 var hangfireOptions = new HangfireOptions();
 builder.Configuration.GetSection(HangfireOptions.SectionName).Bind(hangfireOptions);
+
+// Falls back here, in Program.cs, rather than via a property initializer on
+// HangfireOptions.Queues itself - see that property's own doc comment for the config binding
+// pitfall (array-append, not replace) that fallback would silently reintroduce. Kept in its own
+// variable (not just assigned straight to options.Queues below) so the dashboard's
+// RegisterServiceScopedRecurringJobsPage call further down can filter against the exact same
+// resolved list this server actually processes, rather than a second hardcoded copy that could
+// drift out of sync.
+var resolvedQueues = hangfireOptions.Queues is { Length: > 0 }
+    ? hangfireOptions.Queues
+    : ["keepalive", "rss", "default"];
+
 builder.Services.AddHangfireServer(options =>
 {
-    // Falls back here, in Program.cs, rather than via a property initializer on
-    // HangfireOptions.Queues itself - see that property's own doc comment for the config binding
-    // pitfall (array-append, not replace) that fallback would silently reintroduce.
-    options.Queues = hangfireOptions.Queues is { Length: > 0 }
-        ? hangfireOptions.Queues
-        : ["keepalive", "rss", "default"];
+    options.Queues = resolvedQueues;
     if (hangfireOptions.WorkerCount is { } workerCount)
     {
         options.WorkerCount = workerCount;
@@ -144,6 +151,12 @@ _ = Task.Run(async () =>
 // Hangfire.AspNetCore's own UseHangfireDashboard default (when no DashboardOptions is passed) is
 // LocalRequestsOnlyAuthorizationFilter, which 401s any request that isn't from localhost.
 app.UseHangfireDashboard("/hangfire", new DashboardOptions { Authorization = [] });
+
+// The default "Recurring Jobs" page above still shows every job from all three processes (shared
+// storage - see UseHangfireDashboard's own comment). This adds a second, filtered page scoped to
+// just the queue(s) this process's own Hangfire server was configured with above, so RssService's
+// dashboard has a place that shows only the RSS jobs actually running here.
+WebPlatform.Hangfire.ServiceScopedDashboardExtensions.RegisterServiceScopedRecurringJobsPage(resolvedQueues, "RSS jobs (this service)");
 
 app.MapDefaultEndpoints();
 

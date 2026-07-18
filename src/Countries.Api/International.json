@@ -10,7 +10,7 @@
         "BaseUrl": "https://factchecktools.googleapis.com/v1alpha1",
         "AuthType": "QueryParameter",
         "AuthParamName": "key",
-        "TimeoutSeconds": 30,
+        "TimeoutSeconds": 120,
         "Endpoints": [
           {
             "Name": "Search",
@@ -32,7 +32,7 @@
         "BaseUrl": "https://financialmodelingprep.com/stable",
         "AuthType": "QueryParameter",
         "AuthParamName": "apikey",
-        "TimeoutSeconds": 30,
+        "TimeoutSeconds": 120,
         "Endpoints": [
           {
             "Name": "GeneralNews",
@@ -53,7 +53,7 @@
         "BaseUrl": "https://www.alphavantage.co",
         "AuthType": "QueryParameter",
         "AuthParamName": "apikey",
-        "TimeoutSeconds": 30,
+        "TimeoutSeconds": 120,
         "Endpoints": [
           {
             "Name": "NewsSentiment",
@@ -75,7 +75,7 @@
         "BaseUrl": "https://finnhub.io/api/v1",
         "AuthType": "QueryParameter",
         "AuthParamName": "token",
-        "TimeoutSeconds": 30,
+        "TimeoutSeconds": 120,
         "Endpoints": [
           {
             "Name": "GeneralNews",
@@ -96,7 +96,7 @@
         "BaseUrl": "https://api.polygon.io/v2",
         "AuthType": "QueryParameter",
         "AuthParamName": "apiKey",
-        "TimeoutSeconds": 30,
+        "TimeoutSeconds": 120,
         "Endpoints": [
           {
             "Name": "GeneralNews",
@@ -118,7 +118,7 @@
         "BaseUrl": "https://www.googleapis.com/youtube/v3",
         "AuthType": "QueryParameter",
         "AuthParamName": "key",
-        "TimeoutSeconds": 30,
+        "TimeoutSeconds": 120,
         "Endpoints": [
           {
             "Name": "Search",
