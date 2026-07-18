@@ -55,4 +55,15 @@
     <UserSecretsId>255aed6a-2d6f-4b62-ab4e-a020bfb283e9</UserSecretsId>
   </PropertyGroup>
 
+  <!-- ClientApp (see src/WebApp/ClientApp) is a standalone npm/Vite project, not something MSBuild
+       should glob into this .csproj's own Compile/Content items - node_modules alone is tens of
+       thousands of files, and without this exclude a plain `dotnet build`/IDE reload would try to
+       enumerate all of it as Content, and `dotnet publish` would try to copy it. Its build output
+       (wwwroot/**, via `npm run build`) is served separately through app.UseStaticFiles(). -->
+  <ItemGroup>
+    <Content Remove="ClientApp/**" />
+    <Compile Remove="ClientApp/**" />
+    <None Remove="ClientApp/**" />
+  </ItemGroup>
+
 </Project>

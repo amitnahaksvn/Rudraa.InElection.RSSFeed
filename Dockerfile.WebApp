@@ -1,12 +1,12 @@
-# Builds the admin/error-monitor React app (src/ClientApp) in a Node stage, so the .NET SDK stage
-# below never needs Node installed. This is the only Dockerfile in the solution with a Node stage -
-# WebApp is the one process that serves a real website (see Dockerfile.RssService/
+# Builds the admin/error-monitor React app (src/WebApp/ClientApp) in a Node stage, so the .NET SDK
+# stage below never needs Node installed. This is the only Dockerfile in the solution with a Node
+# stage - WebApp is the one process that serves a real website (see Dockerfile.RssService/
 # Dockerfile.ApiService for the two headless workers).
 FROM node:22-alpine AS client-build
-WORKDIR /src/ClientApp
-COPY src/ClientApp/package.json src/ClientApp/package-lock.json ./
+WORKDIR /src/WebApp/ClientApp
+COPY src/WebApp/ClientApp/package.json src/WebApp/ClientApp/package-lock.json ./
 RUN npm ci
-COPY src/ClientApp/ ./
+COPY src/WebApp/ClientApp/ ./
 RUN npm run build
 
 # Builds WebApp - the one admin site/read API/Hangfire dashboard. Never executes a crawl job

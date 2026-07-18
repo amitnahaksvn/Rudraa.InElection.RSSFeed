@@ -1,0 +1,27 @@
+name: Deploy ApiService to Azure
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "10.0.100"
+
+      - name: Publish
+        run: dotnet publish src/ApiService/ApiService.csproj -c Release -o ${{ github.workspace }}/publish/apiservice
+
+      - name: Deploy to Azure Web App
+        uses: azure/webapps-deploy@v3
+        with:
+          app-name: rudraa-apiservice
+          publish-profile: ${{ secrets.AZURE_APISERVICE_PUBLISH_PROFILE }}
+          package: ${{ github.workspace }}/publish/apiservice

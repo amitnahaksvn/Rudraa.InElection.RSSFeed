@@ -12,7 +12,7 @@ export default defineConfig({
   plugins: [react()],
   base: '/',
   build: {
-    outDir: '../WebApp/wwwroot',
+    outDir: '../wwwroot',
     emptyOutDir: true,
   },
   server: {

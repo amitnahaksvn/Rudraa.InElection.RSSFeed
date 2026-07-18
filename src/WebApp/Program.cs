@@ -108,7 +108,7 @@ var app = builder.Build();
 app.UseMiddleware<RequestLoggingMiddleware>();
 app.UseExceptionHandler();
 
-// Serves the admin React app's built assets (see src/ClientApp) - harmless to leave on
+// Serves the admin React app's built assets (see src/WebApp/ClientApp) - harmless to leave on
 // unconditionally, since it only serves files that already exist under wwwroot; the page itself
 // (the SPA fallback routes below) is gated separately via EnableErrorDashboard/etc.
 app.UseStaticFiles();
