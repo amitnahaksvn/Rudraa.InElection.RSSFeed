@@ -1,0 +1,126 @@
+{
+  "NewsCrawler": {
+    "Name": "Japan",
+    "Enabled": true,
+    "Providers": [
+      {
+        "Name": "NHKWorld",
+        "Enabled": true,
+        "Cron": "25,55 * * * *",
+        "SaveRawResponses": true,
+        "Feeds": [
+          {
+            "Name": "News",
+            "Url": "https://www3.nhk.or.jp/rss/news/cat0.xml",
+            "Category": "General",
+            "Language": "en",
+            "Enabled": true
+          },
+          {
+            "Name": "World",
+            "Url": "https://www3.nhk.or.jp/rss/news/cat3.xml",
+            "Category": "World",
+            "Language": "en",
+            "Enabled": true
+          },
+          {
+            "Name": "Business",
+            "Url": "https://www3.nhk.or.jp/rss/news/cat5.xml",
+            "Category": "Business",
+            "Language": "en",
+            "Enabled": true
+          },
+          {
+            "Name": "Science",
+            "Url": "https://www3.nhk.or.jp/rss/news/cat7.xml",
+            "Category": "Science",
+            "Language": "en",
+            "Enabled": true
+          },
+          {
+            "Name": "Politics",
+            "Url": "https://www3.nhk.or.jp/rss/news/cat4.xml",
+            "Category": "Politics",
+            "Language": "en",
+            "Enabled": true
+          }
+        ]
+      },
+      {
+        "Name": "JapanTimes",
+        "Enabled": true,
+        "Cron": "23,53 * * * *",
+        "SaveRawResponses": true,
+        "Feeds": [
+          {
+            "Name": "Latest",
+            "Url": "https://www.japantimes.co.jp/feed/",
+            "Category": "General",
+            "Language": "en",
+            "Enabled": true
+          }
+        ]
+      },
+      {
+        "Name": "NikkeiAsia",
+        "Enabled": true,
+        "Cron": "23,53 * * * *",
+        "SaveRawResponses": true,
+        "Feeds": [
+          {
+            "Name": "Latest",
+            "Url": "https://asia.nikkei.com/rss/feed/nar",
+            "Category": "General",
+            "Language": "en",
+            "Enabled": true
+          }
+        ]
+      },
+      {
+        "Name": "MainichiJapan",
+        "Enabled": true,
+        "Cron": "20,50 * * * *",
+        "SaveRawResponses": true,
+        "Feeds": [
+          {
+            "Name": "Latest",
+            "Url": "https://mainichi.jp/english/rss/etc/mainichi-flash.rss",
+            "Category": "General",
+            "Language": "en",
+            "Enabled": true
+          }
+        ]
+      },
+      {
+        "Name": "AsahiShimbun",
+        "Enabled": true,
+        "Cron": "2,32 * * * *",
+        "SaveRawResponses": true,
+        "Feeds": [
+          {
+            "Name": "Latest",
+            "Url": "https://www.asahi.com/rss/asahi/newsheadlines.rdf",
+            "Category": "General",
+            "Language": "ja",
+            "Enabled": true
+          }
+        ]
+      },
+      {
+        "Name": "JapanToday",
+        "Enabled": true,
+        "Cron": "18,48 * * * *",
+        "SaveRawResponses": true,
+        "Feeds": [
+          {
+            "Name": "Latest",
+            "Url": "https://japantoday.com/feed",
+            "Category": "General",
+            "Language": "en",
+            "Enabled": true
+          }
+        ]
+      }
+    ]
+  }
+}

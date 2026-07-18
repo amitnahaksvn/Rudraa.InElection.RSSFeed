@@ -46,8 +46,11 @@ logs/
 ## Aspire
 **/.aspire/
 
-## ClientApp (React error-monitor UI) - Vite build output lands directly in Web's wwwroot
-## (see vite.config.ts's build.outDir), so wwwroot is generated, not source, same as bin/obj.
-src/Web/wwwroot/
-src/Web/ClientApp/node_modules/
+## ClientApp (React error-monitor UI, shared between WebRssFeed and WebApiFeed) - Vite build
+## output lands in each host's own wwwroot (see vite.config.ts's OUT_DIR), so wwwroot is
+## generated, not source, same as bin/obj. (Already-tracked wwwroot files from before this rule
+## covered these paths stay tracked regardless - this only affects new/untracked ones.)
+src/WebRssFeed/wwwroot/
+src/WebApiFeed/wwwroot/
+src/ClientApp/node_modules/
 

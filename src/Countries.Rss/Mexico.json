@@ -1,0 +1,38 @@
+{
+  "NewsCrawler": {
+    "Name": "Mexico",
+    "Enabled": true,
+    "Providers": [
+      {
+        "Name": "MexicoNewsDaily",
+        "Enabled": true,
+        "Cron": "0,30 * * * *",
+        "SaveRawResponses": true,
+        "Feeds": [
+          {
+            "Name": "Latest",
+            "Url": "https://mexiconewsdaily.com/feed/",
+            "Category": "General",
+            "Language": "en",
+            "Enabled": true
+          }
+        ]
+      },
+      {
+        "Name": "Reforma",
+        "Enabled": true,
+        "Cron": "11,41 * * * *",
+        "SaveRawResponses": true,
+        "Feeds": [
+          {
+            "Name": "Home",
+            "Url": "https://www.reforma.com/rss/portada.xml",
+            "Category": "General",
+            "Language": "es",
+            "Enabled": true
+          }
+        ]
+      }
+    ]
+  }
+}

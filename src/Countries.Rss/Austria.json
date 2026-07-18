@@ -1,0 +1,68 @@
+{
+  "NewsCrawler": {
+    "Name": "Austria",
+    "Enabled": true,
+    "Providers": [
+      {
+        "Name": "ORFNews",
+        "Enabled": true,
+        "Cron": "19,49 * * * *",
+        "SaveRawResponses": true,
+        "Feeds": [
+          {
+            "Name": "Latest",
+            "Url": "https://rss.orf.at/news.xml",
+            "Category": "General",
+            "Language": "de",
+            "Enabled": true
+          }
+        ]
+      },
+      {
+        "Name": "DerStandard",
+        "Enabled": true,
+        "Cron": "27,57 * * * *",
+        "SaveRawResponses": true,
+        "Feeds": [
+          {
+            "Name": "Latest",
+            "Url": "https://www.derstandard.at/rss",
+            "Category": "General",
+            "Language": "de",
+            "Enabled": true
+          }
+        ]
+      },
+      {
+        "Name": "Kurier",
+        "Enabled": true,
+        "Cron": "8,38 * * * *",
+        "SaveRawResponses": true,
+        "Feeds": [
+          {
+            "Name": "Latest",
+            "Url": "https://kurier.at/xml/rss",
+            "Category": "General",
+            "Language": "de",
+            "Enabled": true
+          }
+        ]
+      },
+      {
+        "Name": "DiePresse",
+        "Enabled": true,
+        "Cron": "1,31 * * * *",
+        "SaveRawResponses": true,
+        "Feeds": [
+          {
+            "Name": "Latest",
+            "Url": "https://www.diepresse.com/rss",
+            "Category": "General",
+            "Language": "de",
+            "Enabled": true
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "NewsCrawler": {
+    "Name": "Belgium",
+    "Enabled": true,
+    "Providers": [
+      {
+        "Name": "RTBF",
+        "Enabled": true,
+        "Cron": "3,33 * * * *",
+        "SaveRawResponses": true,
+        "Feeds": [
+          {
+            "Name": "Latest",
+            "Url": "https://rss.rtbf.be/article/rss/highlight_rtbf_info.xml",
+            "Category": "General",
+            "Language": "fr",
+            "Enabled": true
+          }
+        ]
+      }
+    ]
+  }
+}

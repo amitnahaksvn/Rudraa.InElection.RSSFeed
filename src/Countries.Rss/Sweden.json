@@ -1,0 +1,83 @@
+{
+  "NewsCrawler": {
+    "Name": "Sweden",
+    "Enabled": true,
+    "Providers": [
+      {
+        "Name": "SVTNews",
+        "Enabled": true,
+        "Cron": "1,31 * * * *",
+        "SaveRawResponses": true,
+        "Feeds": [
+          {
+            "Name": "Latest",
+            "Url": "https://www.svt.se/nyheter/rss.xml",
+            "Category": "General",
+            "Language": "sv",
+            "Enabled": true
+          }
+        ]
+      },
+      {
+        "Name": "DagensNyheter",
+        "Enabled": true,
+        "Cron": "28,58 * * * *",
+        "SaveRawResponses": true,
+        "Feeds": [
+          {
+            "Name": "Latest",
+            "Url": "https://www.dn.se/nyheter/m/rss/",
+            "Category": "General",
+            "Language": "sv",
+            "Enabled": true
+          }
+        ]
+      },
+      {
+        "Name": "Sydsvenskan",
+        "Enabled": true,
+        "Cron": "6,36 * * * *",
+        "SaveRawResponses": true,
+        "Feeds": [
+          {
+            "Name": "Latest",
+            "Url": "https://www.sydsvenskan.se/rss.xml",
+            "Category": "General",
+            "Language": "sv",
+            "Enabled": true
+          }
+        ]
+      },
+      {
+        "Name": "Aftonbladet",
+        "Enabled": true,
+        "Cron": "13,43 * * * *",
+        "SaveRawResponses": true,
+        "Feeds": [
+          {
+            "Name": "Latest",
+            "Url": "https://rss.aftonbladet.se/rss2/small/pages/sections/senastenytt/",
+            "Category": "General",
+            "Language": "sv",
+            "Enabled": true
+          }
+        ]
+      },
+      {
+        "Name": "TheLocalSweden",
+        "Enabled": true,
+        "Cron": "3,33 * * * *",
+        "SaveRawResponses": true,
+        "Feeds": [
+          {
+            "Name": "Latest",
+            "Url": "https://feeds.thelocal.com/rss/builder/se",
+            "Category": "General",
+            "Language": "en",
+            "Enabled": true
+          }
+        ]
+      }
+    ]
+  }
+}

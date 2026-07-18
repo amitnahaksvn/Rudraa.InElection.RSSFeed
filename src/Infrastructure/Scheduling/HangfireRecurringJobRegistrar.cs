@@ -287,15 +287,16 @@ public static class HangfireRecurringJobRegistrar
         }
 
         var recurringJobManager = services.GetRequiredService<IRecurringJobManager>();
+        var jobId = HangfireJobIds.KeepAlivePing(options.AppName);
 
         recurringJobManager.AddOrUpdate<HangfireKeepAliveExecutor>(
-            HangfireJobIds.KeepAlivePing,
+            jobId,
             executor => executor.RunAsync(null!, CancellationToken.None),
             options.Cron,
             RecurringJobOptionsFactory.Create(TimeZoneInfo.Utc));
 
         logger.LogInformation(
-            "Registered Hangfire recurring job '{JobId}' with cron '{Cron}'", HangfireJobIds.KeepAlivePing, options.Cron);
+            "Registered Hangfire recurring job '{JobId}' with cron '{Cron}'", jobId, options.Cron);
     }
 
     /// <summary>
@@ -455,8 +456,19 @@ public static class HangfireRecurringJobRegistrar
         var schedules = await scheduleRepository.GetAllAsync(CrawlPipeline.Api, CancellationToken.None);
         var scheduleByProvider = schedules.ToDictionary(s => s.Provider, StringComparer.OrdinalIgnoreCase);
 
+        // Several "global aggregator" API providers (NewsApiOrg, GNews, NewsDataIo, EventRegistry,
+        // GDELT, ...) are deliberately configured once per country with country-specific query
+        // parameters, but the recurring-job id is keyed on provider Name alone (see
+        // HangfireJobIds.NewsApi) - so every one of e.g. NewsApiOrg's 64 country-config copies
+        // would otherwise resolve to the exact same job id. Registering that many duplicates of
+        // the same job id concurrently (32-way, below) made 64 threads race for Hangfire's own
+        // per-job-id storage lock at once, and enough of them timed out waiting to throw and abort
+        // the whole registration pass - confirmed directly in production-equivalent testing, not
+        // theoretical. DistinctBy keeps just the first country's copy of each duplicated name,
+        // which is all a single shared job id could ever represent at once anyway.
         var enabledProviders = configuredProviders
             .Where(provider => scheduleByProvider.TryGetValue(provider.Name, out var s) ? s.Enabled : provider.Enabled)
+            .DistinctBy(provider => provider.Name, StringComparer.OrdinalIgnoreCase)
             .ToList();
 
         var enabledJobIdBag = new System.Collections.Concurrent.ConcurrentBag<string>();

@@ -1,0 +1,23 @@
+{
+  "NewsCrawler": {
+    "Name": "UAE",
+    "Enabled": true,
+    "Providers": [
+      {
+        "Name": "KhaleejTimes",
+        "Enabled": true,
+        "Cron": "28,58 * * * *",
+        "SaveRawResponses": true,
+        "Feeds": [
+          {
+            "Name": "Latest",
+            "Url": "https://www.khaleejtimes.com/api/v1/collections/top-section.rss",
+            "Category": "General",
+            "Language": "en",
+            "Enabled": true
+          }
+        ]
+      }
+    ]
+  }
+}

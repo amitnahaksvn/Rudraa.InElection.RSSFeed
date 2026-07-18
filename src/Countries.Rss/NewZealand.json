@@ -1,0 +1,38 @@
+{
+  "NewsCrawler": {
+    "Name": "New Zealand",
+    "Enabled": true,
+    "Providers": [
+      {
+        "Name": "RNZ",
+        "Enabled": true,
+        "Cron": "14,44 * * * *",
+        "SaveRawResponses": true,
+        "Feeds": [
+          {
+            "Name": "Latest",
+            "Url": "https://www.rnz.co.nz/rss/news.xml",
+            "Category": "General",
+            "Language": "en",
+            "Enabled": true
+          }
+        ]
+      },
+      {
+        "Name": "Stuff",
+        "Enabled": true,
+        "Cron": "26,56 * * * *",
+        "SaveRawResponses": true,
+        "Feeds": [
+          {
+            "Name": "Latest",
+            "Url": "https://www.stuff.co.nz/rss",
+            "Category": "General",
+            "Language": "en",
+            "Enabled": true
+          }
+        ]
+      }
+    ]
+  }
+}

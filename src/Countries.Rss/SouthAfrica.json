@@ -1,0 +1,23 @@
+{
+  "NewsCrawler": {
+    "Name": "South Africa",
+    "Enabled": true,
+    "Providers": [
+      {
+        "Name": "SABCNews",
+        "Enabled": true,
+        "Cron": "20,50 * * * *",
+        "SaveRawResponses": true,
+        "Feeds": [
+          {
+            "Name": "Latest",
+            "Url": "https://www.sabcnews.com/sabcnews/feed/",
+            "Category": "General",
+            "Language": "en",
+            "Enabled": true
+          }
+        ]
+      }
+    ]
+  }
+}

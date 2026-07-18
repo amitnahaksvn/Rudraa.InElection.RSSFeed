@@ -1,0 +1,23 @@
+{
+  "NewsCrawler": {
+    "Name": "Portugal",
+    "Enabled": true,
+    "Providers": [
+      {
+        "Name": "RTPNoticias",
+        "Enabled": true,
+        "Cron": "9,39 * * * *",
+        "SaveRawResponses": true,
+        "Feeds": [
+          {
+            "Name": "Latest",
+            "Url": "https://www.rtp.pt/noticias/rss",
+            "Category": "General",
+            "Language": "pt",
+            "Enabled": true
+          }
+        ]
+      }
+    ]
+  }
+}

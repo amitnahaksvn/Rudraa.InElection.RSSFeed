@@ -1,0 +1,38 @@
+{
+  "NewsCrawler": {
+    "Name": "Taiwan",
+    "Enabled": true,
+    "Providers": [
+      {
+        "Name": "FocusTaiwan",
+        "Enabled": true,
+        "Cron": "20,50 * * * *",
+        "SaveRawResponses": true,
+        "Feeds": [
+          {
+            "Name": "Latest",
+            "Url": "https://feeds.feedburner.com/rsscna/engnews/",
+            "Category": "General",
+            "Language": "en",
+            "Enabled": true
+          }
+        ]
+      },
+      {
+        "Name": "TaipeiTimes",
+        "Enabled": true,
+        "Cron": "25,55 * * * *",
+        "SaveRawResponses": true,
+        "Feeds": [
+          {
+            "Name": "Latest",
+            "Url": "https://www.taipeitimes.com/xml/index.rss",
+            "Category": "General",
+            "Language": "en",
+            "Enabled": true
+          }
+        ]
+      }
+    ]
+  }
+}

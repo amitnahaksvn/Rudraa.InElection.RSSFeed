@@ -1,0 +1,68 @@
+{
+  "NewsCrawler": {
+    "Name": "Ireland",
+    "Enabled": true,
+    "Providers": [
+      {
+        "Name": "RTENews",
+        "Enabled": true,
+        "Cron": "2,32 * * * *",
+        "SaveRawResponses": true,
+        "Feeds": [
+          {
+            "Name": "Latest",
+            "Url": "https://www.rte.ie/feeds/rss/?index=/news/",
+            "Category": "General",
+            "Language": "en",
+            "Enabled": true
+          }
+        ]
+      },
+      {
+        "Name": "TheIrishTimes",
+        "Enabled": true,
+        "Cron": "15,45 * * * *",
+        "SaveRawResponses": true,
+        "Feeds": [
+          {
+            "Name": "Latest",
+            "Url": "https://www.irishtimes.com/arc/outboundfeeds/feed-irish-news/?from=0&size=20",
+            "Category": "General",
+            "Language": "en",
+            "Enabled": true
+          }
+        ]
+      },
+      {
+        "Name": "IrishIndependent",
+        "Enabled": true,
+        "Cron": "9,39 * * * *",
+        "SaveRawResponses": true,
+        "Feeds": [
+          {
+            "Name": "Latest",
+            "Url": "https://www.independent.ie/rss",
+            "Category": "General",
+            "Language": "en",
+            "Enabled": true
+          }
+        ]
+      },
+      {
+        "Name": "TheJournal",
+        "Enabled": true,
+        "Cron": "5,35 * * * *",
+        "SaveRawResponses": true,
+        "Feeds": [
+          {
+            "Name": "Latest",
+            "Url": "https://www.thejournal.ie/feed/",
+            "Category": "General",
+            "Language": "en",
+            "Enabled": true
+          }
+        ]
+      }
+    ]
+  }
+}

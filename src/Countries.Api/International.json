@@ -1,0 +1,141 @@
+{
+  "NewsApiCrawler": {
+    "Name": "International",
+    "Enabled": true,
+    "Providers": [
+      {
+        "Name": "GoogleFactCheck",
+        "Enabled": true,
+        "Cron": "51 * * * *",
+        "BaseUrl": "https://factchecktools.googleapis.com/v1alpha1",
+        "AuthType": "QueryParameter",
+        "AuthParamName": "key",
+        "TimeoutSeconds": 30,
+        "Endpoints": [
+          {
+            "Name": "Search",
+            "Endpoint": "claims:search",
+            "QueryParameters": {
+              "query": "election",
+              "languageCode": "en"
+            },
+            "Category": "FactCheck",
+            "Language": "en",
+            "Enabled": true
+          }
+        ]
+      },
+      {
+        "Name": "FinancialModelingPrep",
+        "Enabled": true,
+        "Cron": "59 * * * *",
+        "BaseUrl": "https://financialmodelingprep.com/stable",
+        "AuthType": "QueryParameter",
+        "AuthParamName": "apikey",
+        "TimeoutSeconds": 30,
+        "Endpoints": [
+          {
+            "Name": "GeneralNews",
+            "Endpoint": "general-news",
+            "QueryParameters": {
+              "limit": "20"
+            },
+            "Category": "Business",
+            "Language": "en",
+            "Enabled": true
+          }
+        ]
+      },
+      {
+        "Name": "AlphaVantage",
+        "Enabled": true,
+        "Cron": "15 */2 * * *",
+        "BaseUrl": "https://www.alphavantage.co",
+        "AuthType": "QueryParameter",
+        "AuthParamName": "apikey",
+        "TimeoutSeconds": 30,
+        "Endpoints": [
+          {
+            "Name": "NewsSentiment",
+            "Endpoint": "query",
+            "QueryParameters": {
+              "function": "NEWS_SENTIMENT",
+              "topics": "financial_markets"
+            },
+            "Category": "Business",
+            "Language": "en",
+            "Enabled": true
+          }
+        ]
+      },
+      {
+        "Name": "Finnhub",
+        "Enabled": true,
+        "Cron": "7 * * * *",
+        "BaseUrl": "https://finnhub.io/api/v1",
+        "AuthType": "QueryParameter",
+        "AuthParamName": "token",
+        "TimeoutSeconds": 30,
+        "Endpoints": [
+          {
+            "Name": "GeneralNews",
+            "Endpoint": "news",
+            "QueryParameters": {
+              "category": "general"
+            },
+            "Category": "Business",
+            "Language": "en",
+            "Enabled": true
+          }
+        ]
+      },
+      {
+        "Name": "PolygonIo",
+        "Enabled": true,
+        "Cron": "21 * * * *",
+        "BaseUrl": "https://api.polygon.io/v2",
+        "AuthType": "QueryParameter",
+        "AuthParamName": "apiKey",
+        "TimeoutSeconds": 30,
+        "Endpoints": [
+          {
+            "Name": "GeneralNews",
+            "Endpoint": "reference/news",
+            "QueryParameters": {
+              "limit": "20",
+              "order": "desc"
+            },
+            "Category": "Business",
+            "Language": "en",
+            "Enabled": true
+          }
+        ]
+      },
+      {
+        "Name": "YouTubeDataApi",
+        "Enabled": true,
+        "Cron": "29 * * * *",
+        "BaseUrl": "https://www.googleapis.com/youtube/v3",
+        "AuthType": "QueryParameter",
+        "AuthParamName": "key",
+        "TimeoutSeconds": 30,
+        "Endpoints": [
+          {
+            "Name": "Search",
+            "Endpoint": "search",
+            "QueryParameters": {
+              "part": "snippet",
+              "q": "election politics",
+              "type": "video",
+              "order": "date",
+              "maxResults": "25"
+            },
+            "Category": "Politics",
+            "Language": "en",
+            "Enabled": true
+          }
+        ]
+      }
+    ]
+  }
+}

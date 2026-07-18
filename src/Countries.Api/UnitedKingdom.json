@@ -1,0 +1,385 @@
+{
+  "NewsApiCrawler": {
+    "Name": "United Kingdom",
+    "Enabled": true,
+    "Providers": [
+      {
+        "Name": "UKParliamentBills",
+        "Enabled": true,
+        "Cron": "43 * * * *",
+        "BaseUrl": "https://bills-api.parliament.uk/api/v1",
+        "AuthType": "None",
+        "AuthParamName": "",
+        "TimeoutSeconds": 30,
+        "Endpoints": [
+          {
+            "Name": "Bills",
+            "Endpoint": "Bills",
+            "QueryParameters": {
+              "SearchTerm": "election",
+              "SortOrder": "DateUpdatedDescending",
+              "Take": "20"
+            },
+            "Category": "Politics",
+            "Language": "en",
+            "Enabled": true
+          }
+        ]
+      },
+      {
+        "Name": "NewsApiOrg",
+        "Enabled": true,
+        "Cron": "17 3 * * *",
+        "BaseUrl": "https://newsapi.org/v2",
+        "AuthType": "QueryParameter",
+        "AuthParamName": "apiKey",
+        "TimeoutSeconds": 30,
+        "Endpoints": [
+          {
+            "Name": "Everything",
+            "Endpoint": "everything",
+            "QueryParameters": {
+              "q": "UK politics",
+              "language": "en",
+              "sortBy": "publishedAt",
+              "pageSize": "50"
+            },
+            "Category": "Politics",
+            "Language": "en",
+            "Enabled": true
+          },
+          {
+            "Name": "TopHeadlines",
+            "Endpoint": "top-headlines",
+            "QueryParameters": {
+              "category": "general",
+              "country": "gb",
+              "pageSize": "50"
+            },
+            "Category": "General",
+            "Language": "en",
+            "Enabled": true
+          }
+        ]
+      },
+      {
+        "Name": "GNews",
+        "Enabled": true,
+        "Cron": "23 4 * * *",
+        "BaseUrl": "https://gnews.io/api/v4",
+        "AuthType": "QueryParameter",
+        "AuthParamName": "apikey",
+        "TimeoutSeconds": 30,
+        "Endpoints": [
+          {
+            "Name": "Search",
+            "Endpoint": "search",
+            "QueryParameters": {
+              "q": "UK politics",
+              "lang": "en",
+              "country": "gb",
+              "max": "10"
+            },
+            "Category": "Politics",
+            "Language": "en",
+            "Enabled": true
+          },
+          {
+            "Name": "TopHeadlines",
+            "Endpoint": "top-headlines",
+            "QueryParameters": {
+              "category": "nation",
+              "lang": "en",
+              "country": "gb",
+              "max": "10"
+            },
+            "Category": "General",
+            "Language": "en",
+            "Enabled": true
+          }
+        ]
+      },
+      {
+        "Name": "TheNewsAPI",
+        "Enabled": true,
+        "Cron": "9 7 * * *",
+        "BaseUrl": "https://api.thenewsapi.com/v1/news",
+        "AuthType": "QueryParameter",
+        "AuthParamName": "api_token",
+        "TimeoutSeconds": 30,
+        "Endpoints": [
+          {
+            "Name": "All",
+            "Endpoint": "all",
+            "QueryParameters": {
+              "search": "UK politics",
+              "language": "en",
+              "categories": "politics",
+              "limit": "25"
+            },
+            "Category": "Politics",
+            "Language": "en",
+            "Enabled": true
+          },
+          {
+            "Name": "Top",
+            "Endpoint": "top",
+            "QueryParameters": {
+              "locale": "gb",
+              "language": "en",
+              "limit": "25"
+            },
+            "Category": "General",
+            "Language": "en",
+            "Enabled": true
+          }
+        ]
+      },
+      {
+        "Name": "CurrentsAPI",
+        "Enabled": true,
+        "Cron": "37 */2 * * *",
+        "BaseUrl": "https://api.currentsapi.services/v1",
+        "AuthType": "QueryParameter",
+        "AuthParamName": "apiKey",
+        "TimeoutSeconds": 30,
+        "Endpoints": [
+          {
+            "Name": "LatestNews",
+            "Endpoint": "latest-news",
+            "QueryParameters": {
+              "language": "en",
+              "category": "politics",
+              "keywords": "UK politics"
+            },
+            "Category": "Politics",
+            "Language": "en",
+            "Enabled": true
+          },
+          {
+            "Name": "Search",
+            "Endpoint": "search",
+            "QueryParameters": {
+              "language": "en",
+              "country": "GB",
+              "keywords": "UK politics"
+            },
+            "Category": "Politics",
+            "Language": "en",
+            "Enabled": true
+          }
+        ]
+      },
+      {
+        "Name": "Mediastack",
+        "Enabled": true,
+        "Cron": "5 9 */2 * *",
+        "BaseUrl": "http://api.mediastack.com/v1",
+        "AuthType": "QueryParameter",
+        "AuthParamName": "access_key",
+        "TimeoutSeconds": 30,
+        "Endpoints": [
+          {
+            "Name": "News",
+            "Endpoint": "news",
+            "QueryParameters": {
+              "keywords": "UK politics",
+              "languages": "en",
+              "countries": "gb",
+              "categories": "general",
+              "limit": "25"
+            },
+            "Category": "Politics",
+            "Language": "en",
+            "Enabled": true
+          }
+        ]
+      },
+      {
+        "Name": "NewsDataIo",
+        "Enabled": true,
+        "Cron": "31 5 * * *",
+        "BaseUrl": "https://newsdata.io/api/1",
+        "AuthType": "QueryParameter",
+        "AuthParamName": "apikey",
+        "TimeoutSeconds": 30,
+        "Endpoints": [
+          {
+            "Name": "Latest",
+            "Endpoint": "latest",
+            "QueryParameters": {
+              "q": "UK politics",
+              "country": "gb",
+              "language": "en",
+              "category": "politics"
+            },
+            "Category": "Politics",
+            "Language": "en",
+            "Enabled": true
+          }
+        ]
+      },
+      {
+        "Name": "WorldNewsAPI",
+        "Enabled": false,
+        "Cron": "12 */6 * * *",
+        "BaseUrl": "https://api.worldnewsapi.com",
+        "AuthType": "HttpHeader",
+        "AuthParamName": "x-api-key",
+        "TimeoutSeconds": 30,
+        "Endpoints": [
+          {
+            "Name": "SearchNews",
+            "Endpoint": "search-news",
+            "QueryParameters": {
+              "text": "UK politics",
+              "language": "en",
+              "source-countries": "gb",
+              "number": "25"
+            },
+            "Category": "Politics",
+            "Language": "en",
+            "Enabled": true
+          },
+          {
+            "Name": "TopNews",
+            "Endpoint": "top-news",
+            "QueryParameters": {
+              "source-country": "gb",
+              "language": "en"
+            },
+            "Category": "General",
+            "Language": "en",
+            "Enabled": true
+          }
+        ]
+      },
+      {
+        "Name": "EventRegistry",
+        "Enabled": true,
+        "Cron": "42 6 * * *",
+        "BaseUrl": "https://eventregistry.org/api/v1/article/getArticles",
+        "AuthType": "QueryParameter",
+        "AuthParamName": "apiKey (ignored - EventRegistryProvider is a custom implementation that puts the key in the POST body itself, still read from NewsApiKeys:EventRegistry)",
+        "TimeoutSeconds": 30,
+        "Endpoints": [
+          {
+            "Name": "GetArticles",
+            "Endpoint": "",
+            "QueryParameters": {
+              "keyword": "UK politics",
+              "lang": "eng"
+            },
+            "Category": "Politics",
+            "Language": "en",
+            "Enabled": true
+          }
+        ]
+      },
+      {
+        "Name": "Guardian",
+        "Enabled": true,
+        "Cron": "14,44 * * * *",
+        "BaseUrl": "https://content.guardianapis.com",
+        "AuthType": "QueryParameter",
+        "AuthParamName": "api-key",
+        "TimeoutSeconds": 30,
+        "Endpoints": [
+          {
+            "Name": "Search",
+            "Endpoint": "search",
+            "QueryParameters": {
+              "q": "UK politics",
+              "show-fields": "thumbnail,trailText,byline"
+            },
+            "Category": "Politics",
+            "Language": "en",
+            "Enabled": true
+          }
+        ]
+      },
+      {
+        "Name": "GDELT",
+        "Enabled": true,
+        "Cron": "8 * * * *",
+        "BaseUrl": "https://api.gdeltproject.org/api/v2/doc",
+        "AuthType": "None",
+        "AuthParamName": "",
+        "TimeoutSeconds": 30,
+        "Endpoints": [
+          {
+            "Name": "DocSearch",
+            "Endpoint": "doc",
+            "QueryParameters": {
+              "query": "UK politics sourcecountry:UK",
+              "mode": "artlist",
+              "format": "json",
+              "maxrecords": "75"
+            },
+            "Category": "Politics",
+            "Language": "en",
+            "Enabled": true
+          }
+        ]
+      },
+      {
+        "Name": "SerpApiGoogleNews",
+        "Enabled": true,
+        "Cron": "54 8 * * *",
+        "BaseUrl": "https://serpapi.com",
+        "AuthType": "QueryParameter",
+        "AuthParamName": "api_key",
+        "TimeoutSeconds": 30,
+        "Endpoints": [
+          {
+            "Name": "GoogleNews",
+            "Endpoint": "search.json",
+            "QueryParameters": {
+              "engine": "google_news",
+              "q": "UK politics",
+              "gl": "uk",
+              "hl": "en"
+            },
+            "Category": "Politics",
+            "Language": "en",
+            "Enabled": true
+          }
+        ]
+      },
+      {
+        "Name": "Reddit",
+        "Enabled": true,
+        "Cron": "47 * * * *",
+        "BaseUrl": "https://oauth.reddit.com",
+        "AuthType": "HttpHeader",
+        "AuthParamName": "Authorization (ignored - RedditProvider manages its own OAuth2 bearer token internally, see its own doc comments)",
+        "TimeoutSeconds": 30,
+        "Endpoints": [
+          {
+            "Name": "UnitedKingdomPoliticsSearch",
+            "Endpoint": "r/unitedkingdom/search",
+            "QueryParameters": {
+              "q": "politics election",
+              "restrict_sr": "1",
+              "sort": "new",
+              "limit": "25"
+            },
+            "Category": "Politics",
+            "Language": "en",
+            "Enabled": true
+          },
+          {
+            "Name": "UkPoliticsNew",
+            "Endpoint": "r/ukpolitics/new",
+            "QueryParameters": {
+              "limit": "25"
+            },
+            "Category": "Politics",
+            "Language": "en",
+            "Enabled": true
+          }
+        ]
+      }
+    ]
+  }
+}

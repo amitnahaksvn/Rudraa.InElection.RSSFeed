@@ -1,0 +1,153 @@
+{
+  "NewsCrawler": {
+    "Name": "Germany",
+    "Enabled": true,
+    "Providers": [
+      {
+        "Name": "DW",
+        "Enabled": true,
+        "Cron": "16,46 * * * *",
+        "SaveRawResponses": true,
+        "Feeds": [
+          {
+            "Name": "TopStories",
+            "Url": "https://rss.dw.com/xml/rss-en-all",
+            "Category": "General",
+            "Language": "en",
+            "Enabled": true
+          },
+          {
+            "Name": "World",
+            "Url": "https://rss.dw.com/xml/rss-en-world",
+            "Category": "World",
+            "Language": "en",
+            "Enabled": true
+          },
+          {
+            "Name": "Business",
+            "Url": "https://rss.dw.com/xml/rss-en-bus",
+            "Category": "Business",
+            "Language": "en",
+            "Enabled": true
+          },
+          {
+            "Name": "Germany",
+            "Url": "https://rss.dw.com/xml/rss-en-ger",
+            "Category": "General",
+            "Language": "en",
+            "Enabled": true
+          },
+          {
+            "Name": "Science",
+            "Url": "https://rss.dw.com/xml/rss-en-science",
+            "Category": "Science",
+            "Language": "en",
+            "Enabled": true
+          }
+        ]
+      },
+      {
+        "Name": "DerSpiegel",
+        "Enabled": true,
+        "Cron": "28,58 * * * *",
+        "SaveRawResponses": true,
+        "Feeds": [
+          {
+            "Name": "International",
+            "Url": "https://www.spiegel.de/international/index.rss",
+            "Category": "General",
+            "Language": "en",
+            "Enabled": true
+          },
+          {
+            "Name": "Germany",
+            "Url": "https://www.spiegel.de/politik/index.rss",
+            "Category": "General",
+            "Language": "de",
+            "Enabled": true
+          },
+          {
+            "Name": "Business",
+            "Url": "https://www.spiegel.de/wirtschaft/index.rss",
+            "Category": "Business",
+            "Language": "de",
+            "Enabled": true
+          },
+          {
+            "Name": "Technology",
+            "Url": "https://www.spiegel.de/netzwelt/index.rss",
+            "Category": "Technology",
+            "Language": "de",
+            "Enabled": true
+          },
+          {
+            "Name": "Science",
+            "Url": "https://www.spiegel.de/wissenschaft/index.rss",
+            "Category": "Science",
+            "Language": "de",
+            "Enabled": true
+          }
+        ]
+      },
+      {
+        "Name": "FAZ",
+        "Enabled": true,
+        "Cron": "28,58 * * * *",
+        "SaveRawResponses": true,
+        "Feeds": [
+          {
+            "Name": "News",
+            "Url": "https://www.faz.net/rss/aktuell/",
+            "Category": "General",
+            "Language": "de",
+            "Enabled": true
+          },
+          {
+            "Name": "Politics",
+            "Url": "https://www.faz.net/rss/aktuell/politik/",
+            "Category": "Politics",
+            "Language": "de",
+            "Enabled": true
+          },
+          {
+            "Name": "Business",
+            "Url": "https://www.faz.net/rss/aktuell/wirtschaft/",
+            "Category": "Business",
+            "Language": "de",
+            "Enabled": true
+          }
+        ]
+      },
+      {
+        "Name": "Tagesschau",
+        "Enabled": true,
+        "Cron": "11,41 * * * *",
+        "SaveRawResponses": true,
+        "Feeds": [
+          {
+            "Name": "Home",
+            "Url": "https://www.tagesschau.de/xml/rss2",
+            "Category": "General",
+            "Language": "de",
+            "Enabled": true
+          }
+        ]
+      },
+      {
+        "Name": "ZDF",
+        "Enabled": true,
+        "Cron": "16,46 * * * *",
+        "SaveRawResponses": true,
+        "Feeds": [
+          {
+            "Name": "Home",
+            "Url": "https://www.zdf.de/rss/zdf/nachrichten",
+            "Category": "General",
+            "Language": "de",
+            "Enabled": true
+          }
+        ]
+      }
+    ]
+  }
+}

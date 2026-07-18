@@ -1,0 +1,38 @@
+{
+  "NewsCrawler": {
+    "Name": "Denmark",
+    "Enabled": true,
+    "Providers": [
+      {
+        "Name": "DRNews",
+        "Enabled": true,
+        "Cron": "18,48 * * * *",
+        "SaveRawResponses": true,
+        "Feeds": [
+          {
+            "Name": "Latest",
+            "Url": "https://www.dr.dk/nyheder/service/feeds/senestenyt",
+            "Category": "General",
+            "Language": "da",
+            "Enabled": true
+          }
+        ]
+      },
+      {
+        "Name": "TheLocalDenmark",
+        "Enabled": true,
+        "Cron": "28,58 * * * *",
+        "SaveRawResponses": true,
+        "Feeds": [
+          {
+            "Name": "Latest",
+            "Url": "https://feeds.thelocal.com/rss/builder/dk",
+            "Category": "General",
+            "Language": "en",
+            "Enabled": true
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,38 @@
+{
+  "NewsCrawler": {
+    "Name": "Nepal",
+    "Enabled": true,
+    "Providers": [
+      {
+        "Name": "KathmanduPost",
+        "Enabled": true,
+        "Cron": "17,47 * * * *",
+        "SaveRawResponses": true,
+        "Feeds": [
+          {
+            "Name": "Latest",
+            "Url": "https://kathmandupost.com/rss",
+            "Category": "General",
+            "Language": "en",
+            "Enabled": true
+          }
+        ]
+      },
+      {
+        "Name": "Republica",
+        "Enabled": true,
+        "Cron": "8,38 * * * *",
+        "SaveRawResponses": true,
+        "Feeds": [
+          {
+            "Name": "Latest",
+            "Url": "https://myrepublica.nagariknetwork.com/feeds",
+            "Category": "General",
+            "Language": "en",
+            "Enabled": true
+          }
+        ]
+      }
+    ]
+  }
+}

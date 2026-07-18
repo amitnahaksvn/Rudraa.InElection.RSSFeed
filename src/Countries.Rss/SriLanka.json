@@ -1,0 +1,23 @@
+{
+  "NewsCrawler": {
+    "Name": "Sri Lanka",
+    "Enabled": true,
+    "Providers": [
+      {
+        "Name": "AdaDerana",
+        "Enabled": true,
+        "Cron": "23,53 * * * *",
+        "SaveRawResponses": true,
+        "Feeds": [
+          {
+            "Name": "Latest",
+            "Url": "https://www.adaderana.lk/rss.php",
+            "Category": "General",
+            "Language": "en",
+            "Enabled": true
+          }
+        ]
+      }
+    ]
+  }
+}

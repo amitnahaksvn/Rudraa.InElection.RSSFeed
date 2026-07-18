@@ -1,0 +1,53 @@
+{
+  "NewsCrawler": {
+    "Name": "Finland",
+    "Enabled": true,
+    "Providers": [
+      {
+        "Name": "YLENews",
+        "Enabled": true,
+        "Cron": "29,59 * * * *",
+        "SaveRawResponses": true,
+        "Feeds": [
+          {
+            "Name": "Latest",
+            "Url": "https://feeds.yle.fi/uutiset/v1/majorHeadlines/YLE_UUTISET.rss",
+            "Category": "General",
+            "Language": "en",
+            "Enabled": true
+          }
+        ]
+      },
+      {
+        "Name": "HelsinginSanomat",
+        "Enabled": true,
+        "Cron": "23,53 * * * *",
+        "SaveRawResponses": true,
+        "Feeds": [
+          {
+            "Name": "Latest",
+            "Url": "https://www.hs.fi/rss/tuoreimmat.xml",
+            "Category": "General",
+            "Language": "fi",
+            "Enabled": true
+          }
+        ]
+      },
+      {
+        "Name": "IltaSanomat",
+        "Enabled": true,
+        "Cron": "27,57 * * * *",
+        "SaveRawResponses": true,
+        "Feeds": [
+          {
+            "Name": "Latest",
+            "Url": "https://www.is.fi/rss/tuoreimmat.xml",
+            "Category": "General",
+            "Language": "fi",
+            "Enabled": true
+          }
+        ]
+      }
+    ]
+  }
+}

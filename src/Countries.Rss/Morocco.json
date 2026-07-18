@@ -1,0 +1,23 @@
+{
+  "NewsCrawler": {
+    "Name": "Morocco",
+    "Enabled": true,
+    "Providers": [
+      {
+        "Name": "Hespress",
+        "Enabled": true,
+        "Cron": "29,59 * * * *",
+        "SaveRawResponses": true,
+        "Feeds": [
+          {
+            "Name": "Latest",
+            "Url": "https://www.hespress.com/feed",
+            "Category": "General",
+            "Language": "ar",
+            "Enabled": true
+          }
+        ]
+      }
+    ]
+  }
+}

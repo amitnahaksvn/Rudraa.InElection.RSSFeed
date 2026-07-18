@@ -1,0 +1,38 @@
+{
+  "NewsCrawler": {
+    "Name": "Poland",
+    "Enabled": true,
+    "Providers": [
+      {
+        "Name": "Rzeczpospolita",
+        "Enabled": true,
+        "Cron": "2,32 * * * *",
+        "SaveRawResponses": true,
+        "Feeds": [
+          {
+            "Name": "Latest",
+            "Url": "https://www.rp.pl/rss_main",
+            "Category": "General",
+            "Language": "pl",
+            "Enabled": true
+          }
+        ]
+      },
+      {
+        "Name": "Onet",
+        "Enabled": true,
+        "Cron": "4,34 * * * *",
+        "SaveRawResponses": true,
+        "Feeds": [
+          {
+            "Name": "Latest",
+            "Url": "https://wiadomosci.onet.pl/.feed",
+            "Category": "General",
+            "Language": "pl",
+            "Enabled": true
+          }
+        ]
+      }
+    ]
+  }
+}

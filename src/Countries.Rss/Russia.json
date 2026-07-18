@@ -1,0 +1,75 @@
+{
+  "NewsCrawler": {
+    "Name": "Russia",
+    "Enabled": true,
+    "Providers": [
+      {
+        "Name": "TASS",
+        "Enabled": true,
+        "Cron": "6,36 * * * *",
+        "SaveRawResponses": true,
+        "Feeds": [
+          {
+            "Name": "News",
+            "Url": "https://tass.com/rss/v2.xml",
+            "Category": "General",
+            "Language": "en",
+            "Enabled": true
+          }
+        ]
+      },
+      {
+        "Name": "RT",
+        "Enabled": true,
+        "Cron": "26,56 * * * *",
+        "SaveRawResponses": true,
+        "Feeds": [
+          {
+            "Name": "Home",
+            "Url": "https://www.rt.com/rss/",
+            "Category": "General",
+            "Language": "en",
+            "Enabled": true
+          },
+          {
+            "Name": "News",
+            "Url": "https://www.rt.com/rss/news/",
+            "Category": "General",
+            "Language": "en",
+            "Enabled": true
+          }
+        ]
+      },
+      {
+        "Name": "InterfaxRussia",
+        "Enabled": true,
+        "Cron": "24,54 * * * *",
+        "SaveRawResponses": true,
+        "Feeds": [
+          {
+            "Name": "Home",
+            "Url": "https://www.interfax.ru/rss.asp",
+            "Category": "General",
+            "Language": "ru",
+            "Enabled": true
+          }
+        ]
+      },
+      {
+        "Name": "RBC",
+        "Enabled": true,
+        "Cron": "14,44 * * * *",
+        "SaveRawResponses": true,
+        "Feeds": [
+          {
+            "Name": "Home",
+            "Url": "https://rssexport.rbc.ru/rbcnews/news/30/full.rss",
+            "Category": "Business",
+            "Language": "ru",
+            "Enabled": true
+          }
+        ]
+      }
+    ]
+  }
+}

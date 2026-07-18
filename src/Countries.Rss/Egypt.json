@@ -1,0 +1,23 @@
+{
+  "NewsCrawler": {
+    "Name": "Egypt",
+    "Enabled": true,
+    "Providers": [
+      {
+        "Name": "DailyNewsEgypt",
+        "Enabled": true,
+        "Cron": "19,49 * * * *",
+        "SaveRawResponses": true,
+        "Feeds": [
+          {
+            "Name": "Latest",
+            "Url": "https://dailynewsegypt.com/feed/",
+            "Category": "General",
+            "Language": "en",
+            "Enabled": true
+          }
+        ]
+      }
+    ]
+  }
+}

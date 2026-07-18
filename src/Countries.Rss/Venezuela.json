@@ -1,0 +1,38 @@
+{
+  "NewsCrawler": {
+    "Name": "Venezuela",
+    "Enabled": true,
+    "Providers": [
+      {
+        "Name": "CaracasChronicles",
+        "Enabled": true,
+        "Cron": "12,42 * * * *",
+        "SaveRawResponses": true,
+        "Feeds": [
+          {
+            "Name": "Latest",
+            "Url": "https://www.caracaschronicles.com/feed/",
+            "Category": "General",
+            "Language": "en",
+            "Enabled": true
+          }
+        ]
+      },
+      {
+        "Name": "ElNacional",
+        "Enabled": true,
+        "Cron": "29,59 * * * *",
+        "SaveRawResponses": true,
+        "Feeds": [
+          {
+            "Name": "Latest",
+            "Url": "https://www.elnacional.com/feed/",
+            "Category": "General",
+            "Language": "es",
+            "Enabled": true
+          }
+        ]
+      }
+    ]
+  }
+}

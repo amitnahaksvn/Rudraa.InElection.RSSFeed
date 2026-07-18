@@ -1,14 +1,22 @@
 using FluentValidation;
 using Microsoft.Extensions.Options;
 using Application.Options;
+using Domain.Enums;
 
 namespace Application.Crawl.Commands.TriggerProviderJob;
 
 public sealed class TriggerProviderJobCommandValidator : AbstractValidator<TriggerProviderJobCommand>
 {
-    public TriggerProviderJobCommandValidator(IOptions<NewsCrawlerOptions> options)
+    public TriggerProviderJobCommandValidator(IOptions<NewsCrawlerOptions> rssOptions, IOptions<NewsApiCrawlerOptions> apiOptions)
     {
-        var triggerableProviders = options.Value.Countries
+        var triggerableRssProviders = rssOptions.Value.Countries
+            .Where(c => c.Enabled)
+            .SelectMany(c => c.Providers)
+            .Where(p => p.Enabled && !string.IsNullOrWhiteSpace(p.Cron))
+            .Select(p => p.Name)
+            .ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+        var triggerableApiProviders = apiOptions.Value.Countries
             .Where(c => c.Enabled)
             .SelectMany(c => c.Providers)
             .Where(p => p.Enabled && !string.IsNullOrWhiteSpace(p.Cron))
@@ -17,7 +25,8 @@ public sealed class TriggerProviderJobCommandValidator : AbstractValidator<Trigg
 
         RuleFor(c => c.Provider)
             .NotEmpty()
-            .Must(provider => triggerableProviders.Contains(provider))
-            .WithMessage(c => $"'{c.Provider}' is not an enabled provider with a scheduled recurring job.");
+            .Must((command, provider) =>
+                (command.Pipeline == CrawlPipeline.Api ? triggerableApiProviders : triggerableRssProviders).Contains(provider))
+            .WithMessage(c => $"'{c.Provider}' is not an enabled {c.Pipeline} provider with a scheduled recurring job.");
     }
 }

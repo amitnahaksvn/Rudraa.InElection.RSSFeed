@@ -1,0 +1,68 @@
+{
+  "NewsCrawler": {
+    "Name": "Spain",
+    "Enabled": true,
+    "Providers": [
+      {
+        "Name": "ElPais",
+        "Enabled": true,
+        "Cron": "9,39 * * * *",
+        "SaveRawResponses": true,
+        "Feeds": [
+          {
+            "Name": "Latest",
+            "Url": "https://feeds.elpais.com/mrss-s/pages/ep/site/elpais.com/portada",
+            "Category": "General",
+            "Language": "es",
+            "Enabled": true
+          }
+        ]
+      },
+      {
+        "Name": "ElMundo",
+        "Enabled": true,
+        "Cron": "15,45 * * * *",
+        "SaveRawResponses": true,
+        "Feeds": [
+          {
+            "Name": "Latest",
+            "Url": "https://e00-elmundo.uecdn.es/elmundo/rss/portada.xml",
+            "Category": "General",
+            "Language": "es",
+            "Enabled": true
+          }
+        ]
+      },
+      {
+        "Name": "AbcEspana",
+        "Enabled": true,
+        "Cron": "13,43 * * * *",
+        "SaveRawResponses": true,
+        "Feeds": [
+          {
+            "Name": "Latest",
+            "Url": "https://www.abc.es/rss/feeds/abcPortada.xml",
+            "Category": "General",
+            "Language": "es",
+            "Enabled": true
+          }
+        ]
+      },
+      {
+        "Name": "EuropaPress",
+        "Enabled": true,
+        "Cron": "17,47 * * * *",
+        "SaveRawResponses": true,
+        "Feeds": [
+          {
+            "Name": "Latest",
+            "Url": "https://www.europapress.es/rss/rss.aspx",
+            "Category": "General",
+            "Language": "es",
+            "Enabled": true
+          }
+        ]
+      }
+    ]
+  }
+}

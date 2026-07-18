@@ -1,0 +1,58 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <!-- The one user-facing site: admin SPA (Provider Management, Error Monitor, Crawl/Job Reports,
+       News Feed), the read API behind it, and the Hangfire dashboard (shows every job from both
+       RssService and ApiService, since Hangfire storage is shared - see HangfireStorageSetup).
+       Deliberately never calls AddHangfireServer() - it only enqueues/manages jobs against the
+       shared storage (IRecurringJobManager/ICrawlJobTrigger need no running server in-process to
+       do that), it never executes one itself. RssService and ApiService are the only two
+       processes that do. -->
+
+  <ItemGroup>
+    <ProjectReference Include="..\Application\Application.csproj" />
+    <ProjectReference Include="..\Domain\Domain.csproj" />
+    <ProjectReference Include="..\Infrastructure\Infrastructure.csproj" />
+    <ProjectReference Include="..\ServiceDefaults\ServiceDefaults.csproj" />
+    <ProjectReference Include="..\WebPlatform\WebPlatform.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Both pipelines' provider config - unlike RssService/ApiService (which each load only
+         their own pipeline's config), WebApp needs to see both, since its Provider Management
+         page and trigger/schedule actions work across both. -->
+    <Content Include="..\WebRssFeed.appsettings.json" Link="WebRssFeed.appsettings.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Include="..\Countries.Rss\*.json" Link="Countries.Rss\%(Filename)%(Extension)">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Include="..\WebApiFeed.appsettings.json" Link="WebApiFeed.appsettings.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Include="..\Countries.Api\*.json" Link="Countries.Api\%(Filename)%(Extension)">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="AspNetCore.HealthChecks.MongoDb" Version="9.0.0" />
+    <PackageReference Include="Hangfire.AspNetCore" Version="1.8.24" />
+    <PackageReference Include="Hangfire.Core" Version="1.8.24" />
+    <PackageReference Include="Hangfire.Mongo" Version="1.16.1" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
+    <PackageReference Include="Scalar.AspNetCore" Version="2.16.15" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="10.2.3" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UserSecretsId>255aed6a-2d6f-4b62-ab4e-a020bfb283e9</UserSecretsId>
+  </PropertyGroup>
+
+</Project>

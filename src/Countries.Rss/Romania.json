@@ -1,0 +1,53 @@
+{
+  "NewsCrawler": {
+    "Name": "Romania",
+    "Enabled": true,
+    "Providers": [
+      {
+        "Name": "Digi24",
+        "Enabled": true,
+        "Cron": "27,57 * * * *",
+        "SaveRawResponses": true,
+        "Feeds": [
+          {
+            "Name": "Latest",
+            "Url": "https://www.digi24.ro/rss",
+            "Category": "General",
+            "Language": "ro",
+            "Enabled": true
+          }
+        ]
+      },
+      {
+        "Name": "HotNews",
+        "Enabled": true,
+        "Cron": "5,35 * * * *",
+        "SaveRawResponses": true,
+        "Feeds": [
+          {
+            "Name": "Latest",
+            "Url": "https://hotnews.ro/rss",
+            "Category": "General",
+            "Language": "ro",
+            "Enabled": true
+          }
+        ]
+      },
+      {
+        "Name": "RomaniaInsider",
+        "Enabled": true,
+        "Cron": "3,33 * * * *",
+        "SaveRawResponses": true,
+        "Feeds": [
+          {
+            "Name": "Latest",
+            "Url": "https://www.romania-insider.com/feed",
+            "Category": "General",
+            "Language": "en",
+            "Enabled": true
+          }
+        ]
+      }
+    ]
+  }
+}

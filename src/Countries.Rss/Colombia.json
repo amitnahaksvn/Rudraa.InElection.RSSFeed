@@ -1,0 +1,53 @@
+{
+  "NewsCrawler": {
+    "Name": "Colombia",
+    "Enabled": true,
+    "Providers": [
+      {
+        "Name": "ElEspectador",
+        "Enabled": true,
+        "Cron": "27,57 * * * *",
+        "SaveRawResponses": true,
+        "Feeds": [
+          {
+            "Name": "Latest",
+            "Url": "https://www.elespectador.com/arc/outboundfeeds/discover/?outputType=xml",
+            "Category": "General",
+            "Language": "es",
+            "Enabled": true
+          }
+        ]
+      },
+      {
+        "Name": "Semana",
+        "Enabled": true,
+        "Cron": "19,49 * * * *",
+        "SaveRawResponses": true,
+        "Feeds": [
+          {
+            "Name": "Latest",
+            "Url": "https://www.semana.com/arc/outboundfeeds/rss/",
+            "Category": "General",
+            "Language": "es",
+            "Enabled": true
+          }
+        ]
+      },
+      {
+        "Name": "LaRepublicaColombia",
+        "Enabled": true,
+        "Cron": "28,58 * * * *",
+        "SaveRawResponses": true,
+        "Feeds": [
+          {
+            "Name": "Business",
+            "Url": "https://www.larepublica.co/rss",
+            "Category": "Business",
+            "Language": "es",
+            "Enabled": true
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -10,6 +10,15 @@ public sealed class KeepAliveOptions
 {
     public const string SectionName = "KeepAlive";
 
+    /// <summary>
+    /// Short, stable identifier for this host (e.g. "rss", "api") - suffixed onto the recurring
+    /// job's id (see <c>Infrastructure.Scheduling.HangfireJobIds.KeepAlivePing</c>) so two hosts
+    /// sharing one Hangfire Mongo storage each get their own self-ping job instead of the second
+    /// host's registration silently overwriting the first's under one fixed id. Must be set (and
+    /// must differ) per host once more than one host shares the same storage.
+    /// </summary>
+    public string AppName { get; set; } = "default";
+
     /// <summary>Every minute by default - comfortably under Render's free-tier ~15-minute inactivity spin-down window, with large margin.</summary>
     public string Cron { get; set; } = "* * * * *";
 

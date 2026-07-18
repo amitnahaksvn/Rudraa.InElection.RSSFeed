@@ -1,0 +1,140 @@
+{
+  "NewsCrawler": {
+    "Name": "France",
+    "Enabled": true,
+    "Providers": [
+      {
+        "Name": "France24",
+        "Enabled": true,
+        "Cron": "11,41 * * * *",
+        "SaveRawResponses": true,
+        "Feeds": [
+          {
+            "Name": "TopStories",
+            "Url": "https://www.france24.com/en/rss",
+            "Category": "General",
+            "Language": "en",
+            "Enabled": true
+          },
+          {
+            "Name": "World",
+            "Url": "https://www.france24.com/en/world/rss",
+            "Category": "World",
+            "Language": "en",
+            "Enabled": true
+          },
+          {
+            "Name": "Business",
+            "Url": "https://www.france24.com/en/business/rss",
+            "Category": "Business",
+            "Language": "en",
+            "Enabled": true
+          },
+          {
+            "Name": "Europe",
+            "Url": "https://www.france24.com/en/europe/rss",
+            "Category": "World",
+            "Language": "en",
+            "Enabled": true
+          }
+        ]
+      },
+      {
+        "Name": "LeMonde",
+        "Enabled": true,
+        "Cron": "25,55 * * * *",
+        "SaveRawResponses": true,
+        "Feeds": [
+          {
+            "Name": "International",
+            "Url": "https://www.lemonde.fr/international/rss_full.xml",
+            "Category": "World",
+            "Language": "fr",
+            "Enabled": true
+          },
+          {
+            "Name": "Economy",
+            "Url": "https://www.lemonde.fr/economie/rss_full.xml",
+            "Category": "Business",
+            "Language": "fr",
+            "Enabled": true
+          }
+        ]
+      },
+      {
+        "Name": "LeFigaro",
+        "Enabled": true,
+        "Cron": "4,34 * * * *",
+        "SaveRawResponses": true,
+        "Feeds": [
+          {
+            "Name": "News",
+            "Url": "https://www.lefigaro.fr/rss/figaro_actualites.xml",
+            "Category": "General",
+            "Language": "fr",
+            "Enabled": true
+          },
+          {
+            "Name": "Politics",
+            "Url": "https://www.lefigaro.fr/rss/figaro_politique.xml",
+            "Category": "Politics",
+            "Language": "fr",
+            "Enabled": true
+          },
+          {
+            "Name": "Economy",
+            "Url": "https://www.lefigaro.fr/rss/figaro_economie.xml",
+            "Category": "Business",
+            "Language": "fr",
+            "Enabled": true
+          }
+        ]
+      },
+      {
+        "Name": "RFI",
+        "Enabled": true,
+        "Cron": "0,30 * * * *",
+        "SaveRawResponses": true,
+        "Feeds": [
+          {
+            "Name": "Home",
+            "Url": "https://www.rfi.fr/en/rss",
+            "Category": "General",
+            "Language": "en",
+            "Enabled": true
+          }
+        ]
+      },
+      {
+        "Name": "FranceInfo",
+        "Enabled": true,
+        "Cron": "14,44 * * * *",
+        "SaveRawResponses": true,
+        "Feeds": [
+          {
+            "Name": "Home",
+            "Url": "https://www.francetvinfo.fr/titres.rss",
+            "Category": "General",
+            "Language": "fr",
+            "Enabled": true
+          }
+        ]
+      },
+      {
+        "Name": "Liberation",
+        "Enabled": true,
+        "Cron": "23,53 * * * *",
+        "SaveRawResponses": true,
+        "Feeds": [
+          {
+            "Name": "Home",
+            "Url": "https://www.liberation.fr/arc/outboundfeeds/rss/",
+            "Category": "General",
+            "Language": "fr",
+            "Enabled": true
+          }
+        ]
+      }
+    ]
+  }
+}

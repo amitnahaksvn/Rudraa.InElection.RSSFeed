@@ -1,0 +1,68 @@
+{
+  "NewsCrawler": {
+    "Name": "Hungary",
+    "Enabled": true,
+    "Providers": [
+      {
+        "Name": "HungaryToday",
+        "Enabled": true,
+        "Cron": "12,42 * * * *",
+        "SaveRawResponses": true,
+        "Feeds": [
+          {
+            "Name": "Latest",
+            "Url": "https://hungarytoday.hu/feed/",
+            "Category": "General",
+            "Language": "en",
+            "Enabled": true
+          }
+        ]
+      },
+      {
+        "Name": "MagyarNemzet",
+        "Enabled": true,
+        "Cron": "22,52 * * * *",
+        "SaveRawResponses": true,
+        "Feeds": [
+          {
+            "Name": "Latest",
+            "Url": "https://magyarnemzet.hu/feed",
+            "Category": "General",
+            "Language": "hu",
+            "Enabled": true
+          }
+        ]
+      },
+      {
+        "Name": "IndexHu",
+        "Enabled": true,
+        "Cron": "5,35 * * * *",
+        "SaveRawResponses": true,
+        "Feeds": [
+          {
+            "Name": "Latest",
+            "Url": "https://index.hu/24ora/rss/",
+            "Category": "General",
+            "Language": "hu",
+            "Enabled": true
+          }
+        ]
+      },
+      {
+        "Name": "HVG",
+        "Enabled": true,
+        "Cron": "7,37 * * * *",
+        "SaveRawResponses": true,
+        "Feeds": [
+          {
+            "Name": "Latest",
+            "Url": "https://hvg.hu/rss",
+            "Category": "General",
+            "Language": "hu",
+            "Enabled": true
+          }
+        ]
+      }
+    ]
+  }
+}

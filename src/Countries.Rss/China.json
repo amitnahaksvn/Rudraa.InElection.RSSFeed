@@ -1,0 +1,23 @@
+{
+  "NewsCrawler": {
+    "Name": "China",
+    "Enabled": true,
+    "Providers": [
+      {
+        "Name": "GlobalTimes",
+        "Enabled": true,
+        "Cron": "29,59 * * * *",
+        "SaveRawResponses": true,
+        "Feeds": [
+          {
+            "Name": "Latest",
+            "Url": "https://www.globaltimes.cn/rss/outbrain.xml",
+            "Category": "General",
+            "Language": "en",
+            "Enabled": true
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,45 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <ItemGroup>
+    <ProjectReference Include="..\Application\Application.csproj" />
+    <ProjectReference Include="..\Domain\Domain.csproj" />
+    <ProjectReference Include="..\Infrastructure\Infrastructure.csproj" />
+    <ProjectReference Include="..\ServiceDefaults\ServiceDefaults.csproj" />
+    <ProjectReference Include="..\WebPlatform\WebPlatform.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- NewsApiCrawler:* config - independent of WebRssFeed's own WebRssFeed.appsettings.json/
+         Countries.Rss/*.json pair (the two pipelines' provider configs are fully separate trees,
+         not shared - see SplitCountryConfigLoader). WebApiFeed.appsettings.json holds the shared
+         API scalar settings (Enabled/BatchSize/LockName/...) with each country's own JSON-API
+         Providers carved out into its own file under src/Countries.Api/ - Program.cs's
+         SplitCountryConfigLoader merges them back into one config blob at startup, so adding a
+         country's API providers is just dropping a new file here, never touching this csproj. -->
+    <Content Include="..\WebApiFeed.appsettings.json" Link="WebApiFeed.appsettings.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Include="..\Countries.Api\*.json" Link="Countries.Api\%(Filename)%(Extension)">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- No Scalar/Swashbuckle here - this is a headless worker, not a real website (see WebApp
+         for the one admin SPA/read API/API docs). -->
+    <PackageReference Include="AspNetCore.HealthChecks.MongoDb" Version="9.0.0" />
+    <PackageReference Include="Hangfire.AspNetCore" Version="1.8.24" />
+    <PackageReference Include="Hangfire.Core" Version="1.8.24" />
+    <PackageReference Include="Hangfire.Mongo" Version="1.16.1" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UserSecretsId>3f9a7b1e-6c2d-4e8a-9b5f-1a2c3d4e5f6a</UserSecretsId>
+  </PropertyGroup>
+
+</Project>

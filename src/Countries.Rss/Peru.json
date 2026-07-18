@@ -1,0 +1,38 @@
+{
+  "NewsCrawler": {
+    "Name": "Peru",
+    "Enabled": true,
+    "Providers": [
+      {
+        "Name": "Andina",
+        "Enabled": true,
+        "Cron": "6,36 * * * *",
+        "SaveRawResponses": true,
+        "Feeds": [
+          {
+            "Name": "Latest",
+            "Url": "https://andina.pe/Ingles/rss.aspx",
+            "Category": "General",
+            "Language": "en",
+            "Enabled": true
+          }
+        ]
+      },
+      {
+        "Name": "PeruReports",
+        "Enabled": true,
+        "Cron": "24,54 * * * *",
+        "SaveRawResponses": true,
+        "Feeds": [
+          {
+            "Name": "Latest",
+            "Url": "https://perureports.com/feed/",
+            "Category": "General",
+            "Language": "en",
+            "Enabled": true
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,6 @@
+@PoliticalNews.Api_HostAddress = http://localhost:5095
+
+GET {{PoliticalNews.Api_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

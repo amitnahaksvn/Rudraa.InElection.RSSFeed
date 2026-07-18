@@ -1,0 +1,53 @@
+{
+  "NewsCrawler": {
+    "Name": "Israel",
+    "Enabled": true,
+    "Providers": [
+      {
+        "Name": "JerusalemPost",
+        "Enabled": true,
+        "Cron": "0,30 * * * *",
+        "SaveRawResponses": true,
+        "Feeds": [
+          {
+            "Name": "FrontPage",
+            "Url": "https://www.jpost.com/rss/rssfeedsfrontpage.aspx",
+            "Category": "General",
+            "Language": "en",
+            "Enabled": true
+          }
+        ]
+      },
+      {
+        "Name": "TimesOfIsrael",
+        "Enabled": true,
+        "Cron": "27,57 * * * *",
+        "SaveRawResponses": true,
+        "Feeds": [
+          {
+            "Name": "Latest",
+            "Url": "https://www.timesofisrael.com/feed/",
+            "Category": "General",
+            "Language": "en",
+            "Enabled": true
+          }
+        ]
+      },
+      {
+        "Name": "YnetNews",
+        "Enabled": true,
+        "Cron": "7,37 * * * *",
+        "SaveRawResponses": true,
+        "Feeds": [
+          {
+            "Name": "Latest",
+            "Url": "https://www.ynetnews.com/Integration/StoryRss2.xml",
+            "Category": "General",
+            "Language": "en",
+            "Enabled": true
+          }
+        ]
+      }
+    ]
+  }
+}

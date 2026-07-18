@@ -1,0 +1,37 @@
+{
+  "NewsCrawler": {
+    "Name": "Kenya",
+    "Enabled": true,
+    "Providers": [
+      {
+        "Name": "TheStandardKenya",
+        "Enabled": true,
+        "Cron": "28,58 * * * *",
+        "SaveRawResponses": true,
+        "Feeds": [
+          {
+            "Name": "Headlines",
+            "Url": "https://www.standardmedia.co.ke/rss/headlines.php",
+            "Category": "General",
+            "Language": "en",
+            "Enabled": true
+          },
+          {
+            "Name": "Kenya",
+            "Url": "https://www.standardmedia.co.ke/rss/kenya.php",
+            "Category": "General",
+            "Language": "en",
+            "Enabled": true
+          },
+          {
+            "Name": "Politics",
+            "Url": "https://www.standardmedia.co.ke/rss/politics.php",
+            "Category": "Politics",
+            "Language": "en",
+            "Enabled": true
+          }
+        ]
+      }
+    ]
+  }
+}

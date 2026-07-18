@@ -1,0 +1,30 @@
+{
+  "NewsCrawler": {
+    "Name": "Singapore",
+    "Enabled": true,
+    "Providers": [
+      {
+        "Name": "CNA",
+        "Enabled": true,
+        "Cron": "26,56 * * * *",
+        "SaveRawResponses": true,
+        "Feeds": [
+          {
+            "Name": "Latest",
+            "Url": "https://www.channelnewsasia.com/rssfeeds/8395986",
+            "Category": "General",
+            "Language": "en",
+            "Enabled": true
+          },
+          {
+            "Name": "Singapore",
+            "Url": "https://www.channelnewsasia.com/rssfeeds/8395954",
+            "Category": "General",
+            "Language": "en",
+            "Enabled": true
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -74,7 +74,7 @@ public sealed class HangfireKeepAliveExecutor
         // would otherwise write one every single minute forever in local dev/docker-compose, for
         // no diagnostic value.
         await _executionLogger.RunAsync(
-            HangfireJobIds.KeepAlivePing,
+            HangfireJobIds.KeepAlivePing(_options.AppName),
             "Keep-alive self-ping",
             context.BackgroundJob.Id,
             async () =>

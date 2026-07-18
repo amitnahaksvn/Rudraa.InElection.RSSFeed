@@ -1,0 +1,30 @@
+{
+  "NewsCrawler": {
+    "Name": "South Korea",
+    "Enabled": true,
+    "Providers": [
+      {
+        "Name": "Yonhap",
+        "Enabled": true,
+        "Cron": "1,31 * * * *",
+        "SaveRawResponses": true,
+        "Feeds": [
+          {
+            "Name": "News",
+            "Url": "https://en.yna.co.kr/RSS/news.xml",
+            "Category": "General",
+            "Language": "en",
+            "Enabled": true
+          },
+          {
+            "Name": "National",
+            "Url": "https://en.yna.co.kr/RSS/national.xml",
+            "Category": "General",
+            "Language": "en",
+            "Enabled": true
+          }
+        ]
+      }
+    ]
+  }
+}

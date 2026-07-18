@@ -1,0 +1,83 @@
+{
+  "NewsCrawler": {
+    "Name": "Netherlands",
+    "Enabled": true,
+    "Providers": [
+      {
+        "Name": "NLTimes",
+        "Enabled": true,
+        "Cron": "24,54 * * * *",
+        "SaveRawResponses": true,
+        "Feeds": [
+          {
+            "Name": "Latest",
+            "Url": "https://nltimes.nl/rss",
+            "Category": "General",
+            "Language": "en",
+            "Enabled": true
+          }
+        ]
+      },
+      {
+        "Name": "DutchNews",
+        "Enabled": true,
+        "Cron": "20,50 * * * *",
+        "SaveRawResponses": true,
+        "Feeds": [
+          {
+            "Name": "Latest",
+            "Url": "https://www.dutchnews.nl/feed/",
+            "Category": "General",
+            "Language": "en",
+            "Enabled": true
+          }
+        ]
+      },
+      {
+        "Name": "NOS",
+        "Enabled": true,
+        "Cron": "8,38 * * * *",
+        "SaveRawResponses": true,
+        "Feeds": [
+          {
+            "Name": "Latest",
+            "Url": "https://feeds.nos.nl/nosnieuwsalgemeen",
+            "Category": "General",
+            "Language": "nl",
+            "Enabled": true
+          }
+        ]
+      },
+      {
+        "Name": "NuNl",
+        "Enabled": true,
+        "Cron": "18,48 * * * *",
+        "SaveRawResponses": true,
+        "Feeds": [
+          {
+            "Name": "Latest",
+            "Url": "https://www.nu.nl/rss/Algemeen",
+            "Category": "General",
+            "Language": "nl",
+            "Enabled": true
+          }
+        ]
+      },
+      {
+        "Name": "DeTelegraaf",
+        "Enabled": true,
+        "Cron": "18,48 * * * *",
+        "SaveRawResponses": true,
+        "Feeds": [
+          {
+            "Name": "Latest",
+            "Url": "https://www.telegraaf.nl/rss",
+            "Category": "General",
+            "Language": "nl",
+            "Enabled": true
+          }
+        ]
+      }
+    ]
+  }
+}

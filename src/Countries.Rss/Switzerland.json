@@ -1,0 +1,23 @@
+{
+  "NewsCrawler": {
+    "Name": "Switzerland",
+    "Enabled": true,
+    "Providers": [
+      {
+        "Name": "NZZ",
+        "Enabled": true,
+        "Cron": "28,58 * * * *",
+        "SaveRawResponses": true,
+        "Feeds": [
+          {
+            "Name": "Latest",
+            "Url": "https://www.nzz.ch/recent.rss",
+            "Category": "General",
+            "Language": "de",
+            "Enabled": true
+          }
+        ]
+      }
+    ]
+  }
+}

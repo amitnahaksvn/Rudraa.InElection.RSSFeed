@@ -1,0 +1,23 @@
+{
+  "NewsCrawler": {
+    "Name": "Oman",
+    "Enabled": true,
+    "Providers": [
+      {
+        "Name": "TimesOfOman",
+        "Enabled": true,
+        "Cron": "1,31 * * * *",
+        "SaveRawResponses": true,
+        "Feeds": [
+          {
+            "Name": "Latest",
+            "Url": "https://timesofoman.com/feed/",
+            "Category": "General",
+            "Language": "en",
+            "Enabled": true
+          }
+        ]
+      }
+    ]
+  }
+}

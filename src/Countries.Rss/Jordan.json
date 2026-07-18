@@ -1,0 +1,23 @@
+{
+  "NewsCrawler": {
+    "Name": "Jordan",
+    "Enabled": true,
+    "Providers": [
+      {
+        "Name": "RoyaNews",
+        "Enabled": true,
+        "Cron": "6,36 * * * *",
+        "SaveRawResponses": true,
+        "Feeds": [
+          {
+            "Name": "Latest",
+            "Url": "https://royanews.tv/rss",
+            "Category": "General",
+            "Language": "ar",
+            "Enabled": true
+          }
+        ]
+      }
+    ]
+  }
+}

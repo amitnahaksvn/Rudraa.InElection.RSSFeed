@@ -1,0 +1,13 @@
+{
+  "NewsCrawler": {
+    "Enabled": true,
+    "BatchSize": 100,
+    "LockName": "news-crawler",
+    "LockTtl": "00:15:00",
+    "FeedTimeout": "00:00:30",
+    "RawResponseRetention": "7.00:00:00",
+    "RawResponseCleanupCron": "0 5 * * *",
+    "SaveRawResponses": false,
+    "Countries": []
+  }
+}

@@ -1,34 +1,39 @@
 # Render Blueprint. Deploy via Render Dashboard -> New -> Blueprint, pointing at this repo.
 #
-# Single service by design: Web now owns both the HTTP API and Hangfire job execution (every
-# RSS/JSON-API crawl schedule) - there is no separate Worker service anymore. That merge exists
-# specifically so this app fits Render's free tier: Background Workers require a paid plan with no
-# free option at all, while a free Web Service is available (with the platform's usual spin-down
-# after ~15 minutes of no inbound HTTP traffic, which would otherwise stop Hangfire's in-process
-# scheduler from firing on schedule). No external uptime monitor needs to be configured for this -
-# a built-in Hangfire recurring job (HangfireKeepAliveExecutor, "keep-alive-ping", every minute by
-# default via KeepAlive:Cron) self-pings this same service's own public URL (Render's automatic
-# RENDER_EXTERNAL_URL env var + "/alive"), which round-trips back in through Render's edge as
-# ordinary inbound traffic and resets the inactivity timer. See git history/CLAUDE.md for the
-# two-process paid-tier version if reliability needs ever outgrow a single free service.
-#
-# No secrets are declared here on purpose: src/Web/appsettings.json carries a real
-# MongoDb:ConnectionString, every NewsApiKeys:* value, and Email:ApiKey baked directly into the
-# committed file (development-tier credentials, kept in appsettings.json by deliberate choice
-# rather than user-secrets), so the container works with zero Render environment variables
-# configured, matching how it already runs today.
+# Three independent services, split from what was originally a single combined Web service, then
+# briefly two full copies (see git history/CLAUDE.md):
+#   - webapp: the one admin site/read API/Hangfire dashboard. Never executes a crawl job itself -
+#     only enqueues/manages jobs against the shared Hangfire storage.
+#   - rssservice: headless worker, owns RSS + Dynamic-feed job execution.
+#   - apiservice: headless worker, owns JSON-API + Social job execution.
+# All three point at the same MongoDB database via each service's own MongoDb:ConnectionString/
+# DatabaseName (see each project's own appsettings.json - not declared as env vars here, same
+# "baked into the committed file" convention already used for earlier versions of this app).
+# Splitting job execution across two workers means one pipeline's job volume (260+ RSS providers)
+# can never starve the other's small Hangfire WorkerCount; splitting the admin site out into its
+# own process means neither worker needs to carry an SPA/dashboard it doesn't need.
+# All three still fit Render's free tier the same way earlier versions did: Background Workers
+# require a paid plan with no free option, while a free Web Service is available (with the
+# platform's usual spin-down after ~15 minutes of no inbound HTTP traffic, which would otherwise
+# stop each service's in-process Hangfire scheduler - or webapp's own keep-alive loop - from
+# firing on schedule). No external uptime monitor needs to be configured for any of the three -
+# each has its own self-ping (rssservice/apiservice via HangfireKeepAliveExecutor, webapp via
+# KeepAliveBackgroundService), every 5 minutes by default, targeting that same service's own
+# public URL (Render's automatic RENDER_EXTERNAL_URL env var + "/alive"), which round-trips back
+# in through Render's edge as ordinary inbound traffic and resets that service's own inactivity
+# timer.
 services:
   - type: web
-    name: rudraa-inelection-rssfeed-web
+    name: rudraa-inelection-webapp
     runtime: docker
-    dockerfilePath: ./Dockerfile
+    dockerfilePath: ./Dockerfile.WebApp
     dockerContext: .
     plan: free
     envVars:
       - key: DOTNET_ENVIRONMENT
         value: Production
-      # TLS terminates at Render's edge; the container only ever sees plain HTTP (see
-      # Web/Program.cs's UseHttpsRedirection comment) - matches docker-compose.yml's web service.
+      # TLS terminates at Render's edge; the container only ever sees plain HTTP (see each
+      # Program.cs's UseHttpsRedirection comment) - matches docker-compose.yml's services.
       - key: ASPNETCORE_URLS
         value: http://+:8080
       - key: Api__EnableHangfireDashboard
@@ -37,3 +42,27 @@ services:
       # page surfaces stack traces and raw request/response bodies.
       - key: Api__EnableErrorDashboard
         value: "false"
+
+  - type: web
+    name: rudraa-inelection-rssservice
+    runtime: docker
+    dockerfilePath: ./Dockerfile.RssService
+    dockerContext: .
+    plan: free
+    envVars:
+      - key: DOTNET_ENVIRONMENT
+        value: Production
+      - key: ASPNETCORE_URLS
+        value: http://+:8080
+
+  - type: web
+    name: rudraa-inelection-apiservice
+    runtime: docker
+    dockerfilePath: ./Dockerfile.ApiService
+    dockerContext: .
+    plan: free
+    envVars:
+      - key: DOTNET_ENVIRONMENT
+        value: Production
+      - key: ASPNETCORE_URLS
+        value: http://+:8080

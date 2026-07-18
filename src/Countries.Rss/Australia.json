@@ -1,0 +1,98 @@
+{
+  "NewsCrawler": {
+    "Name": "Australia",
+    "Enabled": true,
+    "Providers": [
+      {
+        "Name": "ABCNewsAustralia",
+        "Enabled": true,
+        "Cron": "19,49 * * * *",
+        "SaveRawResponses": true,
+        "Feeds": [
+          {
+            "Name": "TopStories",
+            "Url": "https://www.abc.net.au/news/feed/51120/rss.xml",
+            "Category": "General",
+            "Language": "en",
+            "Enabled": true
+          }
+        ]
+      },
+      {
+        "Name": "SBSNews",
+        "Enabled": true,
+        "Cron": "23,53 * * * *",
+        "SaveRawResponses": true,
+        "Feeds": [
+          {
+            "Name": "Latest",
+            "Url": "https://www.sbs.com.au/news/feed",
+            "Category": "General",
+            "Language": "en",
+            "Enabled": true
+          }
+        ]
+      },
+      {
+        "Name": "SydneyMorningHerald",
+        "Enabled": true,
+        "Cron": "16,46 * * * *",
+        "SaveRawResponses": true,
+        "Feeds": [
+          {
+            "Name": "Latest",
+            "Url": "https://www.smh.com.au/rss/feed.xml",
+            "Category": "General",
+            "Language": "en",
+            "Enabled": true
+          }
+        ]
+      },
+      {
+        "Name": "SevenNews",
+        "Enabled": true,
+        "Cron": "28,58 * * * *",
+        "SaveRawResponses": true,
+        "Feeds": [
+          {
+            "Name": "Latest",
+            "Url": "https://7news.com.au/rss",
+            "Category": "General",
+            "Language": "en",
+            "Enabled": true
+          }
+        ]
+      },
+      {
+        "Name": "TheAge",
+        "Enabled": true,
+        "Cron": "23,53 * * * *",
+        "SaveRawResponses": true,
+        "Feeds": [
+          {
+            "Name": "Latest",
+            "Url": "https://www.theage.com.au/rss/feed.xml",
+            "Category": "General",
+            "Language": "en",
+            "Enabled": true
+          }
+        ]
+      },
+      {
+        "Name": "GuardianAustralia",
+        "Enabled": true,
+        "Cron": "0,30 * * * *",
+        "SaveRawResponses": true,
+        "Feeds": [
+          {
+            "Name": "Australia",
+            "Url": "https://www.theguardian.com/australia-news/rss",
+            "Category": "General",
+            "Language": "en",
+            "Enabled": true
+          }
+        ]
+      }
+    ]
+  }
+}

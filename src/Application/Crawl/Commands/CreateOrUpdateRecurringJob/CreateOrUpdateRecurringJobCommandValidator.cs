@@ -2,14 +2,22 @@ using Cronos;
 using FluentValidation;
 using Microsoft.Extensions.Options;
 using Application.Options;
+using Domain.Enums;
 
 namespace Application.Crawl.Commands.CreateOrUpdateRecurringJob;
 
 public sealed class CreateOrUpdateRecurringJobCommandValidator : AbstractValidator<CreateOrUpdateRecurringJobCommand>
 {
-    public CreateOrUpdateRecurringJobCommandValidator(IOptions<NewsCrawlerOptions> options)
+    public CreateOrUpdateRecurringJobCommandValidator(IOptions<NewsCrawlerOptions> rssOptions, IOptions<NewsApiCrawlerOptions> apiOptions)
     {
-        var enabledProviders = options.Value.Countries
+        var enabledRssProviders = rssOptions.Value.Countries
+            .Where(c => c.Enabled)
+            .SelectMany(c => c.Providers)
+            .Where(p => p.Enabled)
+            .Select(p => p.Name)
+            .ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+        var enabledApiProviders = apiOptions.Value.Countries
             .Where(c => c.Enabled)
             .SelectMany(c => c.Providers)
             .Where(p => p.Enabled)
@@ -18,8 +26,9 @@ public sealed class CreateOrUpdateRecurringJobCommandValidator : AbstractValidat
 
         RuleFor(c => c.JobName)
             .NotEmpty()
-            .Must(name => enabledProviders.Contains(name))
-            .WithMessage(c => $"'{c.JobName}' is not an enabled provider - configure it under NewsCrawler:Providers first.");
+            .Must((command, name) =>
+                (command.Pipeline == CrawlPipeline.Api ? enabledApiProviders : enabledRssProviders).Contains(name))
+            .WithMessage(c => $"'{c.JobName}' is not an enabled {c.Pipeline} provider - configure it first.");
 
         RuleFor(c => c.Cron)
             .NotEmpty()

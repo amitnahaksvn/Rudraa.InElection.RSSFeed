@@ -1,0 +1,138 @@
+{
+  "NewsApiCrawler": {
+    "Name": "Switzerland",
+    "Enabled": true,
+    "Providers": [
+      {
+        "Name": "NewsApiOrg",
+        "Enabled": true,
+        "Cron": "17 3 * * *",
+        "BaseUrl": "https://newsapi.org/v2",
+        "AuthType": "QueryParameter",
+        "AuthParamName": "apiKey",
+        "TimeoutSeconds": 30,
+        "Endpoints": [
+          {
+            "Name": "Everything",
+            "Endpoint": "everything",
+            "QueryParameters": {
+              "q": "Switzerland politics",
+              "language": "en",
+              "sortBy": "publishedAt",
+              "pageSize": "50"
+            },
+            "Category": "Politics",
+            "Language": "en",
+            "Enabled": true
+          },
+          {
+            "Name": "TopHeadlines",
+            "Endpoint": "top-headlines",
+            "QueryParameters": {
+              "category": "general",
+              "country": "ch",
+              "pageSize": "50"
+            },
+            "Category": "General",
+            "Language": "en",
+            "Enabled": true
+          }
+        ]
+      },
+      {
+        "Name": "GNews",
+        "Enabled": true,
+        "Cron": "23 4 * * *",
+        "BaseUrl": "https://gnews.io/api/v4",
+        "AuthType": "QueryParameter",
+        "AuthParamName": "apikey",
+        "TimeoutSeconds": 30,
+        "Endpoints": [
+          {
+            "Name": "Search",
+            "Endpoint": "search",
+            "QueryParameters": {
+              "q": "Switzerland politics",
+              "lang": "en",
+              "country": "ch",
+              "max": "10"
+            },
+            "Category": "Politics",
+            "Language": "en",
+            "Enabled": true
+          }
+        ]
+      },
+      {
+        "Name": "NewsDataIo",
+        "Enabled": true,
+        "Cron": "31 5 * * *",
+        "BaseUrl": "https://newsdata.io/api/1",
+        "AuthType": "QueryParameter",
+        "AuthParamName": "apikey",
+        "TimeoutSeconds": 30,
+        "Endpoints": [
+          {
+            "Name": "Latest",
+            "Endpoint": "latest",
+            "QueryParameters": {
+              "q": "Switzerland politics",
+              "country": "ch",
+              "language": "en",
+              "category": "politics"
+            },
+            "Category": "Politics",
+            "Language": "en",
+            "Enabled": true
+          }
+        ]
+      },
+      {
+        "Name": "EventRegistry",
+        "Enabled": true,
+        "Cron": "42 6 * * *",
+        "BaseUrl": "https://eventregistry.org/api/v1/article/getArticles",
+        "AuthType": "QueryParameter",
+        "AuthParamName": "apiKey (ignored - EventRegistryProvider is a custom implementation that puts the key in the POST body itself, still read from NewsApiKeys:EventRegistry)",
+        "TimeoutSeconds": 30,
+        "Endpoints": [
+          {
+            "Name": "GetArticles",
+            "Endpoint": "",
+            "QueryParameters": {
+              "keyword": "Switzerland politics",
+              "lang": "eng"
+            },
+            "Category": "Politics",
+            "Language": "en",
+            "Enabled": true
+          }
+        ]
+      },
+      {
+        "Name": "GDELT",
+        "Enabled": true,
+        "Cron": "8 * * * *",
+        "BaseUrl": "https://api.gdeltproject.org/api/v2/doc",
+        "AuthType": "None",
+        "AuthParamName": "",
+        "TimeoutSeconds": 30,
+        "Endpoints": [
+          {
+            "Name": "DocSearch",
+            "Endpoint": "doc",
+            "QueryParameters": {
+              "query": "Switzerland politics sourcecountry:SZ",
+              "mode": "artlist",
+              "format": "json",
+              "maxrecords": "75"
+            },
+            "Category": "Politics",
+            "Language": "en",
+            "Enabled": true
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -13,8 +13,15 @@ public static class HangfireJobIds
 
     public const string ErrorNotificationDispatch = "dispatch-error-notifications";
 
-    /// <summary>See <c>HangfireKeepAliveExecutor</c> - keeps a free-tier host from spinning down.</summary>
-    public const string KeepAlivePing = "keep-alive-ping";
+    /// <summary>
+    /// See <c>HangfireKeepAliveExecutor</c> - keeps a free-tier host from spinning down. Suffixed
+    /// by <see cref="Application.Options.KeepAliveOptions.AppName"/> because, once more than one
+    /// host points at the same shared Hangfire Mongo storage (WebRssFeed + WebApiFeed), a single
+    /// fixed job id would have the second host's own registration silently overwrite the first
+    /// host's - only one app's self-ping target would survive in storage, leaving the other
+    /// permanently unregistered.
+    /// </summary>
+    public static string KeepAlivePing(string appName) => $"keep-alive-ping-{appName}";
 
     /// <summary>Job id for a <see cref="Domain.Entities.FeedSource"/>-driven feed, keyed by its own SourceCode (e.g. "dynamic-feed-PIB").</summary>
     public static string DynamicFeed(string sourceCode) => $"dynamic-feed-{sourceCode}";

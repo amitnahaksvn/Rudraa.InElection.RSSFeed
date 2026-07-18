@@ -1,0 +1,30 @@
+# Builds RssService - a headless worker owning the RSS + Dynamic-feed pipelines' Hangfire job
+# execution, no SPA/read API of its own (see Dockerfile.WebApp for the one admin site/dashboard,
+# and Dockerfile.ApiService for the JSON-API + Social pipelines' worker). All three point at the
+# same MongoDB database but run as independently scaled/deployed processes (see CLAUDE.md for
+# why: fitting Azure App Service's free tier without one pipeline's job volume overwhelming
+# another's small Hangfire WorkerCount). No Node/client-build stage needed - this process serves
+# no static assets at all.
+FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
+WORKDIR /src
+
+COPY src/Domain/Domain.csproj src/Domain/
+COPY src/Application/Application.csproj src/Application/
+COPY src/Infrastructure/Infrastructure.csproj src/Infrastructure/
+COPY src/ServiceDefaults/ServiceDefaults.csproj src/ServiceDefaults/
+COPY src/WebPlatform/WebPlatform.csproj src/WebPlatform/
+COPY src/RssService/RssService.csproj src/RssService/
+RUN dotnet restore "src/RssService/RssService.csproj"
+
+COPY src/ src/
+RUN dotnet publish "src/RssService/RssService.csproj" -c Release -o /app --no-restore
+
+FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS runtime
+WORKDIR /app
+COPY --from=build /app .
+
+ENV DOTNET_EnableDiagnostics=0
+# The base image ships an unprivileged "app" user (APP_UID) but runs as root unless told
+# otherwise - drop to it so the container never runs the actual process as root.
+USER $APP_UID
+ENTRYPOINT ["dotnet", "RssService.dll"]

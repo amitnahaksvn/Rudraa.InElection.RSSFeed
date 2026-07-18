@@ -1,0 +1,38 @@
+{
+  "NewsCrawler": {
+    "Name": "Algeria",
+    "Enabled": true,
+    "Providers": [
+      {
+        "Name": "TSAAlgeria",
+        "Enabled": true,
+        "Cron": "6,36 * * * *",
+        "SaveRawResponses": true,
+        "Feeds": [
+          {
+            "Name": "Latest",
+            "Url": "https://www.tsa-algerie.com/feed/",
+            "Category": "General",
+            "Language": "fr",
+            "Enabled": true
+          }
+        ]
+      },
+      {
+        "Name": "ElWatan",
+        "Enabled": true,
+        "Cron": "21,51 * * * *",
+        "SaveRawResponses": true,
+        "Feeds": [
+          {
+            "Name": "Latest",
+            "Url": "https://elwatan-dz.com/feed",
+            "Category": "General",
+            "Language": "fr",
+            "Enabled": true
+          }
+        ]
+      }
+    ]
+  }
+}

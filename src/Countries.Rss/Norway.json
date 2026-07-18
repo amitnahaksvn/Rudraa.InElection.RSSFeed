@@ -1,0 +1,68 @@
+{
+  "NewsCrawler": {
+    "Name": "Norway",
+    "Enabled": true,
+    "Providers": [
+      {
+        "Name": "NRK",
+        "Enabled": true,
+        "Cron": "26,56 * * * *",
+        "SaveRawResponses": true,
+        "Feeds": [
+          {
+            "Name": "Latest",
+            "Url": "https://www.nrk.no/toppsaker.rss",
+            "Category": "General",
+            "Language": "no",
+            "Enabled": true
+          }
+        ]
+      },
+      {
+        "Name": "Aftenposten",
+        "Enabled": true,
+        "Cron": "29,59 * * * *",
+        "SaveRawResponses": true,
+        "Feeds": [
+          {
+            "Name": "Latest",
+            "Url": "https://www.aftenposten.no/rss",
+            "Category": "General",
+            "Language": "no",
+            "Enabled": true
+          }
+        ]
+      },
+      {
+        "Name": "E24",
+        "Enabled": true,
+        "Cron": "8,38 * * * *",
+        "SaveRawResponses": true,
+        "Feeds": [
+          {
+            "Name": "Latest",
+            "Url": "https://e24.no/rss",
+            "Category": "Business",
+            "Language": "no",
+            "Enabled": true
+          }
+        ]
+      },
+      {
+        "Name": "TheLocalNorway",
+        "Enabled": true,
+        "Cron": "16,46 * * * *",
+        "SaveRawResponses": true,
+        "Feeds": [
+          {
+            "Name": "Latest",
+            "Url": "https://feeds.thelocal.com/rss/builder/no",
+            "Category": "General",
+            "Language": "en",
+            "Enabled": true
+          }
+        ]
+      }
+    ]
+  }
+}

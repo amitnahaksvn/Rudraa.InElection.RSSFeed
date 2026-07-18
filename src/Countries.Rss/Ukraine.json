@@ -1,0 +1,23 @@
+{
+  "NewsCrawler": {
+    "Name": "Ukraine",
+    "Enabled": true,
+    "Providers": [
+      {
+        "Name": "KyivPost",
+        "Enabled": true,
+        "Cron": "23,53 * * * *",
+        "SaveRawResponses": true,
+        "Feeds": [
+          {
+            "Name": "Latest",
+            "Url": "https://www.kyivpost.com/feed",
+            "Category": "General",
+            "Language": "en",
+            "Enabled": true
+          }
+        ]
+      }
+    ]
+  }
+}

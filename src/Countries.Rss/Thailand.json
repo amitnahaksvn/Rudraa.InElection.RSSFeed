@@ -1,0 +1,23 @@
+{
+  "NewsCrawler": {
+    "Name": "Thailand",
+    "Enabled": true,
+    "Providers": [
+      {
+        "Name": "BangkokPost",
+        "Enabled": true,
+        "Cron": "12,42 * * * *",
+        "SaveRawResponses": true,
+        "Feeds": [
+          {
+            "Name": "TopStories",
+            "Url": "https://www.bangkokpost.com/rss/data/topstories.xml",
+            "Category": "General",
+            "Language": "en",
+            "Enabled": true
+          }
+        ]
+      }
+    ]
+  }
+}

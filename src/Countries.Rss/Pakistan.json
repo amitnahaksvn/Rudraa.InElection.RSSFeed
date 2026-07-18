@@ -1,0 +1,38 @@
+{
+  "NewsCrawler": {
+    "Name": "Pakistan",
+    "Enabled": true,
+    "Providers": [
+      {
+        "Name": "TheNewsInternational",
+        "Enabled": true,
+        "Cron": "9,39 * * * *",
+        "SaveRawResponses": true,
+        "Feeds": [
+          {
+            "Name": "Latest",
+            "Url": "https://www.thenews.com.pk/rss/1/10",
+            "Category": "General",
+            "Language": "en",
+            "Enabled": true
+          }
+        ]
+      },
+      {
+        "Name": "GeoNews",
+        "Enabled": true,
+        "Cron": "23,53 * * * *",
+        "SaveRawResponses": true,
+        "Feeds": [
+          {
+            "Name": "Latest",
+            "Url": "https://www.geo.tv/rss/1/1",
+            "Category": "General",
+            "Language": "en",
+            "Enabled": true
+          }
+        ]
+      }
+    ]
+  }
+}

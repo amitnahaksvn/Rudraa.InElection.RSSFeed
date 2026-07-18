@@ -1,0 +1,66 @@
+{
+  "NewsCrawler": {
+    "Name": "Turkey",
+    "Enabled": true,
+    "Providers": [
+      {
+        "Name": "AnadoluAgency",
+        "Enabled": true,
+        "Cron": "12,42 * * * *",
+        "SaveRawResponses": true,
+        "Feeds": [
+          {
+            "Name": "World",
+            "Url": "https://www.aa.com.tr/en/rss/default?cat=world",
+            "Category": "World",
+            "Language": "en",
+            "Enabled": true
+          },
+          {
+            "Name": "Politics",
+            "Url": "https://www.aa.com.tr/en/rss/default?cat=politics",
+            "Category": "Politics",
+            "Language": "en",
+            "Enabled": true
+          },
+          {
+            "Name": "Economy",
+            "Url": "https://www.aa.com.tr/en/rss/default?cat=economy",
+            "Category": "Business",
+            "Language": "en",
+            "Enabled": true
+          }
+        ]
+      },
+      {
+        "Name": "DailySabah",
+        "Enabled": true,
+        "Cron": "10,40 * * * *",
+        "SaveRawResponses": true,
+        "Feeds": [
+          {
+            "Name": "Business",
+            "Url": "https://www.dailysabah.com/rss/business",
+            "Category": "Business",
+            "Language": "en",
+            "Enabled": true
+          },
+          {
+            "Name": "Politics",
+            "Url": "https://www.dailysabah.com/rss/politics",
+            "Category": "Politics",
+            "Language": "en",
+            "Enabled": true
+          },
+          {
+            "Name": "World",
+            "Url": "https://www.dailysabah.com/rss/world",
+            "Category": "World",
+            "Language": "en",
+            "Enabled": true
+          }
+        ]
+      }
+    ]
+  }
+}

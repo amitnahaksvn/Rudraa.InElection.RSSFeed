@@ -1,0 +1,53 @@
+{
+  "NewsCrawler": {
+    "Name": "Myanmar",
+    "Enabled": true,
+    "Providers": [
+      {
+        "Name": "MyanmarNow",
+        "Enabled": true,
+        "Cron": "1,31 * * * *",
+        "SaveRawResponses": true,
+        "Feeds": [
+          {
+            "Name": "Latest",
+            "Url": "https://myanmar-now.org/en/feed/",
+            "Category": "General",
+            "Language": "en",
+            "Enabled": true
+          }
+        ]
+      },
+      {
+        "Name": "GlobalNewLightOfMyanmar",
+        "Enabled": true,
+        "Cron": "8,38 * * * *",
+        "SaveRawResponses": true,
+        "Feeds": [
+          {
+            "Name": "Latest",
+            "Url": "https://www.gnlm.com.mm/feed/",
+            "Category": "General",
+            "Language": "en",
+            "Enabled": true
+          }
+        ]
+      },
+      {
+        "Name": "ElevenMedia",
+        "Enabled": true,
+        "Cron": "25,55 * * * *",
+        "SaveRawResponses": true,
+        "Feeds": [
+          {
+            "Name": "Latest",
+            "Url": "https://elevenmyanmar.com/rss.xml",
+            "Category": "General",
+            "Language": "en",
+            "Enabled": true
+          }
+        ]
+      }
+    ]
+  }
+}

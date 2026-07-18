@@ -1,0 +1,441 @@
+{
+  "NewsCrawler": {
+    "Name": "United Kingdom",
+    "Enabled": true,
+    "Providers": [
+      {
+        "Name": "BBCNews",
+        "Enabled": true,
+        "Cron": "5,35 * * * *",
+        "SaveRawResponses": true,
+        "Feeds": [
+          {
+            "Name": "TopStories",
+            "Url": "http://feeds.bbci.co.uk/news/rss.xml",
+            "Category": "General",
+            "Language": "en",
+            "Enabled": true
+          },
+          {
+            "Name": "World",
+            "Url": "http://feeds.bbci.co.uk/news/world/rss.xml",
+            "Category": "World",
+            "Language": "en",
+            "Enabled": true
+          },
+          {
+            "Name": "Politics",
+            "Url": "http://feeds.bbci.co.uk/news/politics/rss.xml",
+            "Category": "Politics",
+            "Language": "en",
+            "Enabled": true
+          },
+          {
+            "Name": "UK",
+            "Url": "https://feeds.bbci.co.uk/news/uk/rss.xml",
+            "Category": "General",
+            "Language": "en",
+            "Enabled": true
+          },
+          {
+            "Name": "Business",
+            "Url": "https://feeds.bbci.co.uk/news/business/rss.xml",
+            "Category": "Business",
+            "Language": "en",
+            "Enabled": true
+          },
+          {
+            "Name": "Technology",
+            "Url": "https://feeds.bbci.co.uk/news/technology/rss.xml",
+            "Category": "Technology",
+            "Language": "en",
+            "Enabled": true
+          },
+          {
+            "Name": "Science",
+            "Url": "https://feeds.bbci.co.uk/news/science_and_environment/rss.xml",
+            "Category": "Science",
+            "Language": "en",
+            "Enabled": true
+          },
+          {
+            "Name": "Health",
+            "Url": "https://feeds.bbci.co.uk/news/health/rss.xml",
+            "Category": "Health",
+            "Language": "en",
+            "Enabled": true
+          },
+          {
+            "Name": "Entertainment",
+            "Url": "https://feeds.bbci.co.uk/news/entertainment_and_arts/rss.xml",
+            "Category": "Entertainment",
+            "Language": "en",
+            "Enabled": true
+          }
+        ]
+      },
+      {
+        "Name": "BBCSport",
+        "Enabled": true,
+        "Cron": "15,45 * * * *",
+        "SaveRawResponses": true,
+        "Feeds": [
+          {
+            "Name": "Sport",
+            "Url": "https://feeds.bbci.co.uk/sport/rss.xml",
+            "Category": "Sports",
+            "Language": "en",
+            "Enabled": true
+          }
+        ]
+      },
+      {
+        "Name": "SkyNews",
+        "Enabled": true,
+        "Cron": "18,48 * * * *",
+        "SaveRawResponses": true,
+        "Feeds": [
+          {
+            "Name": "Home",
+            "Url": "https://feeds.skynews.com/feeds/rss/home.xml",
+            "Category": "General",
+            "Language": "en",
+            "Enabled": true
+          },
+          {
+            "Name": "UK",
+            "Url": "https://feeds.skynews.com/feeds/rss/uk.xml",
+            "Category": "General",
+            "Language": "en",
+            "Enabled": true
+          },
+          {
+            "Name": "World",
+            "Url": "https://feeds.skynews.com/feeds/rss/world.xml",
+            "Category": "World",
+            "Language": "en",
+            "Enabled": true
+          },
+          {
+            "Name": "Politics",
+            "Url": "https://feeds.skynews.com/feeds/rss/politics.xml",
+            "Category": "Politics",
+            "Language": "en",
+            "Enabled": true
+          },
+          {
+            "Name": "Business",
+            "Url": "https://feeds.skynews.com/feeds/rss/business.xml",
+            "Category": "Business",
+            "Language": "en",
+            "Enabled": true
+          },
+          {
+            "Name": "Technology",
+            "Url": "https://feeds.skynews.com/feeds/rss/technology.xml",
+            "Category": "Technology",
+            "Language": "en",
+            "Enabled": true
+          }
+        ]
+      },
+      {
+        "Name": "TheGuardian",
+        "Enabled": true,
+        "Cron": "12,42 * * * *",
+        "SaveRawResponses": true,
+        "Feeds": [
+          {
+            "Name": "World",
+            "Url": "https://www.theguardian.com/world/rss",
+            "Category": "World",
+            "Language": "en",
+            "Enabled": true
+          },
+          {
+            "Name": "UK",
+            "Url": "https://www.theguardian.com/uk/rss",
+            "Category": "General",
+            "Language": "en",
+            "Enabled": true
+          },
+          {
+            "Name": "Politics",
+            "Url": "https://www.theguardian.com/politics/rss",
+            "Category": "Politics",
+            "Language": "en",
+            "Enabled": true
+          },
+          {
+            "Name": "Business",
+            "Url": "https://www.theguardian.com/business/rss",
+            "Category": "Business",
+            "Language": "en",
+            "Enabled": true
+          },
+          {
+            "Name": "Technology",
+            "Url": "https://www.theguardian.com/uk/technology/rss",
+            "Category": "Technology",
+            "Language": "en",
+            "Enabled": true
+          },
+          {
+            "Name": "Environment",
+            "Url": "https://www.theguardian.com/environment/rss",
+            "Category": "Environment",
+            "Language": "en",
+            "Enabled": true
+          },
+          {
+            "Name": "Science",
+            "Url": "https://www.theguardian.com/science/rss",
+            "Category": "Science",
+            "Language": "en",
+            "Enabled": true
+          },
+          {
+            "Name": "Sport",
+            "Url": "https://www.theguardian.com/uk/sport/rss",
+            "Category": "Sports",
+            "Language": "en",
+            "Enabled": true
+          },
+          {
+            "Name": "Football",
+            "Url": "https://www.theguardian.com/football/rss",
+            "Category": "Sports",
+            "Language": "en",
+            "Enabled": true
+          },
+          {
+            "Name": "Culture",
+            "Url": "https://www.theguardian.com/culture/rss",
+            "Category": "Entertainment",
+            "Language": "en",
+            "Enabled": true
+          },
+          {
+            "Name": "Opinion",
+            "Url": "https://www.theguardian.com/commentisfree/rss",
+            "Category": "Opinion",
+            "Language": "en",
+            "Enabled": true
+          }
+        ]
+      },
+      {
+        "Name": "FinancialTimes",
+        "Enabled": true,
+        "Cron": "20,50 * * * *",
+        "SaveRawResponses": true,
+        "Feeds": [
+          {
+            "Name": "Home",
+            "Url": "https://www.ft.com/rss/home",
+            "Category": "General",
+            "Language": "en",
+            "Enabled": true
+          },
+          {
+            "Name": "World",
+            "Url": "https://www.ft.com/world?format=rss",
+            "Category": "World",
+            "Language": "en",
+            "Enabled": true
+          },
+          {
+            "Name": "UK",
+            "Url": "https://www.ft.com/uk?format=rss",
+            "Category": "General",
+            "Language": "en",
+            "Enabled": true
+          },
+          {
+            "Name": "Companies",
+            "Url": "https://www.ft.com/companies?format=rss",
+            "Category": "Business",
+            "Language": "en",
+            "Enabled": true
+          },
+          {
+            "Name": "Markets",
+            "Url": "https://www.ft.com/markets?format=rss",
+            "Category": "Business",
+            "Language": "en",
+            "Enabled": true
+          },
+          {
+            "Name": "Technology",
+            "Url": "https://www.ft.com/technology?format=rss",
+            "Category": "Technology",
+            "Language": "en",
+            "Enabled": true
+          }
+        ]
+      },
+      {
+        "Name": "TheIndependent",
+        "Enabled": true,
+        "Cron": "2,32 * * * *",
+        "SaveRawResponses": true,
+        "Feeds": [
+          {
+            "Name": "Home",
+            "Url": "https://www.independent.co.uk/news/rss",
+            "Category": "General",
+            "Language": "en",
+            "Enabled": true
+          },
+          {
+            "Name": "UK",
+            "Url": "https://www.independent.co.uk/news/uk/rss",
+            "Category": "General",
+            "Language": "en",
+            "Enabled": true
+          },
+          {
+            "Name": "World",
+            "Url": "https://www.independent.co.uk/news/world/rss",
+            "Category": "World",
+            "Language": "en",
+            "Enabled": true
+          }
+        ]
+      },
+      {
+        "Name": "TheTelegraph",
+        "Enabled": true,
+        "Cron": "23,53 * * * *",
+        "SaveRawResponses": true,
+        "Feeds": [
+          {
+            "Name": "Home",
+            "Url": "https://www.telegraph.co.uk/rss.xml",
+            "Category": "General",
+            "Language": "en",
+            "Enabled": true
+          },
+          {
+            "Name": "News",
+            "Url": "https://www.telegraph.co.uk/news/rss.xml",
+            "Category": "General",
+            "Language": "en",
+            "Enabled": true
+          },
+          {
+            "Name": "Politics",
+            "Url": "https://www.telegraph.co.uk/politics/rss.xml",
+            "Category": "Politics",
+            "Language": "en",
+            "Enabled": true
+          },
+          {
+            "Name": "Business",
+            "Url": "https://www.telegraph.co.uk/business/rss.xml",
+            "Category": "Business",
+            "Language": "en",
+            "Enabled": true
+          },
+          {
+            "Name": "Sport",
+            "Url": "https://www.telegraph.co.uk/sport/rss.xml",
+            "Category": "Sports",
+            "Language": "en",
+            "Enabled": true
+          }
+        ]
+      },
+      {
+        "Name": "Metro",
+        "Enabled": true,
+        "Cron": "27,57 * * * *",
+        "SaveRawResponses": true,
+        "Feeds": [
+          {
+            "Name": "Home",
+            "Url": "https://metro.co.uk/feed",
+            "Category": "General",
+            "Language": "en",
+            "Enabled": true
+          }
+        ]
+      },
+      {
+        "Name": "EveningStandard",
+        "Enabled": true,
+        "Cron": "4,34 * * * *",
+        "SaveRawResponses": true,
+        "Feeds": [
+          {
+            "Name": "Home",
+            "Url": "https://www.standard.co.uk/news/rss",
+            "Category": "General",
+            "Language": "en",
+            "Enabled": true
+          }
+        ]
+      },
+      {
+        "Name": "DailyExpress",
+        "Enabled": true,
+        "Cron": "4,34 * * * *",
+        "SaveRawResponses": true,
+        "Feeds": [
+          {
+            "Name": "Home",
+            "Url": "https://www.express.co.uk/posts/rss/1/news",
+            "Category": "General",
+            "Language": "en",
+            "Enabled": true
+          }
+        ]
+      },
+      {
+        "Name": "Mirror",
+        "Enabled": true,
+        "Cron": "17,47 * * * *",
+        "SaveRawResponses": true,
+        "Feeds": [
+          {
+            "Name": "Home",
+            "Url": "https://www.mirror.co.uk/news/rss.xml",
+            "Category": "General",
+            "Language": "en",
+            "Enabled": true
+          }
+        ]
+      },
+      {
+        "Name": "PoliticsCoUk",
+        "Enabled": true,
+        "Cron": "10,40 * * * *",
+        "SaveRawResponses": true,
+        "Feeds": [
+          {
+            "Name": "Politics",
+            "Url": "https://www.politics.co.uk/feed/",
+            "Category": "Politics",
+            "Language": "en",
+            "Enabled": true
+          }
+        ]
+      },
+      {
+        "Name": "GOVUKNews",
+        "Enabled": true,
+        "Cron": "23,53 * * * *",
+        "SaveRawResponses": true,
+        "Feeds": [
+          {
+            "Name": "Latest",
+            "Url": "https://www.gov.uk/search/news-and-communications.atom?keywords=election",
+            "Category": "Politics",
+            "Language": "en",
+            "Enabled": true
+          }
+        ]
+      }
+    ]
+  }
+}

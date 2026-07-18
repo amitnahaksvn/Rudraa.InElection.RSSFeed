@@ -1,0 +1,38 @@
+{
+  "NewsCrawler": {
+    "Name": "Hong Kong",
+    "Enabled": true,
+    "Providers": [
+      {
+        "Name": "SCMP",
+        "Enabled": true,
+        "Cron": "10,40 * * * *",
+        "SaveRawResponses": true,
+        "Feeds": [
+          {
+            "Name": "Latest",
+            "Url": "https://www.scmp.com/rss/91/feed",
+            "Category": "General",
+            "Language": "en",
+            "Enabled": true
+          }
+        ]
+      },
+      {
+        "Name": "HongKongFreePress",
+        "Enabled": true,
+        "Cron": "5,35 * * * *",
+        "SaveRawResponses": true,
+        "Feeds": [
+          {
+            "Name": "Latest",
+            "Url": "https://hongkongfp.com/feed/",
+            "Category": "General",
+            "Language": "en",
+            "Enabled": true
+          }
+        ]
+      }
+    ]
+  }
+}

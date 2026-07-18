@@ -1,0 +1,68 @@
+{
+  "NewsCrawler": {
+    "Name": "Vietnam",
+    "Enabled": true,
+    "Providers": [
+      {
+        "Name": "VietnamNews",
+        "Enabled": true,
+        "Cron": "15,45 * * * *",
+        "SaveRawResponses": true,
+        "Feeds": [
+          {
+            "Name": "Latest",
+            "Url": "https://vietnamnews.vn/rss/homepage.rss",
+            "Category": "General",
+            "Language": "en",
+            "Enabled": true
+          }
+        ]
+      },
+      {
+        "Name": "VietnamPlus",
+        "Enabled": true,
+        "Cron": "10,40 * * * *",
+        "SaveRawResponses": true,
+        "Feeds": [
+          {
+            "Name": "Latest",
+            "Url": "https://en.vietnamplus.vn/rss/home.rss",
+            "Category": "General",
+            "Language": "en",
+            "Enabled": true
+          }
+        ]
+      },
+      {
+        "Name": "VnExpress",
+        "Enabled": true,
+        "Cron": "13,43 * * * *",
+        "SaveRawResponses": true,
+        "Feeds": [
+          {
+            "Name": "Latest",
+            "Url": "https://vnexpress.net/rss/tin-moi-nhat.rss",
+            "Category": "General",
+            "Language": "vi",
+            "Enabled": true
+          }
+        ]
+      },
+      {
+        "Name": "NhanDan",
+        "Enabled": true,
+        "Cron": "18,48 * * * *",
+        "SaveRawResponses": true,
+        "Feeds": [
+          {
+            "Name": "Latest",
+            "Url": "https://en.nhandan.vn/rss/home.rss",
+            "Category": "General",
+            "Language": "en",
+            "Enabled": true
+          }
+        ]
+      }
+    ]
+  }
+}

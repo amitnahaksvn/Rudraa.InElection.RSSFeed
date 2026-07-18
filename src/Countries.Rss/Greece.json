@@ -1,0 +1,23 @@
+{
+  "NewsCrawler": {
+    "Name": "Greece",
+    "Enabled": true,
+    "Providers": [
+      {
+        "Name": "ProtoThema",
+        "Enabled": true,
+        "Cron": "0,30 * * * *",
+        "SaveRawResponses": true,
+        "Feeds": [
+          {
+            "Name": "Latest",
+            "Url": "https://www.protothema.gr/rss",
+            "Category": "General",
+            "Language": "el",
+            "Enabled": true
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -11,11 +11,13 @@
   <ItemGroup>
     <PackageReference Include="Aspire.Hosting.AppHost" Version="13.4.6" />
     <PackageReference Include="Aspire.Hosting.MongoDB" Version="13.4.6" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="10.0.8" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="10.0.10" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Web\Web.csproj" />
+    <ProjectReference Include="..\WebApp\WebApp.csproj" />
+    <ProjectReference Include="..\RssService\RssService.csproj" />
+    <ProjectReference Include="..\ApiService\ApiService.csproj" />
   </ItemGroup>
 
 </Project>

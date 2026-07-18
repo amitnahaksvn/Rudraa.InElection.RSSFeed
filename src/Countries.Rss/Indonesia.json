@@ -1,0 +1,38 @@
+{
+  "NewsCrawler": {
+    "Name": "Indonesia",
+    "Enabled": true,
+    "Providers": [
+      {
+        "Name": "Antara",
+        "Enabled": true,
+        "Cron": "2,32 * * * *",
+        "SaveRawResponses": true,
+        "Feeds": [
+          {
+            "Name": "News",
+            "Url": "https://en.antaranews.com/rss/news.xml",
+            "Category": "General",
+            "Language": "en",
+            "Enabled": true
+          }
+        ]
+      },
+      {
+        "Name": "Tempo",
+        "Enabled": true,
+        "Cron": "29,59 * * * *",
+        "SaveRawResponses": true,
+        "Feeds": [
+          {
+            "Name": "Latest",
+            "Url": "https://rss.tempo.co/nasional",
+            "Category": "General",
+            "Language": "id",
+            "Enabled": true
+          }
+        ]
+      }
+    ]
+  }
+}

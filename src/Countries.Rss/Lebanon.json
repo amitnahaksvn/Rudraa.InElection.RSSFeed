@@ -1,0 +1,38 @@
+{
+  "NewsCrawler": {
+    "Name": "Lebanon",
+    "Enabled": true,
+    "Providers": [
+      {
+        "Name": "LBCINews",
+        "Enabled": true,
+        "Cron": "23,53 * * * *",
+        "SaveRawResponses": true,
+        "Feeds": [
+          {
+            "Name": "Latest",
+            "Url": "https://www.lbcgroup.tv/rss/news/en",
+            "Category": "General",
+            "Language": "en",
+            "Enabled": true
+          }
+        ]
+      },
+      {
+        "Name": "Naharnet",
+        "Enabled": true,
+        "Cron": "14,44 * * * *",
+        "SaveRawResponses": true,
+        "Feeds": [
+          {
+            "Name": "Latest",
+            "Url": "https://www.naharnet.com/tags/lebanon/en/feed.atom",
+            "Category": "General",
+            "Language": "en",
+            "Enabled": true
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,38 @@
+{
+  "NewsCrawler": {
+    "Name": "Malaysia",
+    "Enabled": true,
+    "Providers": [
+      {
+        "Name": "MalayMail",
+        "Enabled": true,
+        "Cron": "20,50 * * * *",
+        "SaveRawResponses": true,
+        "Feeds": [
+          {
+            "Name": "Latest",
+            "Url": "https://www.malaymail.com/feed/rss",
+            "Category": "General",
+            "Language": "en",
+            "Enabled": true
+          }
+        ]
+      },
+      {
+        "Name": "NewStraitsTimes",
+        "Enabled": true,
+        "Cron": "17,47 * * * *",
+        "SaveRawResponses": true,
+        "Feeds": [
+          {
+            "Name": "Latest",
+            "Url": "https://www.nst.com.my/feed",
+            "Category": "General",
+            "Language": "en",
+            "Enabled": true
+          }
+        ]
+      }
+    ]
+  }
+}

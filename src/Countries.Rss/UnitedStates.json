@@ -1,0 +1,472 @@
+{
+  "NewsCrawler": {
+    "Name": "United States",
+    "Enabled": true,
+    "Providers": [
+      {
+        "Name": "NYTimes",
+        "Enabled": true,
+        "Cron": "24,54 * * * *",
+        "SaveRawResponses": true,
+        "Feeds": [
+          {
+            "Name": "World",
+            "Url": "https://rss.nytimes.com/services/xml/rss/nyt/World.xml",
+            "Category": "World",
+            "Language": "en",
+            "Enabled": true
+          },
+          {
+            "Name": "Business",
+            "Url": "https://rss.nytimes.com/services/xml/rss/nyt/Business.xml",
+            "Category": "Business",
+            "Language": "en",
+            "Enabled": true
+          },
+          {
+            "Name": "Technology",
+            "Url": "https://rss.nytimes.com/services/xml/rss/nyt/Technology.xml",
+            "Category": "Technology",
+            "Language": "en",
+            "Enabled": true
+          },
+          {
+            "Name": "Politics",
+            "Url": "https://rss.nytimes.com/services/xml/rss/nyt/Politics.xml",
+            "Category": "Politics",
+            "Language": "en",
+            "Enabled": true
+          },
+          {
+            "Name": "Science",
+            "Url": "https://rss.nytimes.com/services/xml/rss/nyt/Science.xml",
+            "Category": "Science",
+            "Language": "en",
+            "Enabled": true
+          }
+        ]
+      },
+      {
+        "Name": "TechCrunch",
+        "Enabled": true,
+        "Cron": "19,49 * * * *",
+        "SaveRawResponses": true,
+        "Feeds": [
+          {
+            "Name": "Home",
+            "Url": "https://techcrunch.com/feed/",
+            "Category": "Technology",
+            "Language": "en",
+            "Enabled": true
+          }
+        ]
+      },
+      {
+        "Name": "NPR",
+        "Enabled": true,
+        "Cron": "24,54 * * * *",
+        "SaveRawResponses": true,
+        "Feeds": [
+          {
+            "Name": "News",
+            "Url": "https://feeds.npr.org/1001/rss.xml",
+            "Category": "General",
+            "Language": "en",
+            "Enabled": true
+          }
+        ]
+      },
+      {
+        "Name": "ABCNews",
+        "Enabled": true,
+        "Cron": "0,30 * * * *",
+        "SaveRawResponses": true,
+        "Feeds": [
+          {
+            "Name": "TopStories",
+            "Url": "https://feeds.abcnews.com/abcnews/topstories",
+            "Category": "General",
+            "Language": "en",
+            "Enabled": true
+          },
+          {
+            "Name": "US",
+            "Url": "https://feeds.abcnews.com/abcnews/usheadlines",
+            "Category": "General",
+            "Language": "en",
+            "Enabled": true
+          },
+          {
+            "Name": "Politics",
+            "Url": "https://feeds.abcnews.com/abcnews/politicsheadlines",
+            "Category": "Politics",
+            "Language": "en",
+            "Enabled": true
+          }
+        ]
+      },
+      {
+        "Name": "CBSNews",
+        "Enabled": true,
+        "Cron": "11,41 * * * *",
+        "SaveRawResponses": true,
+        "Feeds": [
+          {
+            "Name": "Main",
+            "Url": "https://www.cbsnews.com/latest/rss/main",
+            "Category": "General",
+            "Language": "en",
+            "Enabled": true
+          },
+          {
+            "Name": "US",
+            "Url": "https://www.cbsnews.com/latest/rss/us",
+            "Category": "General",
+            "Language": "en",
+            "Enabled": true
+          },
+          {
+            "Name": "Politics",
+            "Url": "https://www.cbsnews.com/latest/rss/politics",
+            "Category": "Politics",
+            "Language": "en",
+            "Enabled": true
+          }
+        ]
+      },
+      {
+        "Name": "NBCNews",
+        "Enabled": true,
+        "Cron": "6,36 * * * *",
+        "SaveRawResponses": true,
+        "Feeds": [
+          {
+            "Name": "News",
+            "Url": "https://feeds.nbcnews.com/nbcnews/public/news",
+            "Category": "General",
+            "Language": "en",
+            "Enabled": true
+          },
+          {
+            "Name": "Politics",
+            "Url": "https://feeds.nbcnews.com/nbcnews/public/politics",
+            "Category": "Politics",
+            "Language": "en",
+            "Enabled": true
+          }
+        ]
+      },
+      {
+        "Name": "FoxNews",
+        "Enabled": true,
+        "Cron": "14,44 * * * *",
+        "SaveRawResponses": true,
+        "Feeds": [
+          {
+            "Name": "Latest",
+            "Url": "https://feeds.foxnews.com/foxnews/latest",
+            "Category": "General",
+            "Language": "en",
+            "Enabled": true
+          },
+          {
+            "Name": "Politics",
+            "Url": "https://feeds.foxnews.com/foxnews/politics",
+            "Category": "Politics",
+            "Language": "en",
+            "Enabled": true
+          },
+          {
+            "Name": "National",
+            "Url": "https://feeds.foxnews.com/foxnews/national",
+            "Category": "General",
+            "Language": "en",
+            "Enabled": true
+          }
+        ]
+      },
+      {
+        "Name": "WashingtonPost",
+        "Enabled": true,
+        "Cron": "17,47 * * * *",
+        "SaveRawResponses": true,
+        "Feeds": [
+          {
+            "Name": "Politics",
+            "Url": "https://feeds.washingtonpost.com/rss/politics",
+            "Category": "Politics",
+            "Language": "en",
+            "Enabled": true
+          },
+          {
+            "Name": "National",
+            "Url": "https://feeds.washingtonpost.com/rss/national",
+            "Category": "General",
+            "Language": "en",
+            "Enabled": true
+          },
+          {
+            "Name": "World",
+            "Url": "https://feeds.washingtonpost.com/rss/world",
+            "Category": "World",
+            "Language": "en",
+            "Enabled": true
+          }
+        ]
+      },
+      {
+        "Name": "WSJ",
+        "Enabled": true,
+        "Cron": "23,53 * * * *",
+        "SaveRawResponses": true,
+        "Feeds": [
+          {
+            "Name": "WorldNews",
+            "Url": "https://feeds.a.dj.com/rss/RSSWorldNews.xml",
+            "Category": "World",
+            "Language": "en",
+            "Enabled": true
+          },
+          {
+            "Name": "Markets",
+            "Url": "https://feeds.a.dj.com/rss/RSSMarketsMain.xml",
+            "Category": "Business",
+            "Language": "en",
+            "Enabled": true
+          }
+        ]
+      },
+      {
+        "Name": "Bloomberg",
+        "Enabled": true,
+        "Cron": "0,30 * * * *",
+        "SaveRawResponses": true,
+        "Feeds": [
+          {
+            "Name": "Markets",
+            "Url": "https://feeds.bloomberg.com/markets/news.rss",
+            "Category": "Business",
+            "Language": "en",
+            "Enabled": true
+          },
+          {
+            "Name": "Politics",
+            "Url": "https://feeds.bloomberg.com/politics/news.rss",
+            "Category": "Politics",
+            "Language": "en",
+            "Enabled": true
+          },
+          {
+            "Name": "Technology",
+            "Url": "https://feeds.bloomberg.com/technology/news.rss",
+            "Category": "Technology",
+            "Language": "en",
+            "Enabled": true
+          }
+        ]
+      },
+      {
+        "Name": "TheHill",
+        "Enabled": true,
+        "Cron": "20,50 * * * *",
+        "SaveRawResponses": true,
+        "Feeds": [
+          {
+            "Name": "Home",
+            "Url": "https://thehill.com/feed",
+            "Category": "Politics",
+            "Language": "en",
+            "Enabled": true
+          }
+        ]
+      },
+      {
+        "Name": "Newsweek",
+        "Enabled": true,
+        "Cron": "10,40 * * * *",
+        "SaveRawResponses": true,
+        "Feeds": [
+          {
+            "Name": "Home",
+            "Url": "https://www.newsweek.com/rss",
+            "Category": "General",
+            "Language": "en",
+            "Enabled": true
+          }
+        ]
+      },
+      {
+        "Name": "Time",
+        "Enabled": true,
+        "Cron": "20,50 * * * *",
+        "SaveRawResponses": true,
+        "Feeds": [
+          {
+            "Name": "Home",
+            "Url": "https://time.com/feed",
+            "Category": "General",
+            "Language": "en",
+            "Enabled": true
+          }
+        ]
+      },
+      {
+        "Name": "Forbes",
+        "Enabled": true,
+        "Cron": "5,35 * * * *",
+        "SaveRawResponses": true,
+        "Feeds": [
+          {
+            "Name": "Business",
+            "Url": "https://www.forbes.com/business/feed/",
+            "Category": "Business",
+            "Language": "en",
+            "Enabled": true
+          }
+        ]
+      },
+      {
+        "Name": "Fortune",
+        "Enabled": true,
+        "Cron": "16,46 * * * *",
+        "SaveRawResponses": true,
+        "Feeds": [
+          {
+            "Name": "Home",
+            "Url": "https://fortune.com/feed",
+            "Category": "Business",
+            "Language": "en",
+            "Enabled": true
+          }
+        ]
+      },
+      {
+        "Name": "BusinessInsider",
+        "Enabled": true,
+        "Cron": "21,51 * * * *",
+        "SaveRawResponses": true,
+        "Feeds": [
+          {
+            "Name": "Home",
+            "Url": "https://www.businessinsider.com/rss",
+            "Category": "Business",
+            "Language": "en",
+            "Enabled": true
+          }
+        ]
+      },
+      {
+        "Name": "MarketWatch",
+        "Enabled": true,
+        "Cron": "29,59 * * * *",
+        "SaveRawResponses": true,
+        "Feeds": [
+          {
+            "Name": "TopStories",
+            "Url": "https://feeds.marketwatch.com/marketwatch/topstories",
+            "Category": "Business",
+            "Language": "en",
+            "Enabled": true
+          }
+        ]
+      },
+      {
+        "Name": "CNBC",
+        "Enabled": true,
+        "Cron": "22,52 * * * *",
+        "SaveRawResponses": true,
+        "Feeds": [
+          {
+            "Name": "Business",
+            "Url": "https://www.cnbc.com/id/100003114/device/rss/rss.html",
+            "Category": "Business",
+            "Language": "en",
+            "Enabled": true
+          },
+          {
+            "Name": "TopNews",
+            "Url": "https://www.cnbc.com/id/10000664/device/rss/rss.html",
+            "Category": "General",
+            "Language": "en",
+            "Enabled": true
+          }
+        ]
+      },
+      {
+        "Name": "LATimes",
+        "Enabled": true,
+        "Cron": "3,33 * * * *",
+        "SaveRawResponses": true,
+        "Feeds": [
+          {
+            "Name": "WorldNation",
+            "Url": "https://www.latimes.com/world-nation/rss2.0.xml",
+            "Category": "World",
+            "Language": "en",
+            "Enabled": true
+          }
+        ]
+      },
+      {
+        "Name": "ProPublica",
+        "Enabled": true,
+        "Cron": "16,46 * * * *",
+        "SaveRawResponses": true,
+        "Feeds": [
+          {
+            "Name": "Main",
+            "Url": "https://www.propublica.org/feeds/propublica/main",
+            "Category": "General",
+            "Language": "en",
+            "Enabled": true
+          }
+        ]
+      },
+      {
+        "Name": "PBSNews",
+        "Enabled": true,
+        "Cron": "1,31 * * * *",
+        "SaveRawResponses": true,
+        "Feeds": [
+          {
+            "Name": "Headlines",
+            "Url": "https://www.pbs.org/newshour/feeds/rss/headlines",
+            "Category": "General",
+            "Language": "en",
+            "Enabled": true
+          }
+        ]
+      },
+      {
+        "Name": "Vox",
+        "Enabled": true,
+        "Cron": "3,33 * * * *",
+        "SaveRawResponses": true,
+        "Feeds": [
+          {
+            "Name": "Home",
+            "Url": "https://www.vox.com/rss/index.xml",
+            "Category": "Politics",
+            "Language": "en",
+            "Enabled": true
+          }
+        ]
+      },
+      {
+        "Name": "PolitiFact",
+        "Enabled": true,
+        "Cron": "5,35 * * * *",
+        "SaveRawResponses": true,
+        "Feeds": [
+          {
+            "Name": "Latest",
+            "Url": "https://www.politifact.com/rss/factchecks/",
+            "Category": "FactCheck",
+            "Language": "en",
+            "Enabled": true
+          }
+        ]
+      }
+    ]
+  }
+}

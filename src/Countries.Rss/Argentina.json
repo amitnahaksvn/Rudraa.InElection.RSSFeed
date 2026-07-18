@@ -1,0 +1,53 @@
+{
+  "NewsCrawler": {
+    "Name": "Argentina",
+    "Enabled": true,
+    "Providers": [
+      {
+        "Name": "BuenosAiresTimes",
+        "Enabled": true,
+        "Cron": "2,32 * * * *",
+        "SaveRawResponses": true,
+        "Feeds": [
+          {
+            "Name": "Latest",
+            "Url": "https://www.batimes.com.ar/feed",
+            "Category": "General",
+            "Language": "en",
+            "Enabled": true
+          }
+        ]
+      },
+      {
+        "Name": "LaNacion",
+        "Enabled": true,
+        "Cron": "9,39 * * * *",
+        "SaveRawResponses": true,
+        "Feeds": [
+          {
+            "Name": "Latest",
+            "Url": "https://www.lanacion.com.ar/arc/outboundfeeds/rss/",
+            "Category": "General",
+            "Language": "es",
+            "Enabled": true
+          }
+        ]
+      },
+      {
+        "Name": "Clarin",
+        "Enabled": true,
+        "Cron": "18,48 * * * *",
+        "SaveRawResponses": true,
+        "Feeds": [
+          {
+            "Name": "Latest",
+            "Url": "https://www.clarin.com/rss/lo-ultimo/",
+            "Category": "General",
+            "Language": "es",
+            "Enabled": true
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,38 @@
+{
+  "NewsCrawler": {
+    "Name": "Qatar",
+    "Enabled": true,
+    "Providers": [
+      {
+        "Name": "AlJazeera",
+        "Enabled": true,
+        "Cron": "27,57 * * * *",
+        "SaveRawResponses": true,
+        "Feeds": [
+          {
+            "Name": "AllNews",
+            "Url": "https://www.aljazeera.com/xml/rss/all.xml",
+            "Category": "General",
+            "Language": "en",
+            "Enabled": true
+          }
+        ]
+      },
+      {
+        "Name": "GulfTimes",
+        "Enabled": true,
+        "Cron": "18,48 * * * *",
+        "SaveRawResponses": true,
+        "Feeds": [
+          {
+            "Name": "Home",
+            "Url": "https://www.gulf-times.com/rssFeed/9",
+            "Category": "General",
+            "Language": "en",
+            "Enabled": true
+          }
+        ]
+      }
+    ]
+  }
+}

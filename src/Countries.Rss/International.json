@@ -1,0 +1,38 @@
+{
+  "NewsCrawler": {
+    "Name": "International",
+    "Enabled": true,
+    "Providers": [
+      {
+        "Name": "UNNews",
+        "Enabled": true,
+        "Cron": "29,59 * * * *",
+        "SaveRawResponses": true,
+        "Feeds": [
+          {
+            "Name": "Latest",
+            "Url": "https://news.un.org/feed/subscribe/en/news/all/rss.xml",
+            "Category": "General",
+            "Language": "en",
+            "Enabled": true
+          }
+        ]
+      },
+      {
+        "Name": "Snopes",
+        "Enabled": true,
+        "Cron": "2,32 * * * *",
+        "SaveRawResponses": true,
+        "Feeds": [
+          {
+            "Name": "Latest",
+            "Url": "https://www.snopes.com/feed/",
+            "Category": "FactCheck",
+            "Language": "en",
+            "Enabled": true
+          }
+        ]
+      }
+    ]
+  }
+}

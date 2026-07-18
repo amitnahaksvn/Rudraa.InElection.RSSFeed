@@ -1,0 +1,23 @@
+{
+  "NewsCrawler": {
+    "Name": "Bangladesh",
+    "Enabled": true,
+    "Providers": [
+      {
+        "Name": "TheDailyStar",
+        "Enabled": true,
+        "Cron": "14,44 * * * *",
+        "SaveRawResponses": true,
+        "Feeds": [
+          {
+            "Name": "Latest",
+            "Url": "https://www.thedailystar.net/frontpage/rss.xml",
+            "Category": "General",
+            "Language": "en",
+            "Enabled": true
+          }
+        ]
+      }
+    ]
+  }
+}

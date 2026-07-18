@@ -1,0 +1,53 @@
+{
+  "NewsCrawler": {
+    "Name": "Philippines",
+    "Enabled": true,
+    "Providers": [
+      {
+        "Name": "Inquirer",
+        "Enabled": true,
+        "Cron": "22,52 * * * *",
+        "SaveRawResponses": true,
+        "Feeds": [
+          {
+            "Name": "Latest",
+            "Url": "https://newsinfo.inquirer.net/feed",
+            "Category": "General",
+            "Language": "en",
+            "Enabled": true
+          }
+        ]
+      },
+      {
+        "Name": "Rappler",
+        "Enabled": true,
+        "Cron": "5,35 * * * *",
+        "SaveRawResponses": true,
+        "Feeds": [
+          {
+            "Name": "Latest",
+            "Url": "https://www.rappler.com/rss/",
+            "Category": "General",
+            "Language": "en",
+            "Enabled": true
+          }
+        ]
+      },
+      {
+        "Name": "GMANews",
+        "Enabled": true,
+        "Cron": "15,45 * * * *",
+        "SaveRawResponses": true,
+        "Feeds": [
+          {
+            "Name": "Latest",
+            "Url": "https://data.gmanetwork.com/gno/rss/news/nation/feed.xml",
+            "Category": "General",
+            "Language": "en",
+            "Enabled": true
+          }
+        ]
+      }
+    ]
+  }
+}

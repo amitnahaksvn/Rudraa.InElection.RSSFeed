@@ -1,0 +1,38 @@
+{
+  "NewsCrawler": {
+    "Name": "Brazil",
+    "Enabled": true,
+    "Providers": [
+      {
+        "Name": "Folha",
+        "Enabled": true,
+        "Cron": "19,49 * * * *",
+        "SaveRawResponses": true,
+        "Feeds": [
+          {
+            "Name": "Latest",
+            "Url": "https://feeds.folha.uol.com.br/emcimadahora/rss091.xml",
+            "Category": "General",
+            "Language": "pt",
+            "Enabled": true
+          }
+        ]
+      },
+      {
+        "Name": "BrazilReports",
+        "Enabled": true,
+        "Cron": "2,32 * * * *",
+        "SaveRawResponses": true,
+        "Feeds": [
+          {
+            "Name": "Latest",
+            "Url": "https://brazilreports.com/feed/",
+            "Category": "General",
+            "Language": "en",
+            "Enabled": true
+          }
+        ]
+      }
+    ]
+  }
+}

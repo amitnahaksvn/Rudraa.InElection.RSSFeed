@@ -1,0 +1,306 @@
+{
+  "NewsApiCrawler": {
+    "Name": "Canada",
+    "Enabled": true,
+    "Providers": [
+      {
+        "Name": "NewsApiOrg",
+        "Enabled": true,
+        "Cron": "17 3 * * *",
+        "BaseUrl": "https://newsapi.org/v2",
+        "AuthType": "QueryParameter",
+        "AuthParamName": "apiKey",
+        "TimeoutSeconds": 30,
+        "Endpoints": [
+          {
+            "Name": "Everything",
+            "Endpoint": "everything",
+            "QueryParameters": {
+              "q": "Canada politics",
+              "language": "en",
+              "sortBy": "publishedAt",
+              "pageSize": "50"
+            },
+            "Category": "Politics",
+            "Language": "en",
+            "Enabled": true
+          },
+          {
+            "Name": "TopHeadlines",
+            "Endpoint": "top-headlines",
+            "QueryParameters": {
+              "category": "general",
+              "country": "ca",
+              "pageSize": "50"
+            },
+            "Category": "General",
+            "Language": "en",
+            "Enabled": true
+          }
+        ]
+      },
+      {
+        "Name": "GNews",
+        "Enabled": true,
+        "Cron": "23 4 * * *",
+        "BaseUrl": "https://gnews.io/api/v4",
+        "AuthType": "QueryParameter",
+        "AuthParamName": "apikey",
+        "TimeoutSeconds": 30,
+        "Endpoints": [
+          {
+            "Name": "Search",
+            "Endpoint": "search",
+            "QueryParameters": {
+              "q": "Canada politics",
+              "lang": "en",
+              "country": "ca",
+              "max": "10"
+            },
+            "Category": "Politics",
+            "Language": "en",
+            "Enabled": true
+          },
+          {
+            "Name": "TopHeadlines",
+            "Endpoint": "top-headlines",
+            "QueryParameters": {
+              "category": "nation",
+              "lang": "en",
+              "country": "ca",
+              "max": "10"
+            },
+            "Category": "General",
+            "Language": "en",
+            "Enabled": true
+          }
+        ]
+      },
+      {
+        "Name": "TheNewsAPI",
+        "Enabled": true,
+        "Cron": "9 7 * * *",
+        "BaseUrl": "https://api.thenewsapi.com/v1/news",
+        "AuthType": "QueryParameter",
+        "AuthParamName": "api_token",
+        "TimeoutSeconds": 30,
+        "Endpoints": [
+          {
+            "Name": "All",
+            "Endpoint": "all",
+            "QueryParameters": {
+              "search": "Canada politics",
+              "language": "en",
+              "categories": "politics",
+              "limit": "25"
+            },
+            "Category": "Politics",
+            "Language": "en",
+            "Enabled": true
+          },
+          {
+            "Name": "Top",
+            "Endpoint": "top",
+            "QueryParameters": {
+              "locale": "ca",
+              "language": "en",
+              "limit": "25"
+            },
+            "Category": "General",
+            "Language": "en",
+            "Enabled": true
+          }
+        ]
+      },
+      {
+        "Name": "CurrentsAPI",
+        "Enabled": true,
+        "Cron": "37 */2 * * *",
+        "BaseUrl": "https://api.currentsapi.services/v1",
+        "AuthType": "QueryParameter",
+        "AuthParamName": "apiKey",
+        "TimeoutSeconds": 30,
+        "Endpoints": [
+          {
+            "Name": "LatestNews",
+            "Endpoint": "latest-news",
+            "QueryParameters": {
+              "language": "en",
+              "category": "politics",
+              "keywords": "Canada politics"
+            },
+            "Category": "Politics",
+            "Language": "en",
+            "Enabled": true
+          },
+          {
+            "Name": "Search",
+            "Endpoint": "search",
+            "QueryParameters": {
+              "language": "en",
+              "country": "CA",
+              "keywords": "Canada politics"
+            },
+            "Category": "Politics",
+            "Language": "en",
+            "Enabled": true
+          }
+        ]
+      },
+      {
+        "Name": "Mediastack",
+        "Enabled": true,
+        "Cron": "5 9 */2 * *",
+        "BaseUrl": "http://api.mediastack.com/v1",
+        "AuthType": "QueryParameter",
+        "AuthParamName": "access_key",
+        "TimeoutSeconds": 30,
+        "Endpoints": [
+          {
+            "Name": "News",
+            "Endpoint": "news",
+            "QueryParameters": {
+              "keywords": "Canada politics",
+              "languages": "en",
+              "countries": "ca",
+              "categories": "general",
+              "limit": "25"
+            },
+            "Category": "Politics",
+            "Language": "en",
+            "Enabled": true
+          }
+        ]
+      },
+      {
+        "Name": "NewsDataIo",
+        "Enabled": true,
+        "Cron": "31 5 * * *",
+        "BaseUrl": "https://newsdata.io/api/1",
+        "AuthType": "QueryParameter",
+        "AuthParamName": "apikey",
+        "TimeoutSeconds": 30,
+        "Endpoints": [
+          {
+            "Name": "Latest",
+            "Endpoint": "latest",
+            "QueryParameters": {
+              "q": "Canada politics",
+              "country": "ca",
+              "language": "en",
+              "category": "politics"
+            },
+            "Category": "Politics",
+            "Language": "en",
+            "Enabled": true
+          }
+        ]
+      },
+      {
+        "Name": "WorldNewsAPI",
+        "Enabled": false,
+        "Cron": "12 */6 * * *",
+        "BaseUrl": "https://api.worldnewsapi.com",
+        "AuthType": "HttpHeader",
+        "AuthParamName": "x-api-key",
+        "TimeoutSeconds": 30,
+        "Endpoints": [
+          {
+            "Name": "SearchNews",
+            "Endpoint": "search-news",
+            "QueryParameters": {
+              "text": "Canada politics",
+              "language": "en",
+              "source-countries": "ca",
+              "number": "25"
+            },
+            "Category": "Politics",
+            "Language": "en",
+            "Enabled": true
+          },
+          {
+            "Name": "TopNews",
+            "Endpoint": "top-news",
+            "QueryParameters": {
+              "source-country": "ca",
+              "language": "en"
+            },
+            "Category": "General",
+            "Language": "en",
+            "Enabled": true
+          }
+        ]
+      },
+      {
+        "Name": "EventRegistry",
+        "Enabled": true,
+        "Cron": "42 6 * * *",
+        "BaseUrl": "https://eventregistry.org/api/v1/article/getArticles",
+        "AuthType": "QueryParameter",
+        "AuthParamName": "apiKey (ignored - EventRegistryProvider is a custom implementation that puts the key in the POST body itself, still read from NewsApiKeys:EventRegistry)",
+        "TimeoutSeconds": 30,
+        "Endpoints": [
+          {
+            "Name": "GetArticles",
+            "Endpoint": "",
+            "QueryParameters": {
+              "keyword": "Canada politics",
+              "lang": "eng"
+            },
+            "Category": "Politics",
+            "Language": "en",
+            "Enabled": true
+          }
+        ]
+      },
+      {
+        "Name": "GDELT",
+        "Enabled": true,
+        "Cron": "8 * * * *",
+        "BaseUrl": "https://api.gdeltproject.org/api/v2/doc",
+        "AuthType": "None",
+        "AuthParamName": "",
+        "TimeoutSeconds": 30,
+        "Endpoints": [
+          {
+            "Name": "DocSearch",
+            "Endpoint": "doc",
+            "QueryParameters": {
+              "query": "Canada politics sourcecountry:CA",
+              "mode": "artlist",
+              "format": "json",
+              "maxrecords": "75"
+            },
+            "Category": "Politics",
+            "Language": "en",
+            "Enabled": true
+          }
+        ]
+      },
+      {
+        "Name": "SerpApiGoogleNews",
+        "Enabled": true,
+        "Cron": "54 8 * * *",
+        "BaseUrl": "https://serpapi.com",
+        "AuthType": "QueryParameter",
+        "AuthParamName": "api_key",
+        "TimeoutSeconds": 30,
+        "Endpoints": [
+          {
+            "Name": "GoogleNews",
+            "Endpoint": "search.json",
+            "QueryParameters": {
+              "engine": "google_news",
+              "q": "Canada politics",
+              "gl": "ca",
+              "hl": "en"
+            },
+            "Category": "Politics",
+            "Language": "en",
+            "Enabled": true
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -5,10 +5,12 @@ namespace PoliticalNews.Tests.Infrastructure;
 
 /// <summary>
 /// Guards against a malformed "Cron" string ever landing in the checked-in provider config -
-/// every RSS/API provider's Cron (in the shared src/NewsCrawler.appsettings.json plus every
-/// per-country src/Countries/*.json file merged into it, see Web/Program.cs's
-/// BuildMergedNewsCrawlerConfigStream) must parse as a valid 5-field cron expression, the same
-/// parser (Cronos) the live "create/update recurring job" endpoint validates against.
+/// every RSS provider's Cron (in src/WebRssFeed.appsettings.json plus every per-country
+/// src/Countries.Rss/*.json file merged into it) and every API provider's Cron (the same shape
+/// under src/WebApiFeed.appsettings.json/src/Countries.Api/*.json), see
+/// WebPlatform/SplitCountryConfigLoader's merge logic, must parse as a valid 5-field cron
+/// expression, the same parser (Cronos) the live "create/update recurring job" endpoint validates
+/// against.
 /// </summary>
 public class ProviderCronConfigTests
 {
@@ -16,8 +18,13 @@ public class ProviderCronConfigTests
     public void EveryConfiguredProviderCron_ParsesAsAValidCronExpression()
     {
         var repoRoot = FindRepoRoot();
-        var configFiles = new List<string> { Path.Combine(repoRoot, "src", "NewsCrawler.appsettings.json") };
-        configFiles.AddRange(Directory.GetFiles(Path.Combine(repoRoot, "src", "Countries"), "*.json"));
+        var configFiles = new List<string>
+        {
+            Path.Combine(repoRoot, "src", "WebRssFeed.appsettings.json"),
+            Path.Combine(repoRoot, "src", "WebApiFeed.appsettings.json")
+        };
+        configFiles.AddRange(Directory.GetFiles(Path.Combine(repoRoot, "src", "Countries.Rss"), "*.json"));
+        configFiles.AddRange(Directory.GetFiles(Path.Combine(repoRoot, "src", "Countries.Api"), "*.json"));
 
         var failures = new List<string>();
 

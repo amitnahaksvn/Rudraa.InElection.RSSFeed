@@ -1,0 +1,74 @@
+{
+  "NewsCrawler": {
+    "Name": "Italy",
+    "Enabled": true,
+    "Providers": [
+      {
+        "Name": "ANSA",
+        "Enabled": true,
+        "Cron": "23,53 * * * *",
+        "SaveRawResponses": true,
+        "Feeds": [
+          {
+            "Name": "Latest",
+            "Url": "https://www.ansa.it/english/english_rss.xml",
+            "Category": "General",
+            "Language": "en",
+            "Enabled": true
+          }
+        ]
+      },
+      {
+        "Name": "CorriereDellaSera",
+        "Enabled": true,
+        "Cron": "27,57 * * * *",
+        "SaveRawResponses": true,
+        "Feeds": [
+          {
+            "Name": "Latest",
+            "Url": "https://xml2.corriereobjects.it/rss/homepage.xml",
+            "Category": "General",
+            "Language": "it",
+            "Enabled": true
+          }
+        ]
+      },
+      {
+        "Name": "IlSole24Ore",
+        "Enabled": true,
+        "Cron": "14,44 * * * *",
+        "SaveRawResponses": true,
+        "Feeds": [
+          {
+            "Name": "Latest",
+            "Url": "https://www.ilsole24ore.com/rss/italia.xml",
+            "Category": "General",
+            "Language": "it",
+            "Enabled": true
+          },
+          {
+            "Name": "Politics",
+            "Url": "https://www.ilsole24ore.com/rss/italia--politica.xml",
+            "Category": "Politics",
+            "Language": "it",
+            "Enabled": true
+          },
+          {
+            "Name": "Business",
+            "Url": "https://www.ilsole24ore.com/rss/economia.xml",
+            "Category": "Business",
+            "Language": "it",
+            "Enabled": true
+          },
+          {
+            "Name": "World",
+            "Url": "https://www.ilsole24ore.com/rss/mondo.xml",
+            "Category": "World",
+            "Language": "it",
+            "Enabled": true
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,38 @@
+{
+  "NewsCrawler": {
+    "Name": "Ghana",
+    "Enabled": true,
+    "Providers": [
+      {
+        "Name": "JoyNews",
+        "Enabled": true,
+        "Cron": "25,55 * * * *",
+        "SaveRawResponses": true,
+        "Feeds": [
+          {
+            "Name": "Latest",
+            "Url": "https://www.myjoyonline.com/feed/",
+            "Category": "General",
+            "Language": "en",
+            "Enabled": true
+          }
+        ]
+      },
+      {
+        "Name": "GraphicOnline",
+        "Enabled": true,
+        "Cron": "26,56 * * * *",
+        "SaveRawResponses": true,
+        "Feeds": [
+          {
+            "Name": "Latest",
+            "Url": "https://www.graphic.com.gh/?format=feed&type=rss",
+            "Category": "General",
+            "Language": "en",
+            "Enabled": true
+          }
+        ]
+      }
+    ]
+  }
+}

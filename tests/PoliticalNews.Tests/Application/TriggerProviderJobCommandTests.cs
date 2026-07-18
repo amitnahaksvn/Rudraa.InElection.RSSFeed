@@ -36,7 +36,7 @@ public class TriggerProviderJobCommandTests
 
         var handler = new TriggerProviderJobCommandHandler(trigger.Object);
 
-        var result = await handler.Handle(new TriggerProviderJobCommand("AajTak"), CancellationToken.None);
+        var result = await handler.Handle(new TriggerProviderJobCommand(CrawlPipeline.Rss, "AajTak"), CancellationToken.None);
 
         Assert.Equal("AajTak", result.Provider);
         Assert.Equal("news-crawl-AajTak", result.JobId);
@@ -52,9 +52,9 @@ public class TriggerProviderJobCommandTests
     [InlineData("", false)]
     public void Validator_OnlyAcceptsEnabledProvidersWithACron(string provider, bool expectedValid)
     {
-        var validator = new TriggerProviderJobCommandValidator(Options.Create(BuildOptions()));
+        var validator = new TriggerProviderJobCommandValidator(Options.Create(BuildOptions()), Options.Create(new NewsApiCrawlerOptions()));
 
-        var result = validator.Validate(new TriggerProviderJobCommand(provider));
+        var result = validator.Validate(new TriggerProviderJobCommand(CrawlPipeline.Rss, provider));
 
         Assert.Equal(expectedValid, result.IsValid);
     }
