@@ -201,6 +201,35 @@ public static class HangfireRecurringJobRegistrar
     }
 
     /// <summary>
+    /// Registers the recurring job that batches every not-yet-emailed <c>ErrorLog</c> row into one
+    /// summary email (see <see cref="Application.Services.ErrorNotificationDispatchService"/>) -
+    /// independent of every crawl/API/dynamic-feed schedule, since errors are persisted immediately
+    /// wherever they occur and this job only decides when to actually email what's piled up.
+    /// </summary>
+    public static void RegisterErrorNotificationDispatchRecurringJob(IServiceProvider services, ILogger logger)
+    {
+        var options = services.GetRequiredService<IOptions<ErrorNotificationOptions>>().Value;
+
+        if (string.IsNullOrWhiteSpace(options.DispatchCron))
+        {
+            logger.LogWarning("ErrorNotification:DispatchCron is not configured - no dispatch job registered");
+            return;
+        }
+
+        var recurringJobManager = services.GetRequiredService<IRecurringJobManager>();
+
+        recurringJobManager.AddOrUpdate<HangfireErrorNotificationDispatchExecutor>(
+            HangfireJobIds.ErrorNotificationDispatch,
+            executor => executor.RunAsync(null!, CancellationToken.None),
+            options.DispatchCron,
+            RecurringJobOptionsFactory.Create(TimeZoneInfo.Utc));
+
+        logger.LogInformation(
+            "Registered Hangfire recurring job '{JobId}' with cron '{Cron}', max batch size {BatchSize}",
+            HangfireJobIds.ErrorNotificationDispatch, options.DispatchCron, options.MaxBatchSize);
+    }
+
+    /// <summary>
     /// Bootstraps the Mongo-driven <c>FeedSource</c> pipeline: seeds the Phase 1 PIB feed if missing,
     /// then registers one Hangfire recurring job per currently-active <c>FeedSource</c> document.
     /// Unlike <see cref="RegisterNewsCrawlerRecurringJobsAsync"/> (whose provider list is fixed at compile

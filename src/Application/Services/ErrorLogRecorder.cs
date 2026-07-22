@@ -9,11 +9,15 @@ namespace Application.Services;
 
 /// <summary>
 /// Converts an <see cref="ErrorNotification"/> (the in-flight capture built at the moment a failure
-/// happens) into a persisted <see cref="ErrorLog"/> row and inserts it, surfaced live via the
-/// error-monitor SPA/SignalR hub rather than emailed. Used by every crawler orchestrator
-/// (<see cref="NewsCrawlerOrchestrator"/>, <see cref="NewsApiCrawlerOrchestrator"/>) and, directly,
-/// by <c>DynamicFeedIngestionService</c> for its single-error case - "never let a failure recording
-/// itself fail the run" is cheap, defensive insurance around every insert here.
+/// happens) into a persisted <see cref="ErrorLog"/> row and inserts it - replacing the immediate
+/// per-error/per-run email this codebase used to send. Errors are now recorded here and emailed
+/// later, in a batch, by the error-notification dispatch job on its own schedule
+/// (<c>ErrorNotificationDispatchService</c>) - so a burst of failures never floods the inbox and a
+/// temporarily-down email pipeline never loses an error, only delays its notification. Used by
+/// every crawler orchestrator (<see cref="NewsCrawlerOrchestrator"/>, <see cref="NewsApiCrawlerOrchestrator"/>)
+/// and, directly, by <c>DynamicFeedIngestionService</c> for its single-error case - "never let a
+/// failure recording itself fail the run" is cheap, defensive insurance the same way the email send
+/// it replaces used to guarantee.
 /// </summary>
 public static class ErrorLogRecorder
 {

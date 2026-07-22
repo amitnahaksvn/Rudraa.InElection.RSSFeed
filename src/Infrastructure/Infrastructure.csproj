@@ -6,6 +6,18 @@
   </ItemGroup>
 
   <ItemGroup>
+    <!--
+      Editable email branding/chrome (see the file's own header comment) - copied verbatim to
+      Email/Templates/Layout.html next to the built DLL (and, via this ProjectReference, into
+      Web's own output too) so it can be tweaked post-deploy without recompiling anything.
+    -->
+    <Content Include="Email\Templates\Layout.html">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Hangfire.Core" Version="1.8.24" />
     <PackageReference Include="MongoDB.Driver" Version="3.10.0" />
     <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="10.0.10" />
@@ -16,6 +28,7 @@
     <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
     <PackageReference Include="Polly" Version="8.7.0" />
     <PackageReference Include="Polly.Extensions.Http" Version="3.0.0" />
+    <PackageReference Include="Resend" Version="0.6.0" />
   </ItemGroup>
 
   <PropertyGroup>

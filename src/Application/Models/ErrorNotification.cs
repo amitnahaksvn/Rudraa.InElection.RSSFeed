@@ -3,10 +3,11 @@ namespace Application.Models;
 /// <summary>
 /// Everything captured about a single failure, from wherever it happened (an RSS feed fetch, a
 /// JSON news-API endpoint call, MongoDB persistence, or any other unexpected exception) through
-/// to the persisted <see cref="Domain.Entities.ErrorLog"/> row <see cref="Services.ErrorLogRecorder"/>
-/// builds from it. Deliberately a flat record of optional fields rather than a class hierarchy per
-/// error source, since most fields (ExceptionType/ErrorMessage/StackTrace) apply everywhere and the
-/// source-specific ones (HttpStatusCode, ResponseBody, ...) are simply left null when not applicable.
+/// to what <see cref="Abstractions.IEmailService"/> renders into an alert email. Deliberately a
+/// flat record of optional fields rather than a class hierarchy per error source, since most
+/// fields (ExceptionType/ErrorMessage/StackTrace) apply everywhere and the source-specific ones
+/// (HttpStatusCode, ResponseBody, ...) are simply left null when not applicable - the email
+/// template already renders "if available" for exactly that reason.
 /// </summary>
 public sealed record ErrorNotification
 {
@@ -43,6 +44,7 @@ public sealed record ErrorNotification
 
     public string? RequestUrl { get; init; }
 
+    /// <summary>Truncated at the template layer to keep the email a reasonable size - see <c>EmailTemplateBuilder</c>.</summary>
     public string? ResponseBody { get; init; }
 
     public string? CorrelationId { get; init; }

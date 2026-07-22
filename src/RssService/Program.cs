@@ -90,13 +90,13 @@ builder.Services.AddHealthChecks().AddMongoDb(name: "mongodb");
 var app = builder.Build();
 
 // Registers/refreshes every Hangfire recurring job this host owns (RSS providers, Mongo-driven
-// dynamic feeds) against this process's own Hangfire server registered above - re-synced on every
-// startup. Fire-and-forget, not awaited: with 260+ RSS providers this can take real time even
-// with the concurrent registration inside HangfireRecurringJobRegistrar (each AddOrUpdate is its
-// own Mongo round trip), and none of it needs to finish before the health-check listener below
-// can start serving - the Hangfire Server's own RecurringJobScheduler dispatcher (already running
-// via AddHangfireServer above) picks up newly-registered jobs on its own polling interval
-// regardless of when this finishes.
+// dynamic feeds, error-notification dispatch) against this process's own Hangfire server
+// registered above - re-synced on every startup. Fire-and-forget, not awaited: with 260+ RSS
+// providers this can take real time even with the concurrent registration inside
+// HangfireRecurringJobRegistrar (each AddOrUpdate is its own Mongo round trip), and none of it
+// needs to finish before the health-check listener below can start serving - the Hangfire
+// Server's own RecurringJobScheduler dispatcher (already running via AddHangfireServer above)
+// picks up newly-registered jobs on its own polling interval regardless of when this finishes.
 var startupLogger = app.Services.GetRequiredService<ILogger<Program>>();
 
 _ = Task.Run(async () =>
@@ -116,6 +116,7 @@ _ = Task.Run(async () =>
 
         await HangfireRecurringJobRegistrar.RegisterNewsCrawlerRecurringJobsAsync(app.Services, startupLogger);
         await HangfireRecurringJobRegistrar.SeedAndRegisterDynamicFeedRecurringJobsAsync(app.Services, startupLogger);
+        HangfireRecurringJobRegistrar.RegisterErrorNotificationDispatchRecurringJob(app.Services, startupLogger);
     }
     catch (Exception ex)
     {

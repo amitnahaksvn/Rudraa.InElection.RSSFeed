@@ -30,8 +30,15 @@ public static class ApplicationServiceCollectionExtensions
             .ValidateDataAnnotations()
             .ValidateOnStart();
 
+        services
+            .AddOptions<ErrorNotificationOptions>()
+            .Bind(configuration.GetSection(ErrorNotificationOptions.SectionName))
+            .ValidateDataAnnotations()
+            .ValidateOnStart();
+
         services.AddSingleton<INewsCrawlerService, NewsCrawlerOrchestrator>();
         services.AddSingleton<INewsApiCrawlerService, NewsApiCrawlerOrchestrator>();
+        services.AddSingleton<IErrorNotificationDispatchService, ErrorNotificationDispatchService>();
 
         services.AddMediator(options => options.ServiceLifetime = ServiceLifetime.Singleton);
         services.AddValidatorsFromAssembly(typeof(ApplicationServiceCollectionExtensions).Assembly, ServiceLifetime.Singleton);
