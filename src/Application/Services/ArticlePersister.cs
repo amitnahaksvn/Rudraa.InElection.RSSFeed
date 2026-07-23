@@ -55,7 +55,7 @@ internal static class ArticlePersister
                 FeedName = normalized.FeedName,
                 Category = normalized.Category,
                 Title = normalized.Title,
-                Summary = normalized.Summary,
+                Summary = DescriptionNormalizer.Clean(normalized.Summary),
                 Content = normalized.Content,
                 Url = normalized.Url,
                 OriginalGuid = normalized.OriginalGuid,
