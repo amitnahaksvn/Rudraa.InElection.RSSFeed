@@ -1,7 +1,7 @@
 {
   "NewsCrawler": {
     "Name": "Russia",
-    "Enabled": true,
+    "Enabled": false,
     "Providers": [
       {
         "Name": "TASS",

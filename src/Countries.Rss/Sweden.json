@@ -1,7 +1,7 @@
 {
   "NewsCrawler": {
     "Name": "Sweden",
-    "Enabled": true,
+    "Enabled": false,
     "Providers": [
       {
         "Name": "SVTNews",

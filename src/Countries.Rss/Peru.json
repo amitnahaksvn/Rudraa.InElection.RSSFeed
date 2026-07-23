@@ -1,7 +1,7 @@
 {
   "NewsCrawler": {
     "Name": "Peru",
-    "Enabled": true,
+    "Enabled": false,
     "Providers": [
       {
         "Name": "Andina",

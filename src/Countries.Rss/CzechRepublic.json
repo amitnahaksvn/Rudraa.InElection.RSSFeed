@@ -1,7 +1,7 @@
 {
   "NewsCrawler": {
     "Name": "Czech Republic",
-    "Enabled": true,
+    "Enabled": false,
     "Providers": [
       {
         "Name": "CTK",

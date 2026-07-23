@@ -1,7 +1,7 @@
 {
   "NewsCrawler": {
     "Name": "Australia",
-    "Enabled": true,
+    "Enabled": false,
     "Providers": [
       {
         "Name": "ABCNewsAustralia",

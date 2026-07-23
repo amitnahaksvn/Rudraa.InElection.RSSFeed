@@ -1,7 +1,7 @@
 {
   "NewsApiCrawler": {
     "Name": "Canada",
-    "Enabled": true,
+    "Enabled": false,
     "Providers": [
       {
         "Name": "NewsApiOrg",

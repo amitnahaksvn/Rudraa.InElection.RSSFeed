@@ -1,7 +1,7 @@
 {
   "NewsApiCrawler": {
     "Name": "Oman",
-    "Enabled": true,
+    "Enabled": false,
     "Providers": [
       {
         "Name": "NewsApiOrg",

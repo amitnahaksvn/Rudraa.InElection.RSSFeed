@@ -1,7 +1,7 @@
 {
   "NewsCrawler": {
     "Name": "Jordan",
-    "Enabled": true,
+    "Enabled": false,
     "Providers": [
       {
         "Name": "RoyaNews",

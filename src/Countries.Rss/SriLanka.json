@@ -1,7 +1,7 @@
 {
   "NewsCrawler": {
     "Name": "Sri Lanka",
-    "Enabled": true,
+    "Enabled": false,
     "Providers": [
       {
         "Name": "AdaDerana",

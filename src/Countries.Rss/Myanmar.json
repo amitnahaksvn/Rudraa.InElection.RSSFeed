@@ -1,7 +1,7 @@
 {
   "NewsCrawler": {
     "Name": "Myanmar",
-    "Enabled": true,
+    "Enabled": false,
     "Providers": [
       {
         "Name": "MyanmarNow",

@@ -1,7 +1,9 @@
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Application.Abstractions;
 using Application.Models;
+using Application.Options;
 using Domain.Entities;
 using Domain.Enums;
 
@@ -22,29 +24,35 @@ public sealed class SocialMediaIngestionService : ISocialMediaIngestionService
     private readonly ISocialMediaSourceRepository _sourceRepository;
     private readonly IEnumerable<ISocialPlatformFetcher> _fetchers;
     private readonly INewsArticleRepository _articleRepository;
+    private readonly IFilteredArticleRepository _filteredArticleRepository;
     private readonly ICrawlHistoryRepository _historyRepository;
     private readonly IErrorLogRepository _errorLogRepository;
     private readonly IHostEnvironment _hostEnvironment;
     private readonly IEnumerable<IArticleNormalizer> _normalizers;
+    private readonly NewsFilterOptions _newsFilterOptions;
     private readonly ILogger<SocialMediaIngestionService> _logger;
 
     public SocialMediaIngestionService(
         ISocialMediaSourceRepository sourceRepository,
         IEnumerable<ISocialPlatformFetcher> fetchers,
         INewsArticleRepository articleRepository,
+        IFilteredArticleRepository filteredArticleRepository,
         ICrawlHistoryRepository historyRepository,
         IErrorLogRepository errorLogRepository,
         IHostEnvironment hostEnvironment,
         IEnumerable<IArticleNormalizer> normalizers,
+        IOptions<NewsFilterOptions> newsFilterOptions,
         ILogger<SocialMediaIngestionService> logger)
     {
         _sourceRepository = sourceRepository;
         _fetchers = fetchers;
         _articleRepository = articleRepository;
+        _filteredArticleRepository = filteredArticleRepository;
         _historyRepository = historyRepository;
         _errorLogRepository = errorLogRepository;
         _hostEnvironment = hostEnvironment;
         _normalizers = normalizers;
+        _newsFilterOptions = newsFilterOptions.Value;
         _logger = logger;
     }
 
@@ -92,8 +100,10 @@ public sealed class SocialMediaIngestionService : ISocialMediaIngestionService
 
             var inserted = await ArticlePersister.PersistAsync(
                 _articleRepository,
+                _filteredArticleRepository,
                 articles.Select(a => a with { Country = source.Country }),
                 _normalizers,
+                _newsFilterOptions,
                 _logger,
                 cancellationToken);
 

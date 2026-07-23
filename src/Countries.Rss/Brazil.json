@@ -1,7 +1,7 @@
 {
   "NewsCrawler": {
     "Name": "Brazil",
-    "Enabled": true,
+    "Enabled": false,
     "Providers": [
       {
         "Name": "Folha",

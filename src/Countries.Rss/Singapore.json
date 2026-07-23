@@ -1,7 +1,7 @@
 {
   "NewsCrawler": {
     "Name": "Singapore",
-    "Enabled": true,
+    "Enabled": false,
     "Providers": [
       {
         "Name": "CNA",

@@ -1,7 +1,7 @@
 {
   "NewsCrawler": {
     "Name": "Nepal",
-    "Enabled": true,
+    "Enabled": false,
     "Providers": [
       {
         "Name": "KathmanduPost",

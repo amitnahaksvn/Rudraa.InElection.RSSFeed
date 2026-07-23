@@ -1,7 +1,7 @@
 {
   "NewsCrawler": {
     "Name": "South Korea",
-    "Enabled": true,
+    "Enabled": false,
     "Providers": [
       {
         "Name": "Yonhap",

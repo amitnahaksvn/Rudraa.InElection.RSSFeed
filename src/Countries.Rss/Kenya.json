@@ -1,7 +1,7 @@
 {
   "NewsCrawler": {
     "Name": "Kenya",
-    "Enabled": true,
+    "Enabled": false,
     "Providers": [
       {
         "Name": "TheStandardKenya",

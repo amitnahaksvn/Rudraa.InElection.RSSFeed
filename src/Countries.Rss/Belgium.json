@@ -1,7 +1,7 @@
 {
   "NewsCrawler": {
     "Name": "Belgium",
-    "Enabled": true,
+    "Enabled": false,
     "Providers": [
       {
         "Name": "RTBF",

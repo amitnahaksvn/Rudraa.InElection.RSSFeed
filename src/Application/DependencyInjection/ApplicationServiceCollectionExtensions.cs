@@ -36,6 +36,12 @@ public static class ApplicationServiceCollectionExtensions
             .ValidateDataAnnotations()
             .ValidateOnStart();
 
+        services
+            .AddOptions<NewsFilterOptions>()
+            .Bind(configuration.GetSection(NewsFilterOptions.SectionName))
+            .ValidateDataAnnotations()
+            .ValidateOnStart();
+
         services.AddSingleton<INewsCrawlerService, NewsCrawlerOrchestrator>();
         services.AddSingleton<INewsApiCrawlerService, NewsApiCrawlerOrchestrator>();
         services.AddSingleton<IErrorNotificationDispatchService, ErrorNotificationDispatchService>();

@@ -1,7 +1,7 @@
 {
   "NewsCrawler": {
     "Name": "Mexico",
-    "Enabled": true,
+    "Enabled": false,
     "Providers": [
       {
         "Name": "MexicoNewsDaily",

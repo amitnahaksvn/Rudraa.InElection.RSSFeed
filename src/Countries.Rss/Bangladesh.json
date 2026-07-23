@@ -1,7 +1,7 @@
 {
   "NewsCrawler": {
     "Name": "Bangladesh",
-    "Enabled": true,
+    "Enabled": false,
     "Providers": [
       {
         "Name": "TheDailyStar",

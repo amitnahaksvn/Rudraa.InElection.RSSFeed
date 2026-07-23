@@ -1,7 +1,7 @@
 {
   "NewsCrawler": {
     "Name": "Oman",
-    "Enabled": true,
+    "Enabled": false,
     "Providers": [
       {
         "Name": "TimesOfOman",

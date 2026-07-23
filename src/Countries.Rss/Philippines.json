@@ -1,7 +1,7 @@
 {
   "NewsCrawler": {
     "Name": "Philippines",
-    "Enabled": true,
+    "Enabled": false,
     "Providers": [
       {
         "Name": "Inquirer",

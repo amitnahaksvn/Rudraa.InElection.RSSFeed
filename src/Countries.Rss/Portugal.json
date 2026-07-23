@@ -1,7 +1,7 @@
 {
   "NewsCrawler": {
     "Name": "Portugal",
-    "Enabled": true,
+    "Enabled": false,
     "Providers": [
       {
         "Name": "RTPNoticias",

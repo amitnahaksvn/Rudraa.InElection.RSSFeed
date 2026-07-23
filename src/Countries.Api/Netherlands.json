@@ -1,7 +1,7 @@
 {
   "NewsApiCrawler": {
     "Name": "Netherlands",
-    "Enabled": true,
+    "Enabled": false,
     "Providers": [
       {
         "Name": "NewsApiOrg",

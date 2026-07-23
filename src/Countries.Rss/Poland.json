@@ -1,7 +1,7 @@
 {
   "NewsCrawler": {
     "Name": "Poland",
-    "Enabled": true,
+    "Enabled": false,
     "Providers": [
       {
         "Name": "Rzeczpospolita",

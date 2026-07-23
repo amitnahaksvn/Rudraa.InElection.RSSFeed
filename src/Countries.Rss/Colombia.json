@@ -1,7 +1,7 @@
 {
   "NewsCrawler": {
     "Name": "Colombia",
-    "Enabled": true,
+    "Enabled": false,
     "Providers": [
       {
         "Name": "ElEspectador",

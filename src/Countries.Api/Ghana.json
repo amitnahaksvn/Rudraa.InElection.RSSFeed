@@ -1,7 +1,7 @@
 {
   "NewsApiCrawler": {
     "Name": "Ghana",
-    "Enabled": true,
+    "Enabled": false,
     "Providers": [
       {
         "Name": "NewsApiOrg",

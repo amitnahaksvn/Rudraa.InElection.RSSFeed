@@ -1,7 +1,7 @@
 {
   "NewsCrawler": {
     "Name": "Hungary",
-    "Enabled": true,
+    "Enabled": false,
     "Providers": [
       {
         "Name": "HungaryToday",

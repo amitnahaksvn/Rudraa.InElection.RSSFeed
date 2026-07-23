@@ -1,8 +1,10 @@
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging.Abstractions;
+using Microsoft.Extensions.Options;
 using Moq;
 using Application.Abstractions;
 using Application.Models;
+using Application.Options;
 using Application.Services;
 using Domain.Entities;
 using Domain.Enums;
@@ -55,10 +57,12 @@ public class SocialMediaIngestionServiceTests
             sourceRepository.Object,
             [],
             Mock.Of<INewsArticleRepository>(),
+            Mock.Of<IFilteredArticleRepository>(),
             historyRepository.Object,
             Mock.Of<IErrorLogRepository>(),
             BuildHostEnvironment().Object,
             [],
+            Options.Create(new NewsFilterOptions()),
             NullLogger<SocialMediaIngestionService>.Instance);
 
         await service.RunAsync("missing", CancellationToken.None);
@@ -77,10 +81,12 @@ public class SocialMediaIngestionServiceTests
             sourceRepository.Object,
             [],
             Mock.Of<INewsArticleRepository>(),
+            Mock.Of<IFilteredArticleRepository>(),
             historyRepository.Object,
             Mock.Of<IErrorLogRepository>(),
             BuildHostEnvironment().Object,
             [],
+            Options.Create(new NewsFilterOptions()),
             NullLogger<SocialMediaIngestionService>.Instance);
 
         await service.RunAsync("source-1", CancellationToken.None);
@@ -99,10 +105,12 @@ public class SocialMediaIngestionServiceTests
             sourceRepository.Object,
             [], // no ISocialPlatformFetcher registered for YouTube
             Mock.Of<INewsArticleRepository>(),
+            Mock.Of<IFilteredArticleRepository>(),
             historyRepository.Object,
             Mock.Of<IErrorLogRepository>(),
             BuildHostEnvironment().Object,
             [],
+            Options.Create(new NewsFilterOptions()),
             NullLogger<SocialMediaIngestionService>.Instance);
 
         await service.RunAsync("source-1", CancellationToken.None);
@@ -142,10 +150,12 @@ public class SocialMediaIngestionServiceTests
             sourceRepository.Object,
             [fetcher.Object],
             articleRepository.Object,
+            Mock.Of<IFilteredArticleRepository>(),
             historyRepository.Object,
             Mock.Of<IErrorLogRepository>(),
             BuildHostEnvironment().Object,
             [],
+            Options.Create(new NewsFilterOptions()),
             NullLogger<SocialMediaIngestionService>.Instance);
 
         await service.RunAsync("source-1", CancellationToken.None);
@@ -181,10 +191,12 @@ public class SocialMediaIngestionServiceTests
             sourceRepository.Object,
             [fetcher.Object],
             Mock.Of<INewsArticleRepository>(),
+            Mock.Of<IFilteredArticleRepository>(),
             historyRepository.Object,
             errorLogRepository.Object,
             BuildHostEnvironment().Object,
             [],
+            Options.Create(new NewsFilterOptions()),
             NullLogger<SocialMediaIngestionService>.Instance);
 
         await service.RunAsync("source-1", CancellationToken.None);

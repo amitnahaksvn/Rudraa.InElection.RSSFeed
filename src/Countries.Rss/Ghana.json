@@ -1,7 +1,7 @@
 {
   "NewsCrawler": {
     "Name": "Ghana",
-    "Enabled": true,
+    "Enabled": false,
     "Providers": [
       {
         "Name": "JoyNews",

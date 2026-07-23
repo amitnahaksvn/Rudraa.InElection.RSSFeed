@@ -1,6 +1,7 @@
 using Microsoft.Extensions.Logging;
 using Application.Abstractions;
 using Application.Models;
+using Application.Options;
 using Domain.Entities;
 
 namespace Application.Services;
@@ -13,13 +14,18 @@ namespace Application.Services;
 /// <see cref="IArticleNormalizer"/> gets applied (by <see cref="NormalizedArticle.Provider"/>,
 /// at most one match per article) - being the single choke point both pipelines already share
 /// means a provider's normalizer runs the same way regardless of which pipeline fetched it.
+/// Also where the political-category allowlist (<see cref="NewsFilterOptions"/>) is enforced - an
+/// article whose <see cref="NormalizedArticle.Category"/> doesn't match is diverted into
+/// <see cref="IFilteredArticleRepository"/> instead of becoming a real <see cref="NewsArticle"/>.
 /// </summary>
 internal static class ArticlePersister
 {
     public static async Task<int> PersistAsync(
         INewsArticleRepository articleRepository,
+        IFilteredArticleRepository filteredArticleRepository,
         IEnumerable<NormalizedArticle> articles,
         IEnumerable<IArticleNormalizer> normalizers,
+        NewsFilterOptions filterOptions,
         ILogger logger,
         CancellationToken cancellationToken)
     {
@@ -34,6 +40,31 @@ internal static class ArticlePersister
                 : rawNormalized;
 
             var now = DateTimeOffset.UtcNow;
+            var cleanedSummary = DescriptionNormalizer.Clean(normalized.Summary);
+
+            // Plain allowlist match against Category - no AI/ML, deliberately. An excluded article
+            // isn't dropped silently: it's recorded in FilteredArticles so what's being filtered
+            // out stays visible and reversible (see NewsFilterOptions's own doc comment).
+            if (filterOptions.Enabled && !filterOptions.Categories.Contains(normalized.Category, StringComparer.OrdinalIgnoreCase))
+            {
+                await filteredArticleRepository.InsertAsync(
+                    new FilteredArticle
+                    {
+                        Provider = normalized.Provider,
+                        Title = normalized.Title,
+                        Summary = cleanedSummary,
+                        Category = normalized.Category,
+                        SourceType = normalized.SourceType,
+                        PulledAt = now
+                    },
+                    cancellationToken);
+
+                logger.LogDebug(
+                    "Filtered out (category '{Category}' not in allowlist): {Title} ({Provider})",
+                    normalized.Category, normalized.Title, normalized.Provider);
+
+                continue;
+            }
 
             // A source's own PublishedAt is occasionally ahead of real time - a publisher's CMS
             // clock running fast, or content pre-scheduled/staged before its nominal publish time
@@ -55,7 +86,7 @@ internal static class ArticlePersister
                 FeedName = normalized.FeedName,
                 Category = normalized.Category,
                 Title = normalized.Title,
-                Summary = DescriptionNormalizer.Clean(normalized.Summary),
+                Summary = cleanedSummary,
                 Content = normalized.Content,
                 Url = normalized.Url,
                 OriginalGuid = normalized.OriginalGuid,

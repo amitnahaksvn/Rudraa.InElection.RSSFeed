@@ -1,7 +1,7 @@
 {
   "NewsApiCrawler": {
     "Name": "United Kingdom",
-    "Enabled": true,
+    "Enabled": false,
     "Providers": [
       {
         "Name": "UKParliamentBills",

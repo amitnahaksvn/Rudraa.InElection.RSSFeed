@@ -27,6 +27,7 @@ public sealed class MongoDbContext
         ErrorLogs = Database.GetCollection<ErrorLog>(settings.ErrorLogsCollection);
         SocialMediaSources = Database.GetCollection<SocialMediaSource>(settings.SocialMediaSourcesCollection);
         ProviderSchedules = Database.GetCollection<ProviderSchedule>(settings.ProviderSchedulesCollection);
+        FilteredArticles = Database.GetCollection<FilteredArticle>(settings.FilteredArticlesCollection);
     }
 
     public IMongoClient Client { get; }
@@ -56,4 +57,7 @@ public sealed class MongoDbContext
 
     /// <summary>Database-backed provider Enabled/Cron/TimeZone - see <see cref="Application.Options.MongoDbOptions.ProviderSchedulesCollection"/>.</summary>
     public IMongoCollection<ProviderSchedule> ProviderSchedules { get; }
+
+    /// <summary>Log of politically-irrelevant articles excluded at persist time - see <see cref="Application.Options.MongoDbOptions.FilteredArticlesCollection"/>.</summary>
+    public IMongoCollection<FilteredArticle> FilteredArticles { get; }
 }

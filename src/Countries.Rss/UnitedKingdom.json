@@ -1,7 +1,7 @@
 {
   "NewsCrawler": {
     "Name": "United Kingdom",
-    "Enabled": true,
+    "Enabled": false,
     "Providers": [
       {
         "Name": "BBCNews",

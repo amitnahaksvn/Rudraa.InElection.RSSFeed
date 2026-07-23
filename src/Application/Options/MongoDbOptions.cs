@@ -49,4 +49,8 @@ public sealed class MongoDbOptions
     /// <summary>Database-backed Enabled/Cron/TimeZone per RSS/API provider - see <c>Domain.Entities.ProviderSchedule</c> for why this replaced <c>NewsCrawler.appsettings.json</c>'s own Enabled/Cron fields as the source of truth.</summary>
     [Required]
     public string ProviderSchedulesCollection { get; set; } = "ProviderSchedules";
+
+    /// <summary>Log of articles excluded by the political-category allowlist - see <c>Domain.Entities.FilteredArticle</c>/<c>Application.Options.NewsFilterOptions</c>.</summary>
+    [Required]
+    public string FilteredArticlesCollection { get; set; } = "FilteredArticles";
 }

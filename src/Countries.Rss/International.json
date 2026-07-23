@@ -1,7 +1,7 @@
 {
   "NewsCrawler": {
     "Name": "International",
-    "Enabled": true,
+    "Enabled": false,
     "Providers": [
       {
         "Name": "UNNews",

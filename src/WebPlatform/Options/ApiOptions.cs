@@ -49,4 +49,13 @@ public sealed class ApiOptions
     /// casually.
     /// </summary>
     public bool EnableCrawlReportDashboard { get; set; }
+
+    /// <summary>
+    /// The Filtered Articles page (/filtered-articles) reads via the authenticated-nothing
+    /// api/filtered-articles endpoints - same "no built-in auth, off by default" trade-off as
+    /// <see cref="EnableCrawlReportDashboard"/>. Read-only plus a delete action on the admin's own
+    /// diagnostic log rows (not real articles), so lower-risk than <see cref="EnableProviderDashboard"/>;
+    /// still off by default for consistency with every other admin dashboard in this app.
+    /// </summary>
+    public bool EnableFilteredArticlesDashboard { get; set; }
 }

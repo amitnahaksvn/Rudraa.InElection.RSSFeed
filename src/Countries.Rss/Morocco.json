@@ -1,7 +1,7 @@
 {
   "NewsCrawler": {
     "Name": "Morocco",
-    "Enabled": true,
+    "Enabled": false,
     "Providers": [
       {
         "Name": "Hespress",

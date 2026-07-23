@@ -1,7 +1,7 @@
 {
   "NewsCrawler": {
     "Name": "Algeria",
-    "Enabled": true,
+    "Enabled": false,
     "Providers": [
       {
         "Name": "TSAAlgeria",

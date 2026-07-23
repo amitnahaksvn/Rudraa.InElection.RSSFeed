@@ -1,7 +1,7 @@
 {
   "NewsCrawler": {
     "Name": "Ukraine",
-    "Enabled": true,
+    "Enabled": false,
     "Providers": [
       {
         "Name": "KyivPost",

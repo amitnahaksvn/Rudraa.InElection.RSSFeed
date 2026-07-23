@@ -1,7 +1,7 @@
 {
   "NewsApiCrawler": {
     "Name": "Pakistan",
-    "Enabled": true,
+    "Enabled": false,
     "Providers": [
       {
         "Name": "NewsApiOrg",

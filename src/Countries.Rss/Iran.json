@@ -1,7 +1,7 @@
 {
   "NewsCrawler": {
     "Name": "Iran",
-    "Enabled": true,
+    "Enabled": false,
     "Providers": [
       {
         "Name": "IRNA",
