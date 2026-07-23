@@ -117,7 +117,27 @@ app.UseExceptionHandler();
 // Serves the admin React app's built assets (see src/WebApp/ClientApp) - harmless to leave on
 // unconditionally, since it only serves files that already exist under wwwroot; the page itself
 // (the SPA fallback routes below) is gated separately via EnableErrorDashboard/etc.
-app.UseStaticFiles();
+//
+// Explicit Cache-Control is required here, not optional: with no header at all, browsers apply
+// their own heuristic caching to index.html and can keep serving a stale copy - referencing a JS
+// bundle filename that a later deploy has already deleted - well past that deploy, with no way to
+// tell without a manual hard refresh (confirmed live: this is exactly what made a deploy look like
+// it hadn't shipped). index.html itself must always revalidate (no-cache, not no-store - a 304 on
+// an unchanged deploy still skips re-downloading it); every other file under wwwroot/assets is
+// content-hashed by Vite (a new build never reuses an old filename), so those are safe to cache
+// forever.
+var indexHtmlCacheOptions = new StaticFileOptions
+{
+    OnPrepareResponse = context => context.Context.Response.Headers.CacheControl = "no-cache"
+};
+
+app.UseStaticFiles(new StaticFileOptions
+{
+    OnPrepareResponse = context => context.Context.Response.Headers.CacheControl =
+        context.File.Name.Equals("index.html", StringComparison.OrdinalIgnoreCase)
+            ? "no-cache"
+            : "public,max-age=31536000,immutable"
+});
 
 if (!app.Environment.IsDevelopment())
 {
@@ -161,8 +181,8 @@ app.MapHub<ErrorLogHub>("/hubs/errorlogs");
 // EnableXDashboard flag since they surface sensitive internals or trigger real outbound calls),
 // the News Feed page just reads already-crawled, already-public news articles - the actual output
 // this app produces - so it's mapped unconditionally rather than behind a flag.
-app.MapFallbackToFile("/feed", "index.html");
-app.MapFallbackToFile("/feed/{**slug}", "index.html");
+app.MapFallbackToFile("/feed", "index.html", indexHtmlCacheOptions);
+app.MapFallbackToFile("/feed/{**slug}", "index.html", indexHtmlCacheOptions);
 
 if (builder.Configuration.GetValue($"{ApiOptions.SectionName}:EnableHangfireDashboard", false))
 {
@@ -186,8 +206,8 @@ if (builder.Configuration.GetValue($"{ApiOptions.SectionName}:EnableErrorDashboa
     // api/errors/* JSON endpoints stay mapped regardless (same always-on trust model as every
     // other endpoint in this app); only the SPA page itself is gated here. Two fallback routes
     // because a catch-all route parameter doesn't match the bare "/errors" path with zero segments.
-    app.MapFallbackToFile("/errors", "index.html");
-    app.MapFallbackToFile("/errors/{**slug}", "index.html");
+    app.MapFallbackToFile("/errors", "index.html", indexHtmlCacheOptions);
+    app.MapFallbackToFile("/errors/{**slug}", "index.html", indexHtmlCacheOptions);
 }
 
 if (builder.Configuration.GetValue($"{ApiOptions.SectionName}:EnableProviderDashboard", false))
@@ -197,8 +217,8 @@ if (builder.Configuration.GetValue($"{ApiOptions.SectionName}:EnableProviderDash
     // gates real outbound HTTP calls, not just data visibility. The underlying api/providers/*
     // JSON endpoints stay mapped regardless (same always-on trust model as every other endpoint
     // in this app); only the SPA page itself is gated here.
-    app.MapFallbackToFile("/providers", "index.html");
-    app.MapFallbackToFile("/providers/{**slug}", "index.html");
+    app.MapFallbackToFile("/providers", "index.html", indexHtmlCacheOptions);
+    app.MapFallbackToFile("/providers/{**slug}", "index.html", indexHtmlCacheOptions);
 }
 
 if (builder.Configuration.GetValue($"{ApiOptions.SectionName}:EnableCrawlReportDashboard", false))
@@ -207,8 +227,8 @@ if (builder.Configuration.GetValue($"{ApiOptions.SectionName}:EnableCrawlReportD
     // ApiOptions.EnableCrawlReportDashboard's own doc comment. The underlying api/crawl/report and
     // api/crawl/history JSON endpoints stay mapped regardless (same always-on trust model as every
     // other endpoint in this app); only the SPA page itself is gated here.
-    app.MapFallbackToFile("/reports", "index.html");
-    app.MapFallbackToFile("/reports/{**slug}", "index.html");
+    app.MapFallbackToFile("/reports", "index.html", indexHtmlCacheOptions);
+    app.MapFallbackToFile("/reports/{**slug}", "index.html", indexHtmlCacheOptions);
 }
 
 if (builder.Configuration.GetValue($"{ApiOptions.SectionName}:EnableFilteredArticlesDashboard", false))
@@ -217,8 +237,8 @@ if (builder.Configuration.GetValue($"{ApiOptions.SectionName}:EnableFilteredArti
     // ApiOptions.EnableFilteredArticlesDashboard's own doc comment. The underlying
     // api/filtered-articles JSON endpoints stay mapped regardless (same always-on trust model as
     // every other endpoint in this app); only the SPA page itself is gated here.
-    app.MapFallbackToFile("/filtered-articles", "index.html");
-    app.MapFallbackToFile("/filtered-articles/{**slug}", "index.html");
+    app.MapFallbackToFile("/filtered-articles", "index.html", indexHtmlCacheOptions);
+    app.MapFallbackToFile("/filtered-articles/{**slug}", "index.html", indexHtmlCacheOptions);
 }
 
 app.Run();
