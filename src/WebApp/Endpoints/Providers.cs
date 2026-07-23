@@ -35,7 +35,7 @@ public sealed class Providers : IEndpointGroup
         group.MapPost("rss/test", TestRssFeed);
         group.MapPost("api/test", TestApiEndpoint);
 
-        group.MapGet("countries", GetCountries);
+        group.MapGet("countries", GetCrawlCountries);
         group.MapPut("countries", UpsertCountry);
         group.MapDelete("countries/{pipeline}/{name}", DeleteCountry);
 
@@ -83,7 +83,7 @@ public sealed class Providers : IEndpointGroup
 
     [EndpointSummary("List countries for a pipeline")]
     [EndpointDescription("Every database-backed country for 'Rss' or 'Api', with its own independent Enabled flag.")]
-    public static async Task<Ok<IReadOnlyList<CountryDto>>> GetCountries(ISender sender, string pipeline, CancellationToken cancellationToken)
+    public static async Task<Ok<IReadOnlyList<CountryDto>>> GetCrawlCountries(ISender sender, string pipeline, CancellationToken cancellationToken)
     {
         var result = await sender.Send(new GetCountriesQuery(ParsePipeline(pipeline)), cancellationToken);
         return TypedResults.Ok(result);
