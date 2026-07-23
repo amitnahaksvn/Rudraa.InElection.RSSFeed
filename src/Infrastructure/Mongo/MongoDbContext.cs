@@ -27,7 +27,6 @@ public sealed class MongoDbContext
         ErrorLogs = Database.GetCollection<ErrorLog>(settings.ErrorLogsCollection);
         SocialMediaSources = Database.GetCollection<SocialMediaSource>(settings.SocialMediaSourcesCollection);
         ProviderSchedules = Database.GetCollection<ProviderSchedule>(settings.ProviderSchedulesCollection);
-        FilteredArticles = Database.GetCollection<FilteredArticle>(settings.FilteredArticlesCollection);
         CrawlCountries = Database.GetCollection<CrawlCountry>(settings.CrawlCountriesCollection);
         CrawlFeeds = Database.GetCollection<CrawlFeed>(settings.CrawlFeedsCollection);
     }
@@ -59,9 +58,6 @@ public sealed class MongoDbContext
 
     /// <summary>Database-backed provider Enabled/Cron/TimeZone - see <see cref="Application.Options.MongoDbOptions.ProviderSchedulesCollection"/>.</summary>
     public IMongoCollection<ProviderSchedule> ProviderSchedules { get; }
-
-    /// <summary>Log of politically-irrelevant articles excluded at persist time - see <see cref="Application.Options.MongoDbOptions.FilteredArticlesCollection"/>.</summary>
-    public IMongoCollection<FilteredArticle> FilteredArticles { get; }
 
     /// <summary>Database-backed country-level provider grouping - see <see cref="Application.Options.MongoDbOptions.CrawlCountriesCollection"/>.</summary>
     public IMongoCollection<CrawlCountry> CrawlCountries { get; }

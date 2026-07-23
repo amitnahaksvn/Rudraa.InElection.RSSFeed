@@ -21,7 +21,6 @@ public sealed class NewsCrawlerOrchestrator : INewsCrawlerService
 {
     private readonly IEnumerable<IRssProvider> _providers;
     private readonly INewsArticleRepository _articleRepository;
-    private readonly IFilteredArticleRepository _filteredArticleRepository;
     private readonly IArticleFingerprintRepository _fingerprintRepository;
     private readonly ICrawlHistoryRepository _historyRepository;
     private readonly ICrawlLockRepository _lockRepository;
@@ -33,14 +32,12 @@ public sealed class NewsCrawlerOrchestrator : INewsCrawlerService
     private readonly ICrawlFeedRepository _feedRepository;
     private readonly IEnumerable<IArticleNormalizer> _normalizers;
     private readonly NewsCrawlerOptions _options;
-    private readonly NewsFilterOptions _newsFilterOptions;
     private readonly ILogger<NewsCrawlerOrchestrator> _logger;
     private readonly string _ownerId = $"{Environment.MachineName}:{Environment.ProcessId}:{Guid.NewGuid():N}";
 
     public NewsCrawlerOrchestrator(
         IEnumerable<IRssProvider> providers,
         INewsArticleRepository articleRepository,
-        IFilteredArticleRepository filteredArticleRepository,
         IArticleFingerprintRepository fingerprintRepository,
         ICrawlHistoryRepository historyRepository,
         ICrawlLockRepository lockRepository,
@@ -52,12 +49,10 @@ public sealed class NewsCrawlerOrchestrator : INewsCrawlerService
         ICrawlFeedRepository feedRepository,
         IEnumerable<IArticleNormalizer> normalizers,
         IOptions<NewsCrawlerOptions> options,
-        IOptions<NewsFilterOptions> newsFilterOptions,
         ILogger<NewsCrawlerOrchestrator> logger)
     {
         _providers = providers;
         _articleRepository = articleRepository;
-        _filteredArticleRepository = filteredArticleRepository;
         _fingerprintRepository = fingerprintRepository;
         _historyRepository = historyRepository;
         _lockRepository = lockRepository;
@@ -69,7 +64,6 @@ public sealed class NewsCrawlerOrchestrator : INewsCrawlerService
         _feedRepository = feedRepository;
         _normalizers = normalizers;
         _options = options.Value;
-        _newsFilterOptions = newsFilterOptions.Value;
         _logger = logger;
     }
 
@@ -322,5 +316,5 @@ public sealed class NewsCrawlerOrchestrator : INewsCrawlerService
     private Task<int> PersistArticlesAsync(
         IEnumerable<NormalizedArticle> articles,
         CancellationToken cancellationToken) =>
-        ArticlePersister.PersistAsync(_articleRepository, _filteredArticleRepository, _fingerprintRepository, articles, _normalizers, _newsFilterOptions, _logger, cancellationToken);
+        ArticlePersister.PersistAsync(_articleRepository, _fingerprintRepository, articles, _normalizers, _logger, cancellationToken);
 }

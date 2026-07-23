@@ -57,13 +57,11 @@ public class SocialMediaIngestionServiceTests
             sourceRepository.Object,
             [],
             Mock.Of<INewsArticleRepository>(),
-            Mock.Of<IFilteredArticleRepository>(),
             Mock.Of<IArticleFingerprintRepository>(),
             historyRepository.Object,
             Mock.Of<IErrorLogRepository>(),
             BuildHostEnvironment().Object,
             [],
-            Options.Create(new NewsFilterOptions()),
             NullLogger<SocialMediaIngestionService>.Instance);
 
         await service.RunAsync("missing", CancellationToken.None);
@@ -82,13 +80,11 @@ public class SocialMediaIngestionServiceTests
             sourceRepository.Object,
             [],
             Mock.Of<INewsArticleRepository>(),
-            Mock.Of<IFilteredArticleRepository>(),
             Mock.Of<IArticleFingerprintRepository>(),
             historyRepository.Object,
             Mock.Of<IErrorLogRepository>(),
             BuildHostEnvironment().Object,
             [],
-            Options.Create(new NewsFilterOptions()),
             NullLogger<SocialMediaIngestionService>.Instance);
 
         await service.RunAsync("source-1", CancellationToken.None);
@@ -107,13 +103,11 @@ public class SocialMediaIngestionServiceTests
             sourceRepository.Object,
             [], // no ISocialPlatformFetcher registered for YouTube
             Mock.Of<INewsArticleRepository>(),
-            Mock.Of<IFilteredArticleRepository>(),
             Mock.Of<IArticleFingerprintRepository>(),
             historyRepository.Object,
             Mock.Of<IErrorLogRepository>(),
             BuildHostEnvironment().Object,
             [],
-            Options.Create(new NewsFilterOptions()),
             NullLogger<SocialMediaIngestionService>.Instance);
 
         await service.RunAsync("source-1", CancellationToken.None);
@@ -153,13 +147,11 @@ public class SocialMediaIngestionServiceTests
             sourceRepository.Object,
             [fetcher.Object],
             articleRepository.Object,
-            Mock.Of<IFilteredArticleRepository>(),
             Mock.Of<IArticleFingerprintRepository>(),
             historyRepository.Object,
             Mock.Of<IErrorLogRepository>(),
             BuildHostEnvironment().Object,
             [],
-            Options.Create(new NewsFilterOptions()),
             NullLogger<SocialMediaIngestionService>.Instance);
 
         await service.RunAsync("source-1", CancellationToken.None);
@@ -195,13 +187,11 @@ public class SocialMediaIngestionServiceTests
             sourceRepository.Object,
             [fetcher.Object],
             Mock.Of<INewsArticleRepository>(),
-            Mock.Of<IFilteredArticleRepository>(),
             Mock.Of<IArticleFingerprintRepository>(),
             historyRepository.Object,
             errorLogRepository.Object,
             BuildHostEnvironment().Object,
             [],
-            Options.Create(new NewsFilterOptions()),
             NullLogger<SocialMediaIngestionService>.Instance);
 
         await service.RunAsync("source-1", CancellationToken.None);

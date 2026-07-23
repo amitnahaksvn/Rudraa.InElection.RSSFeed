@@ -120,7 +120,6 @@ public class NewsApiCrawlerOrchestratorTests
         var orchestrator = new NewsApiCrawlerOrchestrator(
             [provider.Object],
             articleRepo.Object,
-            Mock.Of<IFilteredArticleRepository>(),
             Mock.Of<IArticleFingerprintRepository>(),
             historyRepo.Object,
             BuildAcquiredLockRepo().Object,
@@ -131,7 +130,6 @@ public class NewsApiCrawlerOrchestratorTests
             BuildFeedRepo(BuildEndpointFeed()).Object,
             [],
             Options.Create(BuildScalarOptions()),
-            Options.Create(new NewsFilterOptions()),
             NullLogger<NewsApiCrawlerOrchestrator>.Instance);
 
         var history = await orchestrator.RunCrawlAsync(CancellationToken.None);
@@ -155,7 +153,6 @@ public class NewsApiCrawlerOrchestratorTests
         var orchestrator = new NewsApiCrawlerOrchestrator(
             [provider.Object],
             articleRepo.Object,
-            Mock.Of<IFilteredArticleRepository>(),
             Mock.Of<IArticleFingerprintRepository>(),
             historyRepo.Object,
             BuildAcquiredLockRepo().Object,
@@ -166,7 +163,6 @@ public class NewsApiCrawlerOrchestratorTests
             BuildFeedRepo(BuildEndpointFeed()).Object,
             [],
             Options.Create(BuildScalarOptions()),
-            Options.Create(new NewsFilterOptions()),
             NullLogger<NewsApiCrawlerOrchestrator>.Instance);
 
         var history = await orchestrator.RunCrawlAsync(CancellationToken.None);

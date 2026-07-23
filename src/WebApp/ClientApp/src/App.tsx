@@ -3,7 +3,6 @@ import { AppLayout } from './layout/AppLayout';
 import { ErrorMonitorPage } from './pages/ErrorMonitor/ErrorMonitorPage';
 import { ProviderManagementPage } from './pages/ProviderManagement/ProviderManagementPage';
 import { CrawlReportPage } from './pages/CrawlReport/CrawlReportPage';
-import { FilteredArticlesPage } from './pages/FilteredArticles/FilteredArticlesPage';
 import { NewsFeedPage } from './pages/NewsFeed/NewsFeedPage';
 
 function App() {
@@ -15,7 +14,6 @@ function App() {
         <Route path="/errors" element={<ErrorMonitorPage />} />
         <Route path="/providers" element={<ProviderManagementPage />} />
         <Route path="/reports" element={<CrawlReportPage />} />
-        <Route path="/filtered-articles" element={<FilteredArticlesPage />} />
         <Route path="*" element={<Navigate to="/feed" replace />} />
       </Routes>
     </AppLayout>

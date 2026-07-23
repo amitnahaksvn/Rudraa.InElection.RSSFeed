@@ -25,7 +25,6 @@ public sealed class NewsApiCrawlerOrchestrator : INewsApiCrawlerService
 {
     private readonly IEnumerable<INewsApiProvider> _providers;
     private readonly INewsArticleRepository _articleRepository;
-    private readonly IFilteredArticleRepository _filteredArticleRepository;
     private readonly IArticleFingerprintRepository _fingerprintRepository;
     private readonly ICrawlHistoryRepository _historyRepository;
     private readonly ICrawlLockRepository _lockRepository;
@@ -36,14 +35,12 @@ public sealed class NewsApiCrawlerOrchestrator : INewsApiCrawlerService
     private readonly ICrawlFeedRepository _feedRepository;
     private readonly IEnumerable<IArticleNormalizer> _normalizers;
     private readonly NewsApiCrawlerOptions _options;
-    private readonly NewsFilterOptions _newsFilterOptions;
     private readonly ILogger<NewsApiCrawlerOrchestrator> _logger;
     private readonly string _ownerId = $"{Environment.MachineName}:{Environment.ProcessId}:{Guid.NewGuid():N}";
 
     public NewsApiCrawlerOrchestrator(
         IEnumerable<INewsApiProvider> providers,
         INewsArticleRepository articleRepository,
-        IFilteredArticleRepository filteredArticleRepository,
         IArticleFingerprintRepository fingerprintRepository,
         ICrawlHistoryRepository historyRepository,
         ICrawlLockRepository lockRepository,
@@ -54,12 +51,10 @@ public sealed class NewsApiCrawlerOrchestrator : INewsApiCrawlerService
         ICrawlFeedRepository feedRepository,
         IEnumerable<IArticleNormalizer> normalizers,
         IOptions<NewsApiCrawlerOptions> options,
-        IOptions<NewsFilterOptions> newsFilterOptions,
         ILogger<NewsApiCrawlerOrchestrator> logger)
     {
         _providers = providers;
         _articleRepository = articleRepository;
-        _filteredArticleRepository = filteredArticleRepository;
         _fingerprintRepository = fingerprintRepository;
         _historyRepository = historyRepository;
         _lockRepository = lockRepository;
@@ -70,7 +65,6 @@ public sealed class NewsApiCrawlerOrchestrator : INewsApiCrawlerService
         _feedRepository = feedRepository;
         _normalizers = normalizers;
         _options = options.Value;
-        _newsFilterOptions = newsFilterOptions.Value;
         _logger = logger;
     }
 
@@ -239,11 +233,9 @@ public sealed class NewsApiCrawlerOrchestrator : INewsApiCrawlerService
 
                     var inserted = await ArticlePersister.PersistAsync(
                         _articleRepository,
-                        _filteredArticleRepository,
                         _fingerprintRepository,
                         result.Articles.Take(_options.BatchSize).Select(a => a with { Country = country }),
                         _normalizers,
-                        _newsFilterOptions,
                         _logger,
                         cancellationToken);
 

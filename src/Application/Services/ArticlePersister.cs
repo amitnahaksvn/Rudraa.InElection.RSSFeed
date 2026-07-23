@@ -1,7 +1,6 @@
 using Microsoft.Extensions.Logging;
 using Application.Abstractions;
 using Application.Models;
-using Application.Options;
 using Domain.Entities;
 
 namespace Application.Services;
@@ -13,24 +12,17 @@ namespace Application.Services;
 /// exists once regardless of how an article was fetched. Also the one place
 /// <see cref="IArticleNormalizer"/> gets applied (by <see cref="NormalizedArticle.Provider"/>,
 /// at most one match per article) - being the single choke point both pipelines already share
-/// means a provider's normalizer runs the same way regardless of which pipeline fetched it.
-/// Also where the political-category allowlist (<see cref="NewsFilterOptions"/>) is enforced - an
-/// article whose <see cref="NormalizedArticle.Category"/> doesn't match is diverted into
-/// <see cref="IFilteredArticleRepository"/> instead of becoming a real <see cref="NewsArticle"/>.
-/// Either way, an article is checked against <see cref="IArticleFingerprintRepository"/> exactly
-/// once, before that category decision is even made - a story already fingerprinted under either
-/// collection is dropped up front, so a non-political story re-seen on every crawl tick is never
-/// re-logged into FilteredArticles (which, unlike NewsArticles, has no dedup of its own otherwise).
+/// means a provider's normalizer runs the same way regardless of which pipeline fetched it. Every
+/// fetched article is persisted as-is once deduplicated - there is no political-relevance
+/// filtering step.
 /// </summary>
 internal static class ArticlePersister
 {
     public static async Task<int> PersistAsync(
         INewsArticleRepository articleRepository,
-        IFilteredArticleRepository filteredArticleRepository,
         IArticleFingerprintRepository fingerprintRepository,
         IEnumerable<NormalizedArticle> articles,
         IEnumerable<IArticleNormalizer> normalizers,
-        NewsFilterOptions filterOptions,
         ILogger logger,
         CancellationToken cancellationToken)
     {
@@ -48,41 +40,12 @@ internal static class ArticlePersister
             var cleanedSummary = DescriptionNormalizer.Clean(normalized.Summary);
             var hash = ArticleHasher.ComputeHash(normalized.Title, normalized.PublishedAt);
 
-            // Checked once, up front, against the fingerprint collection both persistence paths
-            // below share (see this class's own doc comment) - before either becoming a real
-            // NewsArticle or a FilteredArticle is even decided.
+            // Checked once, up front, against the shared fingerprint collection - before the
+            // article is even built, since a match here means it's already been recorded.
             var duplicate = await fingerprintRepository.FindDuplicateAsync(normalized.Url, normalized.OriginalGuid, hash, cancellationToken);
             if (duplicate is not null)
             {
                 logger.LogDebug("Duplicate skipped: {Title} ({Url})", normalized.Title, normalized.Url);
-                continue;
-            }
-
-            // Plain allowlist match against Category - no AI/ML, deliberately. An excluded article
-            // isn't dropped silently: it's recorded in FilteredArticles so what's being filtered
-            // out stays visible and reversible (see NewsFilterOptions's own doc comment).
-            if (filterOptions.Enabled && !filterOptions.Categories.Contains(normalized.Category, StringComparer.OrdinalIgnoreCase))
-            {
-                await filteredArticleRepository.InsertAsync(
-                    new FilteredArticle
-                    {
-                        Provider = normalized.Provider,
-                        Title = normalized.Title,
-                        Summary = cleanedSummary,
-                        Category = normalized.Category,
-                        SourceType = normalized.SourceType,
-                        PulledAt = now
-                    },
-                    normalized.Url,
-                    normalized.OriginalGuid,
-                    hash,
-                    normalized.PublishedAt,
-                    cancellationToken);
-
-                logger.LogDebug(
-                    "Filtered out (category '{Category}' not in allowlist): {Title} ({Provider})",
-                    normalized.Category, normalized.Title, normalized.Provider);
-
                 continue;
             }
 

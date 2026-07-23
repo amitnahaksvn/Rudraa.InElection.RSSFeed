@@ -113,12 +113,6 @@ public static class MongoClassMapConfigurator
             cm.MapIdMember(x => x.Id).SetIdGenerator(StringObjectIdGenerator.Instance);
         });
 
-        BsonClassMap.RegisterClassMap<FilteredArticle>(cm =>
-        {
-            cm.AutoMap();
-            cm.MapIdMember(x => x.Id).SetIdGenerator(StringObjectIdGenerator.Instance);
-        });
-
         BsonClassMap.RegisterClassMap<CrawlCountry>(cm =>
         {
             cm.AutoMap();

@@ -19,9 +19,7 @@ public interface IArticleFingerprintRepository
 
     /// <summary>
     /// The same Url -&gt; OriginalGuid -&gt; Hash duplicate-lookup order <c>NewsArticleRepository.UpsertAsync</c>
-    /// uses for real articles - a single shared call so any caller (the FilteredArticle path
-    /// included) can answer "have we already recorded this article, under either NewsArticles or
-    /// FilteredArticles?" without re-implementing the 3-tier lookup itself.
+    /// uses internally, exposed here as a single shared call.
     /// </summary>
     Task<ArticleFingerprint?> FindDuplicateAsync(string url, string? originalGuid, string hash, CancellationToken cancellationToken);
 

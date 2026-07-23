@@ -122,7 +122,6 @@ public class NewsCrawlerOrchestratorTests
         var orchestrator = new NewsCrawlerOrchestrator(
             [provider.Object],
             articleRepo.Object,
-            Mock.Of<IFilteredArticleRepository>(),
             Mock.Of<IArticleFingerprintRepository>(),
             historyRepo.Object,
             BuildAcquiredLockRepo().Object,
@@ -134,7 +133,6 @@ public class NewsCrawlerOrchestratorTests
             BuildFeedRepo(BuildFeed("AajTak", "Home", "https://example.com/Home")).Object,
             [],
             Options.Create(BuildScalarOptions()),
-            Options.Create(new NewsFilterOptions()),
             NullLogger<NewsCrawlerOrchestrator>.Instance);
 
         var history = await orchestrator.RunCrawlAsync(CancellationToken.None);
@@ -169,7 +167,6 @@ public class NewsCrawlerOrchestratorTests
         var orchestrator = new NewsCrawlerOrchestrator(
             [provider.Object],
             articleRepo.Object,
-            Mock.Of<IFilteredArticleRepository>(),
             Mock.Of<IArticleFingerprintRepository>(),
             historyRepo.Object,
             BuildAcquiredLockRepo().Object,
@@ -181,7 +178,6 @@ public class NewsCrawlerOrchestratorTests
             BuildFeedRepo(BuildFeed("AajTak", "Home", "https://example.com/Home")).Object,
             [],
             Options.Create(BuildScalarOptions()),
-            Options.Create(new NewsFilterOptions()),
             NullLogger<NewsCrawlerOrchestrator>.Instance);
 
         var history = await orchestrator.RunCrawlAsync(CancellationToken.None);
@@ -220,7 +216,6 @@ public class NewsCrawlerOrchestratorTests
         var orchestrator = new NewsCrawlerOrchestrator(
             [provider.Object],
             articleRepo.Object,
-            Mock.Of<IFilteredArticleRepository>(),
             Mock.Of<IArticleFingerprintRepository>(),
             historyRepo.Object,
             BuildAcquiredLockRepo().Object,
@@ -232,7 +227,6 @@ public class NewsCrawlerOrchestratorTests
             BuildFeedRepo(BuildFeed("AajTak", "Home", "https://example.com/Home")).Object,
             [],
             Options.Create(BuildScalarOptions()),
-            Options.Create(new NewsFilterOptions()),
             NullLogger<NewsCrawlerOrchestrator>.Instance);
 
         var history = await orchestrator.RunCrawlAsync(CancellationToken.None);
@@ -258,7 +252,6 @@ public class NewsCrawlerOrchestratorTests
         var orchestrator = new NewsCrawlerOrchestrator(
             [provider.Object],
             articleRepo.Object,
-            Mock.Of<IFilteredArticleRepository>(),
             Mock.Of<IArticleFingerprintRepository>(),
             historyRepo.Object,
             lockRepo.Object,
@@ -270,7 +263,6 @@ public class NewsCrawlerOrchestratorTests
             BuildFeedRepo(BuildFeed("AajTak", "Home", "https://example.com/Home")).Object,
             [],
             Options.Create(BuildScalarOptions()),
-            Options.Create(new NewsFilterOptions()),
             NullLogger<NewsCrawlerOrchestrator>.Instance);
 
         var history = await orchestrator.RunCrawlAsync(CancellationToken.None);
@@ -292,7 +284,6 @@ public class NewsCrawlerOrchestratorTests
         var orchestrator = new NewsCrawlerOrchestrator(
             [provider.Object],
             articleRepo.Object,
-            Mock.Of<IFilteredArticleRepository>(),
             Mock.Of<IArticleFingerprintRepository>(),
             historyRepo.Object,
             BuildAcquiredLockRepo().Object,
@@ -304,7 +295,6 @@ public class NewsCrawlerOrchestratorTests
             BuildFeedRepo(BuildFeed("AajTak", "Home", "https://example.com/Home")).Object,
             [],
             Options.Create(BuildScalarOptions()),
-            Options.Create(new NewsFilterOptions()),
             NullLogger<NewsCrawlerOrchestrator>.Instance);
 
         var history = await orchestrator.RunCrawlAsync(CancellationToken.None);
@@ -339,7 +329,6 @@ public class NewsCrawlerOrchestratorTests
         var orchestrator = new NewsCrawlerOrchestrator(
             [aajTak.Object, abpNews.Object],
             articleRepo.Object,
-            Mock.Of<IFilteredArticleRepository>(),
             Mock.Of<IArticleFingerprintRepository>(),
             historyRepo.Object,
             BuildAcquiredLockRepo().Object,
@@ -353,7 +342,6 @@ public class NewsCrawlerOrchestratorTests
                 BuildFeed("ABPNews", "Home", "https://example.com/ABPHome")).Object,
             [],
             Options.Create(BuildScalarOptions()),
-            Options.Create(new NewsFilterOptions()),
             NullLogger<NewsCrawlerOrchestrator>.Instance);
 
         var history = await orchestrator.RunCrawlAsync(["AajTak"], CancellationToken.None);
@@ -395,7 +383,6 @@ public class NewsCrawlerOrchestratorTests
         var orchestrator = new NewsCrawlerOrchestrator(
             [aajTak.Object, abpNews.Object],
             articleRepo.Object,
-            Mock.Of<IFilteredArticleRepository>(),
             Mock.Of<IArticleFingerprintRepository>(),
             historyRepo.Object,
             lockRepo.Object,
@@ -409,7 +396,6 @@ public class NewsCrawlerOrchestratorTests
                 BuildFeed("ABPNews", "Home", "https://example.com/ABPHome")).Object,
             [],
             Options.Create(BuildScalarOptions()),
-            Options.Create(new NewsFilterOptions()),
             NullLogger<NewsCrawlerOrchestrator>.Instance);
 
         var history = await orchestrator.RunCrawlAsync(CancellationToken.None);
@@ -452,7 +438,6 @@ public class NewsCrawlerOrchestratorTests
         var orchestrator = new NewsCrawlerOrchestrator(
             [provider.Object],
             articleRepo.Object,
-            Mock.Of<IFilteredArticleRepository>(),
             Mock.Of<IArticleFingerprintRepository>(),
             historyRepo.Object,
             BuildAcquiredLockRepo().Object,
@@ -464,7 +449,6 @@ public class NewsCrawlerOrchestratorTests
             BuildFeedRepo(BuildFeed("AajTak", "Home", "https://example.com/Home")).Object,
             [],
             Options.Create(BuildScalarOptions(saveRawResponses: globalSave)),
-            Options.Create(new NewsFilterOptions()),
             NullLogger<NewsCrawlerOrchestrator>.Instance);
 
         await orchestrator.RunCrawlAsync(CancellationToken.None);

@@ -75,7 +75,6 @@ public static class InfrastructureServiceCollectionExtensions
         services.AddSingleton<IErrorLogRepository, ErrorLogRepository>();
         services.AddSingleton<ISocialMediaSourceRepository, SocialMediaSourceRepository>();
         services.AddSingleton<IProviderScheduleRepository, ProviderScheduleRepository>();
-        services.AddSingleton<IFilteredArticleRepository, FilteredArticleRepository>();
         services.AddSingleton<ICrawlCountryRepository, CrawlCountryRepository>();
         services.AddSingleton<ICrawlFeedRepository, CrawlFeedRepository>();
 

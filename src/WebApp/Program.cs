@@ -231,14 +231,4 @@ if (builder.Configuration.GetValue($"{ApiOptions.SectionName}:EnableCrawlReportD
     app.MapFallbackToFile("/reports/{**slug}", "index.html", indexHtmlCacheOptions);
 }
 
-if (builder.Configuration.GetValue($"{ApiOptions.SectionName}:EnableFilteredArticlesDashboard", false))
-{
-    // Same "no built-in auth, off by default" trade-off as EnableCrawlReportDashboard above - see
-    // ApiOptions.EnableFilteredArticlesDashboard's own doc comment. The underlying
-    // api/filtered-articles JSON endpoints stay mapped regardless (same always-on trust model as
-    // every other endpoint in this app); only the SPA page itself is gated here.
-    app.MapFallbackToFile("/filtered-articles", "index.html", indexHtmlCacheOptions);
-    app.MapFallbackToFile("/filtered-articles/{**slug}", "index.html", indexHtmlCacheOptions);
-}
-
 app.Run();
