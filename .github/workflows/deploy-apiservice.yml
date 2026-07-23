@@ -3,6 +3,20 @@ name: Deploy ApiService to Azure
 on:
   push:
     branches: [main]
+    # Only this service's own code plus the shared layers it actually references
+    # (Application/Domain/Infrastructure/ServiceDefaults/WebPlatform, per ApiService.csproj's
+    # ProjectReferences) and the API-only config it links - a change scoped to WebApp/RssService's
+    # own folder doesn't touch anything ApiService actually ships, so it shouldn't redeploy this app.
+    paths:
+      - "src/ApiService/**"
+      - "src/WebPlatform/**"
+      - "src/Application/**"
+      - "src/Domain/**"
+      - "src/Infrastructure/**"
+      - "src/ServiceDefaults/**"
+      - "src/Countries.Api/**"
+      - "src/WebApiFeed.appsettings.json"
+      - ".github/workflows/deploy-apiservice.yml"
   workflow_dispatch:
 
 jobs:

@@ -3,6 +3,23 @@ name: Deploy WebApp to Azure
 on:
   push:
     branches: [main]
+    # Only this service's own code plus the shared layers it actually references
+    # (Application/Domain/Infrastructure/ServiceDefaults/WebPlatform, per WebApp.csproj's
+    # ProjectReferences) and the RSS/API config it links (WebApp hosts Provider Management +
+    # manual triggers for both pipelines) - a change scoped to RssService/ApiService's own folder
+    # doesn't touch anything WebApp actually ships, so it shouldn't redeploy this app.
+    paths:
+      - "src/WebApp/**"
+      - "src/WebPlatform/**"
+      - "src/Application/**"
+      - "src/Domain/**"
+      - "src/Infrastructure/**"
+      - "src/ServiceDefaults/**"
+      - "src/Countries.Rss/**"
+      - "src/Countries.Api/**"
+      - "src/WebRssFeed.appsettings.json"
+      - "src/WebApiFeed.appsettings.json"
+      - ".github/workflows/deploy-webapp.yml"
   workflow_dispatch:
 
 jobs:
