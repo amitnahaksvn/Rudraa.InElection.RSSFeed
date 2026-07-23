@@ -15,12 +15,13 @@ import type { ApiEndpointSummary } from '../../api/providerTypes';
 export interface ApiEndpointFormDialogProps {
   open: boolean;
   provider: string;
+  country: string;
   endpoint?: ApiEndpointSummary;
   onClose: () => void;
 }
 
-/** Add/edit dialog for one JSON-API endpoint - `endpoint` present means edit, absent means add a new endpoint under `provider`. */
-export function ApiEndpointFormDialog({ open, provider, endpoint, onClose }: ApiEndpointFormDialogProps) {
+/** Add/edit dialog for one JSON-API endpoint - `endpoint` present means edit, absent means add a new endpoint under `provider`'s `country` schedule. */
+export function ApiEndpointFormDialog({ open, provider, country, endpoint, onClose }: ApiEndpointFormDialogProps) {
   const isEdit = endpoint !== undefined;
   const [name, setName] = useState(endpoint?.name ?? '');
   const [path, setPath] = useState(endpoint?.endpoint ?? '');
@@ -48,7 +49,7 @@ export function ApiEndpointFormDialog({ open, provider, endpoint, onClose }: Api
     if (isEdit) {
       updateFeed.mutate({ id: endpoint.id, fields }, { onSuccess: onClose });
     } else {
-      createFeed.mutate({ pipeline: 'Api', provider, ...fields }, { onSuccess: onClose });
+      createFeed.mutate({ pipeline: 'Api', provider, country, ...fields }, { onSuccess: onClose });
     }
   };
 

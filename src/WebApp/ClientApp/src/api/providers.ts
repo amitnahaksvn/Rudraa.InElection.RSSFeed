@@ -68,8 +68,11 @@ export async function updateProviderSchedule(fields: UpdateProviderScheduleField
   return response.json();
 }
 
-export async function deleteProvider(pipeline: CrawlPipelineName, provider: string): Promise<void> {
-  const response = await fetch(`/api/providers/schedule/${pipeline}/${encodeURIComponent(provider)}`, { method: 'DELETE' });
+export async function deleteProvider(pipeline: CrawlPipelineName, provider: string, country: string): Promise<void> {
+  const response = await fetch(
+    `/api/providers/schedule/${pipeline}/${encodeURIComponent(provider)}/${encodeURIComponent(country)}`,
+    { method: 'DELETE' },
+  );
   await throwIfNotOk(response);
 }
 
@@ -97,6 +100,7 @@ export async function deleteCountry(pipeline: CrawlPipelineName, name: string): 
 export interface CreateFeedFields {
   pipeline: CrawlPipelineName;
   provider: string;
+  country: string;
   name: string;
   url: string;
   category: string;

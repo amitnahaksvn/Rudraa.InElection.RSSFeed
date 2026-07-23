@@ -9,8 +9,11 @@ namespace Domain.Entities;
 /// <see cref="ProviderSchedule"/>/<see cref="CrawlCountry"/> (identified by a natural
 /// Pipeline+name key), a feed has no reliable natural key of its own - two feeds under the same
 /// provider can share a Name, and Url alone isn't guaranteed unique either - so <see cref="Id"/>
-/// is this record's real identity for create/update/delete. <see cref="Provider"/> (matching
-/// <see cref="ProviderSchedule.Provider"/>) is how it's grouped under its parent provider.
+/// is this record's real identity for create/update/delete. <see cref="Provider"/> plus
+/// <see cref="Country"/> together (matching <see cref="ProviderSchedule.Provider"/>/
+/// <see cref="ProviderSchedule.Country"/>) are how it's grouped under its parent schedule - a
+/// provider configured once per country (e.g. SerpApiGoogleNews) has a disjoint set of feeds per
+/// country, not one shared list.
 /// </summary>
 public sealed class CrawlFeed
 {
@@ -19,6 +22,9 @@ public sealed class CrawlFeed
     public CrawlPipeline Pipeline { get; set; }
 
     public string Provider { get; set; } = string.Empty;
+
+    /// <summary>Which provider-schedule this feed belongs to, matching <see cref="ProviderSchedule.Country"/> - see this entity's own doc comment.</summary>
+    public string Country { get; set; } = string.Empty;
 
     public string Name { get; set; } = string.Empty;
 

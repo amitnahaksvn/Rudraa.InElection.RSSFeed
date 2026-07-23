@@ -6,10 +6,11 @@ using Domain.Enums;
 
 namespace Application.Providers.Commands.CreateCrawlFeed;
 
-/// <summary>Adds a new RSS feed / JSON-API endpoint to an existing provider - the "add feed" form on the Provider Management page.</summary>
+/// <summary>Adds a new RSS feed / JSON-API endpoint to an existing provider-country schedule - the "add feed" form on the Provider Management page.</summary>
 public sealed record CreateCrawlFeedCommand(
     CrawlPipeline Pipeline,
     string Provider,
+    string Country,
     string Name,
     string Url,
     string Category,
@@ -33,6 +34,7 @@ public sealed class CreateCrawlFeedCommandHandler : IRequestHandler<CreateCrawlF
         {
             Pipeline = request.Pipeline,
             Provider = request.Provider,
+            Country = request.Country,
             Name = request.Name,
             Url = request.Url,
             Category = request.Category,

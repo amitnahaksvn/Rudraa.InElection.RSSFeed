@@ -18,11 +18,11 @@ public sealed class HangfireCrawlJobStatusReader : ICrawlJobStatusReader
     // of those round trips concurrently instead of sequentially.
     private const int LookupConcurrency = 64;
 
-    // How long one provider's schedule snapshot is trusted before re-fetching. A recurring job's
-    // Cron/NextExecution/LastExecution/LastJobState change at most once per that provider's own
-    // cron tick (the shortest configured is every few minutes) - caching for this short a window
-    // keeps the crawl-report page feeling instant on a second load (tab switch, date-range tweak)
-    // without ever showing meaningfully stale schedule data.
+    // How long one provider-country's schedule snapshot is trusted before re-fetching. A recurring
+    // job's Cron/NextExecution/LastExecution/LastJobState change at most once per that schedule's
+    // own cron tick (the shortest configured is every few minutes) - caching for this short a
+    // window keeps the crawl-report page feeling instant on a second load (tab switch, date-range
+    // tweak) without ever showing meaningfully stale schedule data.
     private static readonly TimeSpan CacheDuration = TimeSpan.FromSeconds(20);
 
     private readonly JobStorage _jobStorage;
@@ -41,64 +41,65 @@ public sealed class HangfireCrawlJobStatusReader : ICrawlJobStatusReader
         _cache = cache;
     }
 
-    public CrawlJobStatus? GetStatus(CrawlPipeline pipeline, string providerName) =>
-        GetStatuses(pipeline, [providerName]).GetValueOrDefault(providerName);
+    public CrawlJobStatus? GetStatus(CrawlPipeline pipeline, string providerName, string country) =>
+        GetStatuses(pipeline, [(providerName, country)]).GetValueOrDefault((providerName, country));
 
     /// <summary>
     /// A naive per-provider loop here measured ~58-65s end to end against this app's 236 RSS
     /// providers (network round trips to a remote Atlas cluster, not CPU) - unacceptable for a
-    /// page a person is actively waiting on. Fanning the same per-provider lookup out across
-    /// <see cref="LookupConcurrency"/> concurrent connections, plus the short cache above, cut
-    /// that down to roughly a couple of seconds on a cold cache and near-instant on a warm one.
+    /// page a person is actively waiting on. Fanning the same per-provider-country lookup out
+    /// across <see cref="LookupConcurrency"/> concurrent connections, plus the short cache above,
+    /// cut that down to roughly a couple of seconds on a cold cache and near-instant on a warm one.
     /// </summary>
-    public IReadOnlyDictionary<string, CrawlJobStatus> GetStatuses(CrawlPipeline pipeline, IReadOnlyCollection<string> providerNames)
+    public IReadOnlyDictionary<(string Provider, string Country), CrawlJobStatus> GetStatuses(
+        CrawlPipeline pipeline, IReadOnlyCollection<(string Provider, string Country)> providerCountries)
     {
-        if (providerNames.Count == 0)
+        if (providerCountries.Count == 0)
         {
-            return new Dictionary<string, CrawlJobStatus>();
+            return new Dictionary<(string, string), CrawlJobStatus>();
         }
 
-        var result = new ConcurrentDictionary<string, CrawlJobStatus>();
-        var uncached = new List<string>();
+        var result = new ConcurrentDictionary<(string, string), CrawlJobStatus>();
+        var uncached = new List<(string Provider, string Country)>();
 
-        foreach (var providerName in providerNames)
+        foreach (var providerCountry in providerCountries)
         {
-            if (_cache.TryGetValue(CacheKey(pipeline, providerName), out CacheEntry entry))
+            if (_cache.TryGetValue(CacheKey(pipeline, providerCountry.Provider, providerCountry.Country), out CacheEntry entry))
             {
                 if (entry.Status is not null)
                 {
-                    result[providerName] = entry.Status;
+                    result[providerCountry] = entry.Status;
                 }
             }
             else
             {
-                uncached.Add(providerName);
+                uncached.Add(providerCountry);
             }
         }
 
-        Parallel.ForEach(uncached, new ParallelOptions { MaxDegreeOfParallelism = LookupConcurrency }, providerName =>
+        Parallel.ForEach(uncached, new ParallelOptions { MaxDegreeOfParallelism = LookupConcurrency }, providerCountry =>
         {
-            var status = GetStatusUncached(pipeline, providerName);
-            _cache.Set(CacheKey(pipeline, providerName), new CacheEntry(status), CacheDuration);
+            var status = GetStatusUncached(pipeline, providerCountry.Provider, providerCountry.Country);
+            _cache.Set(CacheKey(pipeline, providerCountry.Provider, providerCountry.Country), new CacheEntry(status), CacheDuration);
             if (status is not null)
             {
-                result[providerName] = status;
+                result[providerCountry] = status;
             }
         });
 
         return result;
     }
 
-    /// <summary>Internal (not private) so <see cref="HangfireCrawlJobTrigger"/> can evict a provider's entry the moment it changes that job - otherwise a status read shortly after an enable/disable could serve this cache's stale pre-change answer for up to <see cref="CacheDuration"/>.</summary>
-    internal static string CacheKey(CrawlPipeline pipeline, string providerName) => $"crawl-job-status:{pipeline}:{providerName}";
+    /// <summary>Internal (not private) so <see cref="HangfireCrawlJobTrigger"/> can evict a provider-country's entry the moment it changes that job - otherwise a status read shortly after an enable/disable could serve this cache's stale pre-change answer for up to <see cref="CacheDuration"/>.</summary>
+    internal static string CacheKey(CrawlPipeline pipeline, string providerName, string country) => $"crawl-job-status:{pipeline}:{providerName}::{country}";
 
     private readonly record struct CacheEntry(CrawlJobStatus? Status);
 
-    private CrawlJobStatus? GetStatusUncached(CrawlPipeline pipeline, string providerName)
+    private CrawlJobStatus? GetStatusUncached(CrawlPipeline pipeline, string providerName, string country)
     {
         var jobId = pipeline == CrawlPipeline.Api
-            ? HangfireJobIds.NewsApi(providerName)
-            : HangfireJobIds.NewsCrawl(providerName);
+            ? HangfireJobIds.NewsApi(providerName, country)
+            : HangfireJobIds.NewsCrawl(providerName, country);
 
         using var connection = _jobStorage.GetConnection();
         var recurringJob = connection.GetRecurringJobs(new[] { jobId }).SingleOrDefault();
@@ -131,6 +132,7 @@ public sealed class HangfireCrawlJobStatusReader : ICrawlJobStatusReader
         return new CrawlJobStatus(
             JobId: jobId,
             Provider: providerName,
+            Country: country,
             Cron: recurringJob.Cron,
             TimeZone: recurringJob.TimeZoneId,
             NextExecution: ToUtcOffset(recurringJob.NextExecution),

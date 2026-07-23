@@ -96,7 +96,7 @@ export function ApiProviderCard({ provider }: { provider: ApiProviderSummary }) 
           <Stack gap={1.5}>
             <Stack divider={<Divider />} gap={1.5}>
               {provider.endpoints.map((endpoint) => (
-                <ApiEndpointRow key={endpoint.id} providerName={provider.name} endpoint={endpoint} />
+                <ApiEndpointRow key={endpoint.id} providerName={provider.name} country={provider.country} endpoint={endpoint} />
               ))}
             </Stack>
             <Button size="small" startIcon={<AddIcon fontSize="small" />} onClick={(e) => { stop(e); setAddEndpointOpen(true); }} sx={{ alignSelf: 'flex-start' }}>
@@ -106,17 +106,17 @@ export function ApiProviderCard({ provider }: { provider: ApiProviderSummary }) 
         )}
       </AccordionDetails>
 
-      <ApiEndpointFormDialog open={addEndpointOpen} provider={provider.name} onClose={() => setAddEndpointOpen(false)} />
+      <ApiEndpointFormDialog open={addEndpointOpen} provider={provider.name} country={provider.country} onClose={() => setAddEndpointOpen(false)} />
 
       <Dialog open={confirmDeleteOpen} onClose={() => setConfirmDeleteOpen(false)}>
-        <DialogTitle>Delete provider "{provider.name}" and its recurring job?</DialogTitle>
+        <DialogTitle>Delete provider "{provider.name}" ({provider.country}) and its recurring job?</DialogTitle>
         <DialogActions>
           <Button onClick={() => setConfirmDeleteOpen(false)}>Cancel</Button>
           <Button
             color="error"
             variant="contained"
             disabled={deleteProvider.isPending}
-            onClick={() => deleteProvider.mutate(provider.name, { onSuccess: () => setConfirmDeleteOpen(false) })}
+            onClick={() => deleteProvider.mutate({ provider: provider.name, country: provider.country }, { onSuccess: () => setConfirmDeleteOpen(false) })}
           >
             Delete
           </Button>

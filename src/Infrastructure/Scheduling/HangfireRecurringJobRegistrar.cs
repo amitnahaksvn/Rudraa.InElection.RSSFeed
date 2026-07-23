@@ -127,18 +127,18 @@ public static class HangfireRecurringJobRegistrar
                 return;
             }
 
-            var jobId = HangfireJobIds.NewsCrawl(schedule.Provider);
+            var jobId = HangfireJobIds.NewsCrawl(schedule.Provider, schedule.Country);
             enabledJobIdBag.Add(jobId);
             var timeZone = ResolveTimeZone(schedule.TimeZone, schedule.Provider, logger);
 
             // AddOrUpdate is idempotent on jobId - re-registering on every startup keeps the recurring
             // job's cron expression in sync with its schedule without ever creating duplicate jobs.
             // Targets HangfireCrawlJobExecutor (not INewsCrawlerService directly) so the dashboard
-            // shows a friendly "Crawl AajTak" name and every log line from the run carries this
-            // job's own id.
+            // shows a friendly "Crawl AajTak (India)" name and every log line from the run carries
+            // this job's own id.
             recurringJobManager.AddOrUpdate<HangfireCrawlJobExecutor>(
                 jobId,
-                executor => executor.RunAsync(schedule.Provider, null!, CancellationToken.None),
+                executor => executor.RunAsync(schedule.Provider, schedule.Country, null!, CancellationToken.None),
                 cron,
                 RecurringJobOptionsFactory.Create(timeZone));
 
@@ -375,12 +375,11 @@ public static class HangfireRecurringJobRegistrar
         var enabledCountryNames = new HashSet<string>(
             countries.Where(c => c.Enabled).Select(c => c.Name), StringComparer.OrdinalIgnoreCase);
 
-        // ProviderSchedule (database) is now the sole source of truth for every provider's
-        // Enabled/Cron/TimeZone, uniquely keyed by (Pipeline, Provider) - unlike the old JSON
-        // config (where a "global aggregator" like NewsApiOrg could appear once per country with
-        // its own query parameters, requiring a DistinctBy here to avoid registering the same
-        // Hangfire job id 64 times concurrently), there is now exactly one row per provider name
-        // by construction, so no dedup step is needed.
+        // ProviderSchedule (database) is now the sole source of truth for every provider-country's
+        // Enabled/Cron/TimeZone, uniquely keyed by (Pipeline, Provider, Country) - a "global
+        // aggregator" like NewsApiOrg genuinely does appear once per country here, each with its
+        // own schedule row and its own Hangfire job id (see HangfireJobIds.NewsApi), so no dedup
+        // step is needed: job id is already 1:1 with schedule row by construction.
         var enabledSchedules = (await scheduleRepository.GetAllAsync(CrawlPipeline.Api, CancellationToken.None))
             .Where(s => s.Enabled && enabledCountryNames.Contains(s.Country))
             .ToList();
@@ -398,14 +397,24 @@ public static class HangfireRecurringJobRegistrar
                 return;
             }
 
-            var jobId = HangfireJobIds.NewsApi(schedule.Provider);
+            var jobId = HangfireJobIds.NewsApi(schedule.Provider, schedule.Country);
             enabledJobIdBag.Add(jobId);
-            var isNewJob = !preExistingJobIds.Contains(jobId);
+
+            // A job is only genuinely "new" if neither its new (Provider, Country) job id nor its
+            // old, pre-per-country-split job id (just Provider) was ever registered before -
+            // without checking the legacy id too, the one-time deploy that introduces per-country
+            // job ids would see every currently-enabled provider as "new" (their old-format ids
+            // don't match the new format) and fire an immediate Trigger() burst against every
+            // configured news API at once, rather than only the schedules that are genuinely new
+            // (e.g. a provider's second/third/fourth country row, freshly created by the
+            // per-country data migration).
+            var legacyJobId = HangfireJobIds.LegacyNewsApi(schedule.Provider);
+            var isNewJob = !preExistingJobIds.Contains(jobId) && !preExistingJobIds.Contains(legacyJobId);
             var timeZone = ResolveTimeZone(schedule.TimeZone, schedule.Provider, logger);
 
             recurringJobManager.AddOrUpdate<HangfireNewsApiJobExecutor>(
                 jobId,
-                executor => executor.RunAsync(schedule.Provider, null!, CancellationToken.None),
+                executor => executor.RunAsync(schedule.Provider, schedule.Country, null!, CancellationToken.None),
                 cron,
                 RecurringJobOptionsFactory.Create(timeZone));
 

@@ -40,7 +40,7 @@ public sealed class Providers : IEndpointGroup
         group.MapDelete("countries/{pipeline}/{name}", DeleteCountry);
 
         group.MapPut("schedule", UpdateSchedule);
-        group.MapDelete("schedule/{pipeline}/{provider}", DeleteSchedule);
+        group.MapDelete("schedule/{pipeline}/{provider}/{country}", DeleteSchedule);
 
         group.MapPost("feeds", CreateFeed);
         group.MapPut("feeds/{id}", UpdateFeed);
@@ -132,22 +132,23 @@ public sealed class Providers : IEndpointGroup
         return TypedResults.Ok(result);
     }
 
-    [EndpointSummary("Delete a provider")]
-    [EndpointDescription("Removes a provider's catalog record entirely and its live Hangfire recurring job. Its feeds/endpoints are left orphaned in the feed catalog, same reasoning as deleting a country.")]
-    public static async Task<Results<Ok, NotFound>> DeleteSchedule(ISender sender, string pipeline, string provider, CancellationToken cancellationToken)
+    [EndpointSummary("Delete a provider-country schedule")]
+    [EndpointDescription("Removes one provider-country's catalog record entirely and its live Hangfire recurring job. Its feeds/endpoints are left orphaned in the feed catalog, same reasoning as deleting a country.")]
+    public static async Task<Results<Ok, NotFound>> DeleteSchedule(ISender sender, string pipeline, string provider, string country, CancellationToken cancellationToken)
     {
-        var found = await sender.Send(new DeleteProviderScheduleCommand(ParsePipeline(pipeline), provider), cancellationToken);
+        var found = await sender.Send(new DeleteProviderScheduleCommand(ParsePipeline(pipeline), provider, country), cancellationToken);
         return found ? TypedResults.Ok() : TypedResults.NotFound();
     }
 
     [EndpointSummary("Add a feed or endpoint")]
-    [EndpointDescription("Adds a new RSS feed or JSON-API endpoint under an existing provider.")]
+    [EndpointDescription("Adds a new RSS feed or JSON-API endpoint under an existing provider-country schedule.")]
     public static async Task<Ok<CrawlFeedDto>> CreateFeed(ISender sender, CreateFeedRequest request, CancellationToken cancellationToken)
     {
         var result = await sender.Send(
             new CreateCrawlFeedCommand(
                 ParsePipeline(request.Pipeline),
                 request.Provider,
+                request.Country,
                 request.Name,
                 request.Url,
                 request.Category,
@@ -213,6 +214,7 @@ public sealed record UpdateProviderScheduleRequest(
 public sealed record CreateFeedRequest(
     string Pipeline,
     string Provider,
+    string Country,
     string Name,
     string Url,
     string Category,

@@ -1,9 +1,7 @@
 using Mediator;
-using Microsoft.Extensions.Options;
 using Application.Abstractions;
 using Application.Crawl.Dtos;
 using Application.Models;
-using Application.Options;
 using Domain.Entities;
 using Domain.Enums;
 
@@ -22,21 +20,21 @@ public sealed class GetCrawlReportQueryHandler : IRequestHandler<GetCrawlReportQ
     private readonly ICrawlHistoryRepository _history;
     private readonly IArticleFingerprintRepository _fingerprints;
     private readonly ICrawlJobStatusReader _statusReader;
-    private readonly NewsCrawlerOptions _rssOptions;
-    private readonly NewsApiCrawlerOptions _apiOptions;
+    private readonly ICrawlCountryRepository _countryRepository;
+    private readonly IProviderScheduleRepository _scheduleRepository;
 
     public GetCrawlReportQueryHandler(
         ICrawlHistoryRepository history,
         IArticleFingerprintRepository fingerprints,
         ICrawlJobStatusReader statusReader,
-        IOptions<NewsCrawlerOptions> rssOptions,
-        IOptions<NewsApiCrawlerOptions> apiOptions)
+        ICrawlCountryRepository countryRepository,
+        IProviderScheduleRepository scheduleRepository)
     {
         _history = history;
         _fingerprints = fingerprints;
         _statusReader = statusReader;
-        _rssOptions = rssOptions.Value;
-        _apiOptions = apiOptions.Value;
+        _countryRepository = countryRepository;
+        _scheduleRepository = scheduleRepository;
     }
 
     public async ValueTask<CrawlReportDto> Handle(GetCrawlReportQuery request, CancellationToken cancellationToken)
@@ -61,9 +59,27 @@ public sealed class GetCrawlReportQueryHandler : IRequestHandler<GetCrawlReportQ
             .GroupBy(c => c.Provider, StringComparer.OrdinalIgnoreCase)
             .ToDictionary(g => g.Key, g => g.Sum(c => c.Count), StringComparer.OrdinalIgnoreCase);
 
+        // Database-backed (ICrawlCountryRepository/IProviderScheduleRepository), same source of
+        // truth the orchestrators and Provider Management page already use - one row per
+        // (Country, Provider) schedule, so a provider scheduled under more than one country (e.g.
+        // SerpApiGoogleNews) already shows up as its own row per country here, each with its own
+        // Cron/TimeZone/next-run pulled from that country's own Hangfire job. NewArticles/run
+        // counts/success rate below remain attributed per bare provider name, not per
+        // (Provider, Country) - CrawlHistory.Providers and ArticleFingerprint carry no Country
+        // dimension today, so a multi-country provider's activity figures stay commingled across
+        // its country rows until those get one too; a known, separate follow-up.
+        var countries = await _countryRepository.GetAllAsync(request.Pipeline, cancellationToken);
+        var enabledCountryNames = new HashSet<string>(
+            countries.Where(c => c.Enabled).Select(c => c.Name), StringComparer.OrdinalIgnoreCase);
+        var schedules = await _scheduleRepository.GetAllAsync(request.Pipeline, cancellationToken);
+        var configured = schedules
+            .Where(s => s.Enabled && enabledCountryNames.Contains(s.Country))
+            .Select(s => (Country: s.Country, Provider: s.Provider))
+            .ToList();
+
         var summary = BuildSummary(runs, newCounts.Sum(c => c.Count));
         var timeSeries = BuildTimeSeries(runs, from, to, newArticlesByDay);
-        var providers = BuildProviderBreakdown(request.Pipeline, runs, newArticlesByProvider);
+        var providers = BuildProviderBreakdown(request.Pipeline, configured, runs, newArticlesByProvider);
 
         return new CrawlReportDto(request.Pipeline.ToString(), from, to, summary, timeSeries, providers);
     }
@@ -117,18 +133,14 @@ public sealed class GetCrawlReportQueryHandler : IRequestHandler<GetCrawlReportQ
 
     private IReadOnlyList<CrawlReportProviderDto> BuildProviderBreakdown(
         CrawlPipeline pipeline,
+        IReadOnlyList<(string Country, string Provider)> configured,
         IReadOnlyList<CrawlHistory> runs,
         IReadOnlyDictionary<string, int> newArticlesByProvider)
     {
-        var configured = (pipeline == CrawlPipeline.Api
-            ? _apiOptions.Countries.Where(c => c.Enabled).SelectMany(c => c.Providers.Where(p => p.Enabled).Select(p => (Country: c.Name, Provider: p.Name)))
-            : _rssOptions.Countries.Where(c => c.Enabled).SelectMany(c => c.Providers.Where(p => p.Enabled).Select(p => (Country: c.Name, Provider: p.Name))))
-            .ToList();
-
-        // Fanned out across many providers concurrently, not sequentially - see
+        // Fanned out across many provider-countries concurrently, not sequentially - see
         // ICrawlJobStatusReader.GetStatuses's own doc comment for why that distinction matters at
         // this app's provider counts.
-        var statuses = _statusReader.GetStatuses(pipeline, configured.Select(cp => cp.Provider).ToList());
+        var statuses = _statusReader.GetStatuses(pipeline, configured.Select(cp => (cp.Provider, cp.Country)).ToList());
 
         // Exact per-provider article/run attribution only applies to single-provider runs - the
         // normal case, since each provider's own scheduled Hangfire job crawls just that provider.
@@ -136,7 +148,9 @@ public sealed class GetCrawlReportQueryHandler : IRequestHandler<GetCrawlReportQ
         // many providers into one CrawlHistory record; that activity still counts toward the
         // overall summary/time-series above, but is deliberately left out of any single
         // provider's row here rather than crediting the whole run's totals to every provider it
-        // touched.
+        // touched. Keyed by bare provider name, not (Provider, Country) - CrawlHistory.Providers
+        // has no Country dimension (see this method's own caller for why that's an accepted,
+        // separately-tracked limitation for now).
         var singleProviderRuns = runs
             .Where(r => r.Providers.Count == 1)
             .ToLookup(r => r.Providers[0], StringComparer.OrdinalIgnoreCase);
@@ -145,7 +159,7 @@ public sealed class GetCrawlReportQueryHandler : IRequestHandler<GetCrawlReportQ
         foreach (var (country, providerName) in configured)
         {
             var providerRuns = singleProviderRuns[providerName].ToList();
-            statuses.TryGetValue(providerName, out var status);
+            statuses.TryGetValue((providerName, country), out var status);
 
             // Failed-feed attribution stays exact even for multi-provider runs, since each entry
             // is its own "{Provider}/{Feed}" string regardless of how many providers ran together.

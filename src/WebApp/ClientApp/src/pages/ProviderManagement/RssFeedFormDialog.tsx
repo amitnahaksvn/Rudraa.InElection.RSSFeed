@@ -15,12 +15,13 @@ import type { RssFeedSummary } from '../../api/providerTypes';
 export interface RssFeedFormDialogProps {
   open: boolean;
   provider: string;
+  country: string;
   feed?: RssFeedSummary;
   onClose: () => void;
 }
 
-/** Add/edit dialog for one RSS feed - `feed` present means edit, absent means add a new feed under `provider`. */
-export function RssFeedFormDialog({ open, provider, feed, onClose }: RssFeedFormDialogProps) {
+/** Add/edit dialog for one RSS feed - `feed` present means edit, absent means add a new feed under `provider`'s `country` schedule. */
+export function RssFeedFormDialog({ open, provider, country, feed, onClose }: RssFeedFormDialogProps) {
   const isEdit = feed !== undefined;
   const [name, setName] = useState(feed?.name ?? '');
   const [url, setUrl] = useState(feed?.url ?? '');
@@ -37,7 +38,7 @@ export function RssFeedFormDialog({ open, provider, feed, onClose }: RssFeedForm
     if (isEdit) {
       updateFeed.mutate({ id: feed.id, fields }, { onSuccess: onClose });
     } else {
-      createFeed.mutate({ pipeline: 'Rss', provider, ...fields }, { onSuccess: onClose });
+      createFeed.mutate({ pipeline: 'Rss', provider, country, ...fields }, { onSuccess: onClose });
     }
   };
 

@@ -29,13 +29,22 @@ public sealed class GetRssProvidersQueryHandler : IRequestHandler<GetRssProvider
 
         var schedules = await _schedules.GetAllAsync(CrawlPipeline.Rss, cancellationToken);
         var feeds = await _feeds.GetAllAsync(CrawlPipeline.Rss, cancellationToken);
-        var feedsByProvider = feeds
+        var feedsByProviderCountry = feeds
+            .GroupBy(f => (f.Provider.ToUpperInvariant(), f.Country.ToUpperInvariant()))
+            .ToDictionary(g => g.Key, g => g.ToList());
+        var feedsByProviderOnly = feeds
             .GroupBy(f => f.Provider, StringComparer.OrdinalIgnoreCase)
             .ToDictionary(g => g.Key, g => g.ToList(), StringComparer.OrdinalIgnoreCase);
 
         return schedules.Select(schedule =>
         {
-            feedsByProvider.TryGetValue(schedule.Provider, out var providerFeeds);
+            // Falls back to every feed under the bare provider name if the exact (Provider,
+            // Country) pair isn't found yet - same migration-window safety net as the
+            // orchestrators' own BuildProviderOptions (see that method's doc comment).
+            if (!feedsByProviderCountry.TryGetValue((schedule.Provider.ToUpperInvariant(), schedule.Country.ToUpperInvariant()), out var providerFeeds))
+            {
+                feedsByProviderOnly.TryGetValue(schedule.Provider, out providerFeeds);
+            }
             providerFeeds ??= [];
             var countryEnabled = countryEnabledByName.TryGetValue(schedule.Country, out var enabled) && enabled;
 

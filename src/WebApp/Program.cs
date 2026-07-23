@@ -24,6 +24,16 @@ var initDbOnly = args.Contains("--init-db", StringComparer.OrdinalIgnoreCase);
 // in a single invocation.
 var migrateCatalogOnly = args.Contains("--migrate-catalog", StringComparer.OrdinalIgnoreCase);
 
+// `dotnet run --project src/WebApp -- --migrate-provider-countries` runs
+// ProviderCountrySplitMigrator once and exits - backfills CrawlFeed.Country for providers
+// configured under more than one JSON country block (e.g. SerpApiGoogleNews), closing the gap
+// --migrate-catalog's original run left behind now that ProviderSchedule is keyed by
+// (Pipeline, Provider, Country) instead of (Pipeline, Provider). Same "only WebApp loads both
+// config trees" reasoning as --migrate-catalog above. Run this once against production, then
+// restart RssService/ApiService so ProviderScheduleSeeder inserts the missing per-country
+// schedule rows - see the migrator's own doc comment for the full ordering.
+var migrateProviderCountriesOnly = args.Contains("--migrate-provider-countries", StringComparer.OrdinalIgnoreCase);
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Unlike RssService/ApiService (which each load only their own pipeline's config), WebApp loads
@@ -70,6 +80,12 @@ if (initDbOnly)
 if (migrateCatalogOnly)
 {
     await MigrateCatalogRunner.RunAsync(builder.Services);
+    return;
+}
+
+if (migrateProviderCountriesOnly)
+{
+    await MigrateProviderCountriesRunner.RunAsync(builder.Services);
     return;
 }
 

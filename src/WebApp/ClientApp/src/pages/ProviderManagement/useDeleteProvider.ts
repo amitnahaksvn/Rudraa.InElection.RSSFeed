@@ -5,7 +5,7 @@ import type { CrawlPipelineName } from '../../api/providerTypes';
 export function useDeleteProvider(pipeline: CrawlPipelineName) {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (provider: string) => deleteProvider(pipeline, provider),
+    mutationFn: ({ provider, country }: { provider: string; country: string }) => deleteProvider(pipeline, provider, country),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: [pipeline === 'Api' ? 'apiProviders' : 'rssProviders'] }),
   });
 }

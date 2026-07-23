@@ -36,6 +36,7 @@ public sealed class CrawlFeedRepository : ICrawlFeedRepository
     {
         var update = Builders<CrawlFeed>.Update
             .Set(f => f.Provider, feed.Provider)
+            .Set(f => f.Country, feed.Country)
             .Set(f => f.Name, feed.Name)
             .Set(f => f.Url, feed.Url)
             .Set(f => f.Category, feed.Category)

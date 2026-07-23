@@ -7,5 +7,6 @@ public sealed class GetCrawlJobStatusQueryValidator : AbstractValidator<GetCrawl
     public GetCrawlJobStatusQueryValidator()
     {
         RuleFor(q => q.Provider).NotEmpty();
+        RuleFor(q => q.Country).NotEmpty();
     }
 }

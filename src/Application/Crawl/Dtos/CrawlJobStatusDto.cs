@@ -2,10 +2,11 @@ using Application.Models;
 
 namespace Application.Crawl.Dtos;
 
-/// <summary>What a provider's recurring crawl job is doing/has done, read straight from Hangfire.</summary>
+/// <summary>What a provider-country's recurring crawl job is doing/has done, read straight from Hangfire.</summary>
 public sealed record CrawlJobStatusDto(
     string JobId,
     string Provider,
+    string Country,
     string Cron,
     string TimeZone,
     DateTimeOffset? NextExecution,
@@ -18,6 +19,7 @@ public sealed record CrawlJobStatusDto(
     public static CrawlJobStatusDto FromModel(CrawlJobStatus status) => new(
         status.JobId,
         status.Provider,
+        status.Country,
         status.Cron,
         status.TimeZone,
         status.NextExecution,

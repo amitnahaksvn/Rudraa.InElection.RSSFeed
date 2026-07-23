@@ -5,7 +5,7 @@ using Domain.Entities;
 
 namespace Application.Providers.Commands.UpdateCrawlFeed;
 
-/// <summary>Full overwrite of an existing feed/endpoint's editable fields - the inline edit form on the Provider Management page. Pipeline/Provider aren't editable here (moving a feed to a different provider/pipeline is a delete-and-recreate, not an edit).</summary>
+/// <summary>Full overwrite of an existing feed/endpoint's editable fields - the inline edit form on the Provider Management page. Pipeline/Provider/Country aren't editable here (moving a feed to a different provider/country/pipeline is a delete-and-recreate, not an edit).</summary>
 public sealed record UpdateCrawlFeedCommand(
     string Id,
     string Name,
@@ -38,6 +38,7 @@ public sealed class UpdateCrawlFeedCommandHandler : IRequestHandler<UpdateCrawlF
             Id = request.Id,
             Pipeline = existing.Pipeline,
             Provider = existing.Provider,
+            Country = existing.Country,
             Name = request.Name,
             Url = request.Url,
             Category = request.Category,

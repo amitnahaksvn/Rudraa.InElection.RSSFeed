@@ -6,15 +6,17 @@ using Domain.Enums;
 namespace Application.Crawl.Commands.CreateOrUpdateRecurringJob;
 
 /// <summary>
-/// Creates (or updates, if it already exists) a provider's recurring crawl job - job name is the
-/// provider name, since every job this API can create does exactly one fixed, safe thing (crawl
-/// that provider) rather than arbitrary caller-supplied code. This is a live override of
-/// NewsCrawler.appsettings.json's/NewsApiCrawler's Cron for that provider - see
+/// Creates (or updates, if it already exists) a provider-country's recurring crawl job - job name
+/// is the provider name, since every job this API can create does exactly one fixed, safe thing
+/// (crawl that provider-country) rather than arbitrary caller-supplied code. This is a live
+/// override of that schedule's own database Cron - see
 /// <see cref="ICrawlJobTrigger.CreateOrUpdate"/> for how long it actually lasts.
 /// <see cref="Pipeline"/> picks RSS vs JSON-API, same reasoning as
 /// <see cref="Application.Crawl.Commands.TriggerProviderJob.TriggerProviderJobCommand"/>.
+/// <see cref="Country"/> disambiguates which schedule this applies to, since the same provider
+/// class can be scheduled independently for more than one country.
 /// </summary>
-public sealed record CreateOrUpdateRecurringJobCommand(CrawlPipeline Pipeline, string JobName, string Cron, string TimeZone = "UTC")
+public sealed record CreateOrUpdateRecurringJobCommand(CrawlPipeline Pipeline, string JobName, string Country, string Cron, string TimeZone = "UTC")
     : IRequest<CrawlRecurringJobDto>;
 
 public sealed class CreateOrUpdateRecurringJobCommandHandler
@@ -29,7 +31,7 @@ public sealed class CreateOrUpdateRecurringJobCommandHandler
 
     public ValueTask<CrawlRecurringJobDto> Handle(CreateOrUpdateRecurringJobCommand request, CancellationToken cancellationToken)
     {
-        var jobId = _crawlJobTrigger.CreateOrUpdate(request.Pipeline, request.JobName, request.Cron, request.TimeZone);
+        var jobId = _crawlJobTrigger.CreateOrUpdate(request.Pipeline, request.JobName, request.Country, request.Cron, request.TimeZone);
         return ValueTask.FromResult(new CrawlRecurringJobDto(jobId, request.JobName, request.Cron, request.TimeZone));
     }
 }

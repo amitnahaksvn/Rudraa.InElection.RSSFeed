@@ -5,7 +5,7 @@ using Domain.Enums;
 
 namespace Application.Crawl.Queries.GetCrawlJobStatus;
 
-public sealed record GetCrawlJobStatusQuery(string Provider, CrawlPipeline Pipeline = CrawlPipeline.Rss) : IRequest<CrawlJobStatusDto?>;
+public sealed record GetCrawlJobStatusQuery(string Provider, string Country, CrawlPipeline Pipeline = CrawlPipeline.Rss) : IRequest<CrawlJobStatusDto?>;
 
 public sealed class GetCrawlJobStatusQueryHandler : IRequestHandler<GetCrawlJobStatusQuery, CrawlJobStatusDto?>
 {
@@ -18,7 +18,7 @@ public sealed class GetCrawlJobStatusQueryHandler : IRequestHandler<GetCrawlJobS
 
     public ValueTask<CrawlJobStatusDto?> Handle(GetCrawlJobStatusQuery request, CancellationToken cancellationToken)
     {
-        var status = _statusReader.GetStatus(request.Pipeline, request.Provider);
+        var status = _statusReader.GetStatus(request.Pipeline, request.Provider, request.Country);
         return ValueTask.FromResult(status is null ? null : CrawlJobStatusDto.FromModel(status));
     }
 }

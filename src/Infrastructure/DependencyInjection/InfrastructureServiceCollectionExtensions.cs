@@ -448,6 +448,7 @@ public static class InfrastructureServiceCollectionExtensions
 
         services.AddSingleton<ProviderScheduleSeeder>();
         services.AddSingleton<CrawlCatalogMigrationSeeder>();
+        services.AddSingleton<ProviderCountrySplitMigrator>();
 
         // The JSON news-API pipeline (NewsAPI.org, GNews, TheNewsAPI, Currents, Mediastack,
         // NewsData.io, WorldNewsAPI) - one shared named HttpClient (same reasoning as

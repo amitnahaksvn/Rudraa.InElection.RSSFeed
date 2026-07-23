@@ -19,15 +19,15 @@ public class TriggerProviderJobCommandTests
     private static Mock<IProviderScheduleRepository> BuildScheduleRepo()
     {
         var repo = new Mock<IProviderScheduleRepository>();
-        repo.Setup(s => s.GetAsync(CrawlPipeline.Rss, "AajTak", It.IsAny<CancellationToken>()))
+        repo.Setup(s => s.GetAsync(CrawlPipeline.Rss, "AajTak", "India", It.IsAny<CancellationToken>()))
             .ReturnsAsync(new ProviderSchedule { Provider = "AajTak", Country = "India", Enabled = true, Cron = "*/5 * * * *" });
-        repo.Setup(s => s.GetAsync(CrawlPipeline.Rss, "ABPNews", It.IsAny<CancellationToken>()))
+        repo.Setup(s => s.GetAsync(CrawlPipeline.Rss, "ABPNews", "India", It.IsAny<CancellationToken>()))
             .ReturnsAsync(new ProviderSchedule { Provider = "ABPNews", Country = "India", Enabled = true, Cron = "*/5 * * * *" });
-        repo.Setup(s => s.GetAsync(CrawlPipeline.Rss, "Disabled", It.IsAny<CancellationToken>()))
+        repo.Setup(s => s.GetAsync(CrawlPipeline.Rss, "Disabled", "India", It.IsAny<CancellationToken>()))
             .ReturnsAsync(new ProviderSchedule { Provider = "Disabled", Country = "India", Enabled = false, Cron = "*/5 * * * *" });
-        repo.Setup(s => s.GetAsync(CrawlPipeline.Rss, "NoCron", It.IsAny<CancellationToken>()))
+        repo.Setup(s => s.GetAsync(CrawlPipeline.Rss, "NoCron", "India", It.IsAny<CancellationToken>()))
             .ReturnsAsync(new ProviderSchedule { Provider = "NoCron", Country = "India", Enabled = true, Cron = "" });
-        repo.Setup(s => s.GetAsync(CrawlPipeline.Rss, "NoSuchProvider", It.IsAny<CancellationToken>()))
+        repo.Setup(s => s.GetAsync(CrawlPipeline.Rss, "NoSuchProvider", "India", It.IsAny<CancellationToken>()))
             .ReturnsAsync((ProviderSchedule?)null);
         return repo;
     }
@@ -36,15 +36,15 @@ public class TriggerProviderJobCommandTests
     public async Task Handle_TriggersJobAndReturnsProviderAndJobId()
     {
         var trigger = new Mock<ICrawlJobTrigger>();
-        trigger.Setup(t => t.TriggerNow(CrawlPipeline.Rss, "AajTak")).Returns("news-crawl-AajTak");
+        trigger.Setup(t => t.TriggerNow(CrawlPipeline.Rss, "AajTak", "India")).Returns("news-crawl-AajTak::India");
 
         var handler = new TriggerProviderJobCommandHandler(trigger.Object);
 
-        var result = await handler.Handle(new TriggerProviderJobCommand(CrawlPipeline.Rss, "AajTak"), CancellationToken.None);
+        var result = await handler.Handle(new TriggerProviderJobCommand(CrawlPipeline.Rss, "AajTak", "India"), CancellationToken.None);
 
         Assert.Equal("AajTak", result.Provider);
-        Assert.Equal("news-crawl-AajTak", result.JobId);
-        trigger.Verify(t => t.TriggerNow(CrawlPipeline.Rss, "AajTak"), Times.Once);
+        Assert.Equal("news-crawl-AajTak::India", result.JobId);
+        trigger.Verify(t => t.TriggerNow(CrawlPipeline.Rss, "AajTak", "India"), Times.Once);
     }
 
     [Theory]
@@ -58,7 +58,7 @@ public class TriggerProviderJobCommandTests
     {
         var validator = new TriggerProviderJobCommandValidator(BuildCountryRepo().Object, BuildScheduleRepo().Object);
 
-        var result = await validator.ValidateAsync(new TriggerProviderJobCommand(CrawlPipeline.Rss, provider));
+        var result = await validator.ValidateAsync(new TriggerProviderJobCommand(CrawlPipeline.Rss, provider, "India"));
 
         Assert.Equal(expectedValid, result.IsValid);
     }

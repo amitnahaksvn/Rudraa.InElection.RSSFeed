@@ -344,7 +344,7 @@ public class NewsCrawlerOrchestratorTests
             Options.Create(BuildScalarOptions()),
             NullLogger<NewsCrawlerOrchestrator>.Instance);
 
-        var history = await orchestrator.RunCrawlAsync(["AajTak"], CancellationToken.None);
+        var history = await orchestrator.RunCrawlAsync("AajTak", "India", CancellationToken.None);
 
         Assert.Equal(CrawlStatus.Completed, history.Status);
         Assert.Equal(1, history.NewArticles);
@@ -363,12 +363,13 @@ public class NewsCrawlerOrchestratorTests
         var abpNews = new Mock<IRssProvider>();
         abpNews.Setup(p => p.Name).Returns("ABPNews");
 
-        // Locks are per provider ("news-crawler:{Provider}"): ABPNews's is held elsewhere,
-        // AajTak's is free - AajTak must still crawl rather than the whole run being skipped.
+        // Locks are per (provider, country) ("news-crawler:{Provider}::{Country}"): ABPNews's is
+        // held elsewhere, AajTak's is free - AajTak must still crawl rather than the whole run
+        // being skipped.
         var lockRepo = new Mock<ICrawlLockRepository>();
         lockRepo
             .Setup(l => l.TryAcquireAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<TimeSpan>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync((string name, string _, TimeSpan _, CancellationToken _) => !name.EndsWith(":ABPNews"));
+            .ReturnsAsync((string name, string _, TimeSpan _, CancellationToken _) => !name.Contains("ABPNews"));
 
         var articleRepo = new Mock<INewsArticleRepository>();
         articleRepo
@@ -407,7 +408,7 @@ public class NewsCrawlerOrchestratorTests
         Assert.Equal(["AajTak"], history.Providers);
         aajTak.Verify(p => p.FetchAllFeedsAsync(It.IsAny<IReadOnlyList<RssFeedOptions>>(), It.IsAny<CancellationToken>()), Times.Once);
         abpNews.Verify(p => p.FetchAllFeedsAsync(It.IsAny<IReadOnlyList<RssFeedOptions>>(), It.IsAny<CancellationToken>()), Times.Never);
-        lockRepo.Verify(l => l.ReleaseAsync("news-crawler:AajTak", It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Once);
+        lockRepo.Verify(l => l.ReleaseAsync("news-crawler:AajTak::India", It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Theory]

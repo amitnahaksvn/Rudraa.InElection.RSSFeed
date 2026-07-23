@@ -29,13 +29,22 @@ public sealed class GetApiProvidersQueryHandler : IRequestHandler<GetApiProvider
 
         var schedules = await _schedules.GetAllAsync(CrawlPipeline.Api, cancellationToken);
         var endpoints = await _feeds.GetAllAsync(CrawlPipeline.Api, cancellationToken);
-        var endpointsByProvider = endpoints
+        var endpointsByProviderCountry = endpoints
+            .GroupBy(e => (e.Provider.ToUpperInvariant(), e.Country.ToUpperInvariant()))
+            .ToDictionary(g => g.Key, g => g.ToList());
+        var endpointsByProviderOnly = endpoints
             .GroupBy(e => e.Provider, StringComparer.OrdinalIgnoreCase)
             .ToDictionary(g => g.Key, g => g.ToList(), StringComparer.OrdinalIgnoreCase);
 
         return schedules.Select(schedule =>
         {
-            endpointsByProvider.TryGetValue(schedule.Provider, out var providerEndpoints);
+            // Falls back to every endpoint under the bare provider name if the exact (Provider,
+            // Country) pair isn't found yet - same migration-window safety net as the
+            // orchestrators' own BuildProviderOptions (see that method's doc comment).
+            if (!endpointsByProviderCountry.TryGetValue((schedule.Provider.ToUpperInvariant(), schedule.Country.ToUpperInvariant()), out var providerEndpoints))
+            {
+                endpointsByProviderOnly.TryGetValue(schedule.Provider, out providerEndpoints);
+            }
             providerEndpoints ??= [];
             var countryEnabled = countryEnabledByName.TryGetValue(schedule.Country, out var enabled) && enabled;
             var baseUrl = schedule.BaseUrl ?? string.Empty;

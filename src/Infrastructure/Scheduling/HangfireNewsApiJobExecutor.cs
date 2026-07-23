@@ -10,7 +10,8 @@ namespace Infrastructure.Scheduling;
 /// The <see cref="HangfireCrawlJobExecutor"/> counterpart for JSON news-API providers - the one
 /// thing every Hangfire-scheduled API fetch job actually invokes, never
 /// <see cref="INewsApiCrawlerService"/> directly, for the same two reasons: a friendly dashboard
-/// name ("Fetch news API NewsApiOrg") and a <see cref="PerformContext"/>-scoped log tag per run.
+/// name ("Fetch news API NewsApiOrg (India)") and a <see cref="PerformContext"/>-scoped log tag
+/// per run.
 ///
 /// Tagged onto its own "api" queue (distinct from RSS's "rss" queue) so a production deployment
 /// can scale API-fetching replicas independently from RSS-crawling replicas - the exact scenario
@@ -28,16 +29,17 @@ public sealed class HangfireNewsApiJobExecutor
         _logger = logger;
     }
 
-    [JobDisplayName("Fetch news API {0}")]
-    public async Task RunAsync(string providerName, PerformContext context, CancellationToken cancellationToken)
+    [JobDisplayName("Fetch news API {0} ({1})")]
+    public async Task RunAsync(string providerName, string country, PerformContext context, CancellationToken cancellationToken)
     {
         using var scope = _logger.BeginScope(new Dictionary<string, object>
         {
             ["HangfireJobId"] = context.BackgroundJob.Id,
-            ["Provider"] = providerName
+            ["Provider"] = providerName,
+            ["Country"] = country
         });
 
         ExecutionContextAccessor.CurrentHangfireJobId = context.BackgroundJob.Id;
-        await _crawlerService.RunCrawlAsync(new[] { providerName }, cancellationToken);
+        await _crawlerService.RunCrawlAsync(providerName, country, cancellationToken);
     }
 }

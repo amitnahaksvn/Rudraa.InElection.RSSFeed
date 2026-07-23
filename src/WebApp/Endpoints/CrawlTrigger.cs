@@ -55,37 +55,39 @@ public sealed class CrawlTrigger : IEndpointGroup
         return history.WasSkipped ? TypedResults.Conflict(history) : TypedResults.Ok(history);
     }
 
-    [EndpointSummary("Trigger a single provider's recurring job")]
+    [EndpointSummary("Trigger a single provider-country's recurring job")]
     [EndpointDescription(
-        "Enqueues one provider's own Hangfire recurring job to run now, ahead of its cron schedule, " +
-        "without changing that schedule. 'pipeline' picks RSS vs JSON-API and defaults to Rss. " +
-        "Unlike the bulk trigger endpoints above this does not wait for the crawl to finish - it " +
-        "only confirms the job was enqueued; actual execution happens wherever that job's Hangfire " +
-        "server (RssService or ApiService) is running, guarded by the same distributed lock.")]
+        "Enqueues one provider-country's own Hangfire recurring job to run now, ahead of its cron " +
+        "schedule, without changing that schedule. 'country' is required, since the same provider " +
+        "class can be scheduled independently for more than one country. 'pipeline' picks RSS vs " +
+        "JSON-API and defaults to Rss. Unlike the bulk trigger endpoints above this does not wait " +
+        "for the crawl to finish - it only confirms the job was enqueued; actual execution happens " +
+        "wherever that job's Hangfire server (RssService or ApiService) is running, guarded by the " +
+        "same distributed lock.")]
     public static async Task<Ok<ProviderJobTriggeredDto>> TriggerProvider(
-        ISender sender, string provider, CrawlPipeline? pipeline, CancellationToken cancellationToken)
+        ISender sender, string provider, string country, CrawlPipeline? pipeline, CancellationToken cancellationToken)
     {
-        var result = await sender.Send(new TriggerProviderJobCommand(pipeline ?? CrawlPipeline.Rss, provider), cancellationToken);
+        var result = await sender.Send(new TriggerProviderJobCommand(pipeline ?? CrawlPipeline.Rss, provider, country), cancellationToken);
         return TypedResults.Ok(result);
     }
 
-    [EndpointSummary("Create or update a provider's recurring job")]
+    [EndpointSummary("Create or update a provider-country's recurring job")]
     [EndpointDescription(
-        "Registers (or updates, if it already exists) a provider's Hangfire recurring crawl job - " +
-        "body: { \"pipeline\": \"Rss\", \"jobName\": \"AajTak\", \"cron\": \"*/10 * * * *\", " +
-        "\"timeZone\": \"UTC\" } (timeZone defaults to UTC if omitted). jobName must already be an " +
-        "enabled provider for the given pipeline - this schedules crawling that provider, not " +
-        "arbitrary code. This is a live override: it takes effect immediately but does not persist " +
-        "to config, so RssService/ApiService's next restart re-syncs every provider's job back to " +
-        "whatever the config (and ProviderSchedule) says.")]
+        "Registers (or updates, if it already exists) a provider-country's Hangfire recurring crawl " +
+        "job - body: { \"pipeline\": \"Rss\", \"jobName\": \"AajTak\", \"country\": \"India\", " +
+        "\"cron\": \"*/10 * * * *\", \"timeZone\": \"UTC\" } (timeZone defaults to UTC if omitted). " +
+        "jobName+country must already be an enabled provider-country schedule - this schedules " +
+        "crawling that provider-country, not arbitrary code. This is a live override: it takes " +
+        "effect immediately but does not persist to config, so RssService/ApiService's next restart " +
+        "re-syncs every provider-country's job back to whatever ProviderSchedule says.")]
     public static async Task<Ok<CrawlRecurringJobDto>> CreateOrUpdateJob(
         ISender sender, CreateOrUpdateRecurringJobRequest request, CancellationToken cancellationToken)
     {
         var result = await sender.Send(
-            new CreateOrUpdateRecurringJobCommand(request.Pipeline, request.JobName, request.Cron, request.TimeZone ?? "UTC"),
+            new CreateOrUpdateRecurringJobCommand(request.Pipeline, request.JobName, request.Country, request.Cron, request.TimeZone ?? "UTC"),
             cancellationToken);
         return TypedResults.Ok(result);
     }
 }
 
-public sealed record CreateOrUpdateRecurringJobRequest(CrawlPipeline Pipeline, string JobName, string Cron, string? TimeZone);
+public sealed record CreateOrUpdateRecurringJobRequest(CrawlPipeline Pipeline, string JobName, string Country, string Cron, string? TimeZone);

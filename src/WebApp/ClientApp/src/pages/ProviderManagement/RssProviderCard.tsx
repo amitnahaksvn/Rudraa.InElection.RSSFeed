@@ -89,7 +89,7 @@ export function RssProviderCard({ provider }: { provider: RssProviderSummary }) 
           <Stack gap={1.5}>
             <Stack divider={<Divider />} gap={1.5}>
               {provider.feeds.map((feed) => (
-                <RssFeedRow key={feed.id} providerName={provider.name} feed={feed} />
+                <RssFeedRow key={feed.id} providerName={provider.name} country={provider.country} feed={feed} />
               ))}
             </Stack>
             <Button size="small" startIcon={<AddIcon fontSize="small" />} onClick={(e) => { stop(e); setAddFeedOpen(true); }} sx={{ alignSelf: 'flex-start' }}>
@@ -99,17 +99,17 @@ export function RssProviderCard({ provider }: { provider: RssProviderSummary }) 
         )}
       </AccordionDetails>
 
-      <RssFeedFormDialog open={addFeedOpen} provider={provider.name} onClose={() => setAddFeedOpen(false)} />
+      <RssFeedFormDialog open={addFeedOpen} provider={provider.name} country={provider.country} onClose={() => setAddFeedOpen(false)} />
 
       <Dialog open={confirmDeleteOpen} onClose={() => setConfirmDeleteOpen(false)}>
-        <DialogTitle>Delete provider "{provider.name}" and its recurring job?</DialogTitle>
+        <DialogTitle>Delete provider "{provider.name}" ({provider.country}) and its recurring job?</DialogTitle>
         <DialogActions>
           <Button onClick={() => setConfirmDeleteOpen(false)}>Cancel</Button>
           <Button
             color="error"
             variant="contained"
             disabled={deleteProvider.isPending}
-            onClick={() => deleteProvider.mutate(provider.name, { onSuccess: () => setConfirmDeleteOpen(false) })}
+            onClick={() => deleteProvider.mutate({ provider: provider.name, country: provider.country }, { onSuccess: () => setConfirmDeleteOpen(false) })}
           >
             Delete
           </Button>

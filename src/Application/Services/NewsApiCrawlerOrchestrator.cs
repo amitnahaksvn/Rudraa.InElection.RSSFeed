@@ -68,18 +68,20 @@ public sealed class NewsApiCrawlerOrchestrator : INewsApiCrawlerService
         _logger = logger;
     }
 
-    /// <summary>Runs every enabled provider. Locking mirrors <see cref="NewsCrawlerOrchestrator"/>: per-provider, not global, so providers fetch in parallel across Hangfire ticks without starving each other.</summary>
+    /// <summary>Runs every enabled provider. Locking mirrors <see cref="NewsCrawlerOrchestrator"/>: per (provider, country), not global and not per-provider-alone, so two country-schedules of the same provider fetch in parallel across Hangfire ticks without starving each other.</summary>
     public Task<CrawlHistory> RunCrawlAsync(CancellationToken cancellationToken) =>
-        RunCrawlAsync(providerFilter: null, cancellationToken);
+        RunCrawlAsync(candidateFilter: null, cancellationToken);
 
-    /// <inheritdoc cref="INewsApiCrawlerService.RunCrawlAsync(IReadOnlyCollection{string}, CancellationToken)" />
-    public Task<CrawlHistory> RunCrawlAsync(IReadOnlyCollection<string> providerNames, CancellationToken cancellationToken) =>
-        RunCrawlAsync(p => providerNames.Contains(p.Name, StringComparer.OrdinalIgnoreCase), cancellationToken);
+    /// <inheritdoc cref="INewsApiCrawlerService.RunCrawlAsync(string, string, CancellationToken)" />
+    public Task<CrawlHistory> RunCrawlAsync(string provider, string country, CancellationToken cancellationToken) =>
+        RunCrawlAsync(
+            cp => string.Equals(cp.Provider.Name, provider, StringComparison.OrdinalIgnoreCase) && string.Equals(cp.Country, country, StringComparison.OrdinalIgnoreCase),
+            cancellationToken);
 
-    /// <summary>One provider together with the country group it belongs to - the database is the source of truth, this is just the flattened-for-iteration shape, same pattern as <see cref="NewsCrawlerOrchestrator"/>'s own <c>CountryProvider</c>.</summary>
+    /// <summary>One provider together with the country its schedule belongs to - the database is the source of truth, this is just the flattened-for-iteration shape, same pattern as <see cref="NewsCrawlerOrchestrator"/>'s own <c>CountryProvider</c>.</summary>
     private readonly record struct CountryProvider(string Country, NewsApiProviderOptions Provider);
 
-    private async Task<CrawlHistory> RunCrawlAsync(Func<NewsApiProviderOptions, bool>? providerFilter, CancellationToken cancellationToken)
+    private async Task<CrawlHistory> RunCrawlAsync(Func<CountryProvider, bool>? candidateFilter, CancellationToken cancellationToken)
     {
         var countries = await _countryRepository.GetAllAsync(CrawlPipeline.Api, cancellationToken);
         var enabledCountryNames = new HashSet<string>(
@@ -87,19 +89,22 @@ public sealed class NewsApiCrawlerOrchestrator : INewsApiCrawlerService
 
         var schedules = await _scheduleRepository.GetAllAsync(CrawlPipeline.Api, cancellationToken);
         var endpoints = await _feedRepository.GetAllAsync(CrawlPipeline.Api, cancellationToken);
-        var endpointsByProvider = endpoints
+        var endpointsByProviderCountry = endpoints
+            .GroupBy(e => NormalizeKey(e.Provider, e.Country))
+            .ToDictionary(g => g.Key, g => (IReadOnlyList<CrawlFeed>)g.ToList());
+        var endpointsByProviderOnly = endpoints
             .GroupBy(e => e.Provider, StringComparer.OrdinalIgnoreCase)
             .ToDictionary(g => g.Key, g => (IReadOnlyList<CrawlFeed>)g.ToList(), StringComparer.OrdinalIgnoreCase);
 
         var candidates = schedules
             .Where(s => s.Enabled && enabledCountryNames.Contains(s.Country))
-            .Select(s => new CountryProvider(s.Country, BuildProviderOptions(s, endpointsByProvider)))
-            .Where(cp => providerFilter is null || providerFilter(cp.Provider))
+            .Select(s => new CountryProvider(s.Country, BuildProviderOptions(s, endpointsByProviderCountry, endpointsByProviderOnly)))
+            .Where(cp => candidateFilter is null || candidateFilter(cp))
             .ToList();
 
         var lockedProviders = await ProviderLockCoordinator.AcquireAsync(
             candidates,
-            cp => cp.Provider.Name,
+            cp => $"{cp.Provider.Name}::{cp.Country}",
             ProviderLockName,
             _lockRepository,
             _ownerId,
@@ -121,15 +126,26 @@ public sealed class NewsApiCrawlerOrchestrator : INewsApiCrawlerService
         finally
         {
             await ProviderLockCoordinator.ReleaseAsync(
-                lockedProviders, cp => cp.Provider.Name, ProviderLockName, _lockRepository, _ownerId, CancellationToken.None);
+                lockedProviders, cp => $"{cp.Provider.Name}::{cp.Country}", ProviderLockName, _lockRepository, _ownerId, CancellationToken.None);
         }
     }
 
-    private string ProviderLockName(string providerName) => $"{_options.LockName}:{providerName}";
+    private static (string Provider, string Country) NormalizeKey(string provider, string country) =>
+        (provider.ToUpperInvariant(), country.ToUpperInvariant());
 
-    private static NewsApiProviderOptions BuildProviderOptions(ProviderSchedule schedule, IReadOnlyDictionary<string, IReadOnlyList<CrawlFeed>> endpointsByProvider)
+    private string ProviderLockName(string providerCountryKey) => $"{_options.LockName}:{providerCountryKey}";
+
+    // Same Provider+Country-first-with-Provider-only-fallback reasoning as
+    // NewsCrawlerOrchestrator.BuildProviderOptions - see that method's own doc comment.
+    private static NewsApiProviderOptions BuildProviderOptions(
+        ProviderSchedule schedule,
+        IReadOnlyDictionary<(string Provider, string Country), IReadOnlyList<CrawlFeed>> endpointsByProviderCountry,
+        IReadOnlyDictionary<string, IReadOnlyList<CrawlFeed>> endpointsByProviderOnly)
     {
-        endpointsByProvider.TryGetValue(schedule.Provider, out var providerEndpoints);
+        if (!endpointsByProviderCountry.TryGetValue(NormalizeKey(schedule.Provider, schedule.Country), out var providerEndpoints))
+        {
+            endpointsByProviderOnly.TryGetValue(schedule.Provider, out providerEndpoints);
+        }
 
         return new NewsApiProviderOptions
         {

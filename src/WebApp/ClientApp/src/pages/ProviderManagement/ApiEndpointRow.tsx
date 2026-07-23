@@ -19,7 +19,7 @@ import { useDeleteFeed } from './useCrawlFeedMutations';
 import { ApiEndpointFormDialog } from './ApiEndpointFormDialog';
 import type { ApiEndpointSummary } from '../../api/providerTypes';
 
-export function ApiEndpointRow({ providerName, endpoint }: { providerName: string; endpoint: ApiEndpointSummary }) {
+export function ApiEndpointRow({ providerName, country, endpoint }: { providerName: string; country: string; endpoint: ApiEndpointSummary }) {
   const testEndpoint = useTestApiEndpoint();
   const deleteEndpoint = useDeleteFeed('Api');
   const [editOpen, setEditOpen] = useState(false);
@@ -61,7 +61,7 @@ export function ApiEndpointRow({ providerName, endpoint }: { providerName: strin
       )}
       {testEndpoint.data && <TestResultPanel result={testEndpoint.data} onClose={() => testEndpoint.reset()} />}
 
-      <ApiEndpointFormDialog open={editOpen} provider={providerName} endpoint={endpoint} onClose={() => setEditOpen(false)} />
+      <ApiEndpointFormDialog open={editOpen} provider={providerName} country={country} endpoint={endpoint} onClose={() => setEditOpen(false)} />
 
       <Dialog open={confirmDeleteOpen} onClose={() => setConfirmDeleteOpen(false)}>
         <DialogTitle>Delete endpoint "{endpoint.name}"?</DialogTitle>

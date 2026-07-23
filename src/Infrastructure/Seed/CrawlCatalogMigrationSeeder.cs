@@ -72,7 +72,6 @@ public sealed class CrawlCatalogMigrationSeeder
 
     private async Task MigrateRssAsync(CancellationToken cancellationToken)
     {
-        var seenProviders = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         int countryCount = 0, providerCount = 0, backfilledCount = 0, feedCount = 0;
 
         foreach (var country in _rssOptions.Countries)
@@ -84,37 +83,34 @@ public sealed class CrawlCatalogMigrationSeeder
 
             foreach (var provider in country.Providers)
             {
-                // A provider name can legitimately appear under more than one country in the old
-                // JSON (a shared "global aggregator" configured once per country) - only the first
-                // country encountered becomes this provider's Country, same precedent
-                // HangfireRecurringJobRegistrar's old DistinctBy already established.
-                if (seenProviders.Add(provider.Name))
-                {
-                    var alreadyExisted = await _schedules.GetAsync(CrawlPipeline.Rss, provider.Name, cancellationToken) is not null;
+                // ProviderSchedule's identity is (Pipeline, Provider, Country) - a provider name
+                // legitimately appearing under more than one country in the old JSON (a shared
+                // "global aggregator" configured once per country) now gets one schedule row per
+                // country, not a collapsed single row.
+                var alreadyExisted = await _schedules.GetAsync(CrawlPipeline.Rss, provider.Name, country.Name, cancellationToken) is not null;
 
-                    await _schedules.SeedIfMissingAsync(
-                        new ProviderSchedule
-                        {
-                            Pipeline = CrawlPipeline.Rss,
-                            Provider = provider.Name,
-                            Country = country.Name,
-                            Enabled = provider.Enabled,
-                            Cron = provider.Cron,
-                            TimeZone = "UTC",
-                            SaveRawResponses = provider.SaveRawResponses,
-                            UpdatedAt = DateTimeOffset.UtcNow
-                        },
-                        cancellationToken);
-
-                    if (alreadyExisted)
+                await _schedules.SeedIfMissingAsync(
+                    new ProviderSchedule
                     {
-                        await _schedules.BackfillCatalogFieldsAsync(
-                            CrawlPipeline.Rss, provider.Name, provider.SaveRawResponses, null, null, null, null, cancellationToken);
-                        backfilledCount++;
-                    }
+                        Pipeline = CrawlPipeline.Rss,
+                        Provider = provider.Name,
+                        Country = country.Name,
+                        Enabled = provider.Enabled,
+                        Cron = provider.Cron,
+                        TimeZone = "UTC",
+                        SaveRawResponses = provider.SaveRawResponses,
+                        UpdatedAt = DateTimeOffset.UtcNow
+                    },
+                    cancellationToken);
 
-                    providerCount++;
+                if (alreadyExisted)
+                {
+                    await _schedules.BackfillCatalogFieldsAsync(
+                        CrawlPipeline.Rss, provider.Name, country.Name, provider.SaveRawResponses, null, null, null, null, cancellationToken);
+                    backfilledCount++;
                 }
+
+                providerCount++;
 
                 foreach (var feed in provider.Feeds)
                 {
@@ -123,6 +119,7 @@ public sealed class CrawlCatalogMigrationSeeder
                         {
                             Pipeline = CrawlPipeline.Rss,
                             Provider = provider.Name,
+                            Country = country.Name,
                             Name = feed.Name,
                             Url = feed.Url,
                             Category = feed.Category,
@@ -143,7 +140,6 @@ public sealed class CrawlCatalogMigrationSeeder
 
     private async Task MigrateApiAsync(CancellationToken cancellationToken)
     {
-        var seenProviders = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         int countryCount = 0, providerCount = 0, backfilledCount = 0, endpointCount = 0;
 
         foreach (var country in _apiOptions.Countries)
@@ -155,36 +151,34 @@ public sealed class CrawlCatalogMigrationSeeder
 
             foreach (var provider in country.Providers)
             {
-                if (seenProviders.Add(provider.Name))
-                {
-                    var alreadyExisted = await _schedules.GetAsync(CrawlPipeline.Api, provider.Name, cancellationToken) is not null;
+                // Same (Pipeline, Provider, Country) identity reasoning as MigrateRssAsync above.
+                var alreadyExisted = await _schedules.GetAsync(CrawlPipeline.Api, provider.Name, country.Name, cancellationToken) is not null;
 
-                    await _schedules.SeedIfMissingAsync(
-                        new ProviderSchedule
-                        {
-                            Pipeline = CrawlPipeline.Api,
-                            Provider = provider.Name,
-                            Country = country.Name,
-                            Enabled = provider.Enabled,
-                            Cron = provider.Cron,
-                            TimeZone = "UTC",
-                            BaseUrl = provider.BaseUrl,
-                            AuthType = provider.AuthType,
-                            AuthParamName = provider.AuthParamName,
-                            TimeoutSeconds = provider.TimeoutSeconds,
-                            UpdatedAt = DateTimeOffset.UtcNow
-                        },
-                        cancellationToken);
-
-                    if (alreadyExisted)
+                await _schedules.SeedIfMissingAsync(
+                    new ProviderSchedule
                     {
-                        await _schedules.BackfillCatalogFieldsAsync(
-                            CrawlPipeline.Api, provider.Name, true, provider.BaseUrl, provider.AuthType, provider.AuthParamName, provider.TimeoutSeconds, cancellationToken);
-                        backfilledCount++;
-                    }
+                        Pipeline = CrawlPipeline.Api,
+                        Provider = provider.Name,
+                        Country = country.Name,
+                        Enabled = provider.Enabled,
+                        Cron = provider.Cron,
+                        TimeZone = "UTC",
+                        BaseUrl = provider.BaseUrl,
+                        AuthType = provider.AuthType,
+                        AuthParamName = provider.AuthParamName,
+                        TimeoutSeconds = provider.TimeoutSeconds,
+                        UpdatedAt = DateTimeOffset.UtcNow
+                    },
+                    cancellationToken);
 
-                    providerCount++;
+                if (alreadyExisted)
+                {
+                    await _schedules.BackfillCatalogFieldsAsync(
+                        CrawlPipeline.Api, provider.Name, country.Name, true, provider.BaseUrl, provider.AuthType, provider.AuthParamName, provider.TimeoutSeconds, cancellationToken);
+                    backfilledCount++;
                 }
+
+                providerCount++;
 
                 foreach (var endpoint in provider.Endpoints)
                 {
@@ -193,6 +187,7 @@ public sealed class CrawlCatalogMigrationSeeder
                         {
                             Pipeline = CrawlPipeline.Api,
                             Provider = provider.Name,
+                            Country = country.Name,
                             Name = endpoint.Name,
                             Url = endpoint.Endpoint,
                             Category = endpoint.Category,

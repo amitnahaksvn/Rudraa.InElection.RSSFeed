@@ -30,17 +30,19 @@ public sealed class Crawl : IEndpointGroup
         group.MapGet("report", GetReport);
     }
 
-    [EndpointSummary("Get a provider's recurring job status")]
+    [EndpointSummary("Get a provider-country's recurring job status")]
     [EndpointDescription(
-        "Current schedule plus the outcome of the most recent run for one provider's recurring job: " +
-        "next/last execution time, the Hangfire job id and state (Succeeded/Failed/Processing/...) of " +
-        "that last run, and exception details if it failed. 'pipeline' picks which job-id scheme to " +
-        "look up (RSS providers and API providers register under different recurring-job ids) and " +
-        "defaults to Rss. 404 if no recurring job is registered for that provider name.")]
+        "Current schedule plus the outcome of the most recent run for one provider-country's " +
+        "recurring job: next/last execution time, the Hangfire job id and state " +
+        "(Succeeded/Failed/Processing/...) of that last run, and exception details if it failed. " +
+        "'country' is required, since the same provider class can be scheduled independently for " +
+        "more than one country. 'pipeline' picks which job-id scheme to look up (RSS providers and " +
+        "API providers register under different recurring-job ids) and defaults to Rss. 404 if no " +
+        "recurring job is registered for that provider-country.")]
     public static async Task<Results<Ok<CrawlJobStatusDto>, NotFound>> GetJobStatus(
-        ISender sender, string provider, CrawlPipeline? pipeline, CancellationToken cancellationToken)
+        ISender sender, string provider, string country, CrawlPipeline? pipeline, CancellationToken cancellationToken)
     {
-        var result = await sender.Send(new GetCrawlJobStatusQuery(provider, pipeline ?? CrawlPipeline.Rss), cancellationToken);
+        var result = await sender.Send(new GetCrawlJobStatusQuery(provider, country, pipeline ?? CrawlPipeline.Rss), cancellationToken);
         return result is null ? TypedResults.NotFound() : TypedResults.Ok(result);
     }
 

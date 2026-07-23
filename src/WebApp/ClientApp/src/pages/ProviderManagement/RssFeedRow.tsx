@@ -19,7 +19,7 @@ import { useDeleteFeed } from './useCrawlFeedMutations';
 import { RssFeedFormDialog } from './RssFeedFormDialog';
 import type { RssFeedSummary } from '../../api/providerTypes';
 
-export function RssFeedRow({ providerName, feed }: { providerName: string; feed: RssFeedSummary }) {
+export function RssFeedRow({ providerName, country, feed }: { providerName: string; country: string; feed: RssFeedSummary }) {
   const testFeed = useTestRssFeed();
   const deleteFeed = useDeleteFeed('Rss');
   const [editOpen, setEditOpen] = useState(false);
@@ -61,7 +61,7 @@ export function RssFeedRow({ providerName, feed }: { providerName: string; feed:
       )}
       {testFeed.data && <TestResultPanel result={testFeed.data} onClose={() => testFeed.reset()} />}
 
-      <RssFeedFormDialog open={editOpen} provider={providerName} feed={feed} onClose={() => setEditOpen(false)} />
+      <RssFeedFormDialog open={editOpen} provider={providerName} country={country} feed={feed} onClose={() => setEditOpen(false)} />
 
       <Dialog open={confirmDeleteOpen} onClose={() => setConfirmDeleteOpen(false)}>
         <DialogTitle>Delete feed "{feed.name}"?</DialogTitle>

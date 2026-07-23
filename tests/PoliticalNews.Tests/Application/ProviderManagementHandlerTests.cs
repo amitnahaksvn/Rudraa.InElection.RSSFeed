@@ -190,11 +190,11 @@ public class ProviderManagementHandlerTests
         var feeds = new Mock<ICrawlFeedRepository>();
         feeds
             .Setup(f => f.GetByIdAsync("ep-everything", It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new CrawlFeed { Id = "ep-everything", Provider = "NewsApiOrg", Name = "Everything", Url = "everything", Category = "General", Language = "en", Enabled = true, QueryParameters = new Dictionary<string, string> { ["q"] = "India politics" } });
+            .ReturnsAsync(new CrawlFeed { Id = "ep-everything", Provider = "NewsApiOrg", Country = "India", Name = "Everything", Url = "everything", Category = "General", Language = "en", Enabled = true, QueryParameters = new Dictionary<string, string> { ["q"] = "India politics" } });
 
         var schedules = new Mock<IProviderScheduleRepository>();
         schedules
-            .Setup(s => s.GetAsync(CrawlPipeline.Api, "NewsApiOrg", It.IsAny<CancellationToken>()))
+            .Setup(s => s.GetAsync(CrawlPipeline.Api, "NewsApiOrg", "India", It.IsAny<CancellationToken>()))
             .ReturnsAsync(new ProviderSchedule
             {
                 Provider = "NewsApiOrg",

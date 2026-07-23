@@ -10,12 +10,18 @@ namespace Domain.Entities;
 /// <see cref="TimeoutSeconds"/> for JSON-API providers) - the JSON files and their
 /// Country/Provider/Feed hierarchy have been retired entirely in favor of this collection plus
 /// <see cref="CrawlCountry"/>/<see cref="CrawlFeed"/>. Fully editable from the Provider Management
-/// page, no redeploy needed for any change. <see cref="Country"/> is this provider's parent
-/// grouping (matches a <see cref="CrawlCountry.Name"/>) - the (Pipeline, Provider) pair is this
-/// record's own identity, since a provider's <see cref="Provider"/> name must still match the
+/// page, no redeploy needed for any change.
+///
+/// <see cref="Country"/> is part of this record's own identity - the (Pipeline, Provider, Country)
+/// triple is unique, not (Pipeline, Provider) alone. Several "global aggregator" providers (e.g.
+/// SerpApiGoogleNews, NewsApiOrg, GDELT) are genuinely configured once per country, each with its
+/// own Cron/Enabled/query-parameters - a provider's <see cref="Provider"/> name still matches the
 /// <c>Name</c> exposed by its registered <c>IRssProvider</c>/<c>INewsApiProvider</c> C# class and
-/// stay unique per pipeline (Hangfire job ids and the crawl lock name are keyed on it alone, not
-/// on country).
+/// stays unique per pipeline, but the same class can be scheduled independently for more than one
+/// country at once. Hangfire job ids and the crawl lock name are keyed on (Provider, Country)
+/// together, not Provider alone, precisely so two country-schedules of the same provider can run
+/// concurrently without starving each other - the same reasoning that already keeps different
+/// providers from sharing one global lock.
 /// </summary>
 public sealed class ProviderSchedule
 {

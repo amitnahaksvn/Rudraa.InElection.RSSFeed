@@ -61,6 +61,7 @@ export type CrawlPipelineName = 'Rss' | 'Api';
 export interface ProviderSchedule {
   pipeline: CrawlPipelineName;
   provider: string;
+  country: string;
   enabled: boolean;
   cron: string;
   timeZone: string;
@@ -76,6 +77,7 @@ export interface Country {
 export interface CrawlFeed {
   id: string;
   provider: string;
+  country: string;
   name: string;
   url: string;
   category: string;

@@ -68,26 +68,28 @@ public sealed class NewsCrawlerOrchestrator : INewsCrawlerService
     }
 
     /// <summary>
-    /// Runs a full crawl. The distributed lock is scoped per provider ("{LockName}:{Provider}"),
-    /// not globally: the invariant worth enforcing is that the *same* provider is never crawled
-    /// by two runs at once (scheduled tick vs manual trigger vs another instance) - different
-    /// providers crawling in parallel is fine and, with every provider's Hangfire job firing on
-    /// the same cron tick, necessary; a single global lock would let exactly one provider win
-    /// per tick and starve the rest. Providers whose lock is held are skipped individually;
-    /// only when every requested provider is lock-skipped is a non-persisted
-    /// <see cref="CrawlStatus.Skipped"/> result returned.
+    /// Runs a full crawl. The distributed lock is scoped per (provider, country)
+    /// ("{LockName}:{Provider}::{Country}"), not globally and not per-provider-alone: the same
+    /// provider class can be scheduled independently for more than one country (e.g. GDELT,
+    /// NewsApiOrg), so two country-schedules of the same provider must be able to run concurrently
+    /// without falsely colliding on one lock - the same reasoning that already keeps different
+    /// providers from starving each other under a single global lock. Providers whose lock is held
+    /// are skipped individually; only when every requested provider-country is lock-skipped is a
+    /// non-persisted <see cref="CrawlStatus.Skipped"/> result returned.
     /// </summary>
     public Task<CrawlHistory> RunCrawlAsync(CancellationToken cancellationToken) =>
-        RunCrawlAsync(providerFilter: null, cancellationToken);
+        RunCrawlAsync(candidateFilter: null, cancellationToken);
 
-    /// <inheritdoc cref="INewsCrawlerService.RunCrawlAsync(IReadOnlyCollection{string}, CancellationToken)" />
-    public Task<CrawlHistory> RunCrawlAsync(IReadOnlyCollection<string> providerNames, CancellationToken cancellationToken) =>
-        RunCrawlAsync(p => providerNames.Contains(p.Name, StringComparer.OrdinalIgnoreCase), cancellationToken);
+    /// <inheritdoc cref="INewsCrawlerService.RunCrawlAsync(string, string, CancellationToken)" />
+    public Task<CrawlHistory> RunCrawlAsync(string provider, string country, CancellationToken cancellationToken) =>
+        RunCrawlAsync(
+            cp => string.Equals(cp.Provider.Name, provider, StringComparison.OrdinalIgnoreCase) && string.Equals(cp.Country, country, StringComparison.OrdinalIgnoreCase),
+            cancellationToken);
 
-    /// <summary>One provider together with the country group it belongs to - the database (<see cref="ICrawlCountryRepository"/>/<see cref="IProviderScheduleRepository"/>/<see cref="ICrawlFeedRepository"/>) is the source of truth, this is just the flattened-for-iteration shape.</summary>
+    /// <summary>One provider together with the country its schedule belongs to - the database (<see cref="ICrawlCountryRepository"/>/<see cref="IProviderScheduleRepository"/>/<see cref="ICrawlFeedRepository"/>) is the source of truth, this is just the flattened-for-iteration shape.</summary>
     private readonly record struct CountryProvider(string Country, RssProviderOptions Provider);
 
-    private async Task<CrawlHistory> RunCrawlAsync(Func<RssProviderOptions, bool>? providerFilter, CancellationToken cancellationToken)
+    private async Task<CrawlHistory> RunCrawlAsync(Func<CountryProvider, bool>? candidateFilter, CancellationToken cancellationToken)
     {
         var countries = await _countryRepository.GetAllAsync(CrawlPipeline.Rss, cancellationToken);
         var enabledCountryNames = new HashSet<string>(
@@ -95,19 +97,22 @@ public sealed class NewsCrawlerOrchestrator : INewsCrawlerService
 
         var schedules = await _scheduleRepository.GetAllAsync(CrawlPipeline.Rss, cancellationToken);
         var feeds = await _feedRepository.GetAllAsync(CrawlPipeline.Rss, cancellationToken);
-        var feedsByProvider = feeds
+        var feedsByProviderCountry = feeds
+            .GroupBy(f => NormalizeKey(f.Provider, f.Country))
+            .ToDictionary(g => g.Key, g => (IReadOnlyList<CrawlFeed>)g.ToList());
+        var feedsByProviderOnly = feeds
             .GroupBy(f => f.Provider, StringComparer.OrdinalIgnoreCase)
             .ToDictionary(g => g.Key, g => (IReadOnlyList<CrawlFeed>)g.ToList(), StringComparer.OrdinalIgnoreCase);
 
         var candidates = schedules
             .Where(s => s.Enabled && enabledCountryNames.Contains(s.Country))
-            .Select(s => new CountryProvider(s.Country, BuildProviderOptions(s, feedsByProvider)))
-            .Where(cp => providerFilter is null || providerFilter(cp.Provider))
+            .Select(s => new CountryProvider(s.Country, BuildProviderOptions(s, feedsByProviderCountry, feedsByProviderOnly)))
+            .Where(cp => candidateFilter is null || candidateFilter(cp))
             .ToList();
 
         var lockedProviders = await ProviderLockCoordinator.AcquireAsync(
             candidates,
-            cp => cp.Provider.Name,
+            cp => $"{cp.Provider.Name}::{cp.Country}",
             ProviderLockName,
             _lockRepository,
             _ownerId,
@@ -129,15 +134,32 @@ public sealed class NewsCrawlerOrchestrator : INewsCrawlerService
         finally
         {
             await ProviderLockCoordinator.ReleaseAsync(
-                lockedProviders, cp => cp.Provider.Name, ProviderLockName, _lockRepository, _ownerId, CancellationToken.None);
+                lockedProviders, cp => $"{cp.Provider.Name}::{cp.Country}", ProviderLockName, _lockRepository, _ownerId, CancellationToken.None);
         }
     }
 
-    private string ProviderLockName(string providerName) => $"{_options.LockName}:{providerName}";
+    private static (string Provider, string Country) NormalizeKey(string provider, string country) =>
+        (provider.ToUpperInvariant(), country.ToUpperInvariant());
 
-    private static RssProviderOptions BuildProviderOptions(ProviderSchedule schedule, IReadOnlyDictionary<string, IReadOnlyList<CrawlFeed>> feedsByProvider)
+    private string ProviderLockName(string providerCountryKey) => $"{_options.LockName}:{providerCountryKey}";
+
+    // Looks up this schedule's own feeds by the exact (Provider, Country) it belongs to first -
+    // the correct behavior once a provider has been split across multiple country schedules (see
+    // ProviderSchedule's own doc comment). Falls back to every feed under the bare Provider name if
+    // that exact pair isn't found yet - a deliberate safety net for the migration window between
+    // deploying this code and the one-off data migration finishing (see the migration plan's
+    // "critical ordering risk" note): without this fallback, a provider whose CrawlFeed rows
+    // haven't been backfilled with Country yet would silently get zero feeds instead of just
+    // falling back to today's (still-mislabeled-country) behavior.
+    private static RssProviderOptions BuildProviderOptions(
+        ProviderSchedule schedule,
+        IReadOnlyDictionary<(string Provider, string Country), IReadOnlyList<CrawlFeed>> feedsByProviderCountry,
+        IReadOnlyDictionary<string, IReadOnlyList<CrawlFeed>> feedsByProviderOnly)
     {
-        feedsByProvider.TryGetValue(schedule.Provider, out var providerFeeds);
+        if (!feedsByProviderCountry.TryGetValue(NormalizeKey(schedule.Provider, schedule.Country), out var providerFeeds))
+        {
+            feedsByProviderOnly.TryGetValue(schedule.Provider, out providerFeeds);
+        }
 
         return new RssProviderOptions
         {

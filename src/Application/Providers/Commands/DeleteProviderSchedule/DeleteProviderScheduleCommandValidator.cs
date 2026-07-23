@@ -9,5 +9,6 @@ public sealed class DeleteProviderScheduleCommandValidator : AbstractValidator<D
     {
         RuleFor(c => c.Pipeline).Must(p => p is CrawlPipeline.Rss or CrawlPipeline.Api).WithMessage("Pipeline must be 'Rss' or 'Api'.");
         RuleFor(c => c.Provider).NotEmpty();
+        RuleFor(c => c.Country).NotEmpty();
     }
 }

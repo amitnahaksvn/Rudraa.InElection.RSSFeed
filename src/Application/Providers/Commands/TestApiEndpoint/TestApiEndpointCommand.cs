@@ -36,7 +36,7 @@ public sealed class TestApiEndpointCommandHandler : IRequestHandler<TestApiEndpo
             return ProviderTestResultDto.NotFound($"No API provider registered with name '{endpoint.Provider}'.");
         }
 
-        var schedule = await _schedules.GetAsync(CrawlPipeline.Api, endpoint.Provider, cancellationToken);
+        var schedule = await _schedules.GetAsync(CrawlPipeline.Api, endpoint.Provider, endpoint.Country, cancellationToken);
         if (schedule is null)
         {
             return ProviderTestResultDto.NotFound($"No provider record found for '{endpoint.Provider}'.");

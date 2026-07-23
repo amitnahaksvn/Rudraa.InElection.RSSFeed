@@ -1,4 +1,3 @@
-using Microsoft.Extensions.Options;
 using Moq;
 using Application.Abstractions;
 using Application.Crawl.Queries.GetCrawlReport;
@@ -33,23 +32,6 @@ public class GetCrawlReportQueryHandlerTests
         FailedFeeds = (failedFeeds ?? []).ToList()
     };
 
-    private static NewsCrawlerOptions BuildRssOptions() => new()
-    {
-        Countries =
-        [
-            new CountryOptions
-            {
-                Name = "India",
-                Enabled = true,
-                Providers =
-                [
-                    new RssProviderOptions { Name = "AajTak", Enabled = true },
-                    new RssProviderOptions { Name = "ABPNews", Enabled = true }
-                ]
-            }
-        ]
-    };
-
     private GetCrawlReportQueryHandler BuildHandler(
         IReadOnlyList<CrawlHistory> runs,
         out Mock<ICrawlHistoryRepository> historyRepo,
@@ -67,15 +49,28 @@ public class GetCrawlReportQueryHandlerTests
 
         var statusReader = new Mock<ICrawlJobStatusReader>();
         statusReader
-            .Setup(r => r.GetStatuses(It.IsAny<CrawlPipeline>(), It.IsAny<IReadOnlyCollection<string>>()))
-            .Returns(new Dictionary<string, CrawlJobStatus>());
+            .Setup(r => r.GetStatuses(It.IsAny<CrawlPipeline>(), It.IsAny<IReadOnlyCollection<(string Provider, string Country)>>()))
+            .Returns(new Dictionary<(string, string), CrawlJobStatus>());
+
+        var countryRepo = new Mock<ICrawlCountryRepository>();
+        countryRepo
+            .Setup(c => c.GetAllAsync(It.IsAny<CrawlPipeline>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync([new CrawlCountry { Pipeline = CrawlPipeline.Rss, Name = "India", Enabled = true }]);
+
+        var scheduleRepo = new Mock<IProviderScheduleRepository>();
+        scheduleRepo
+            .Setup(s => s.GetAllAsync(It.IsAny<CrawlPipeline>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync([
+                new ProviderSchedule { Pipeline = CrawlPipeline.Rss, Provider = "AajTak", Country = "India", Enabled = true, Cron = "*/5 * * * *" },
+                new ProviderSchedule { Pipeline = CrawlPipeline.Rss, Provider = "ABPNews", Country = "India", Enabled = true, Cron = "*/5 * * * *" },
+            ]);
 
         return new GetCrawlReportQueryHandler(
             historyRepo.Object,
             fingerprintRepo.Object,
             statusReader.Object,
-            Options.Create(BuildRssOptions()),
-            Options.Create(new NewsApiCrawlerOptions()));
+            countryRepo.Object,
+            scheduleRepo.Object);
     }
 
     [Fact]

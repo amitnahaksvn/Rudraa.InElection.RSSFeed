@@ -5,6 +5,7 @@ namespace Application.Providers.Dtos;
 public sealed record CrawlFeedDto(
     string Id,
     string Provider,
+    string Country,
     string Name,
     string Url,
     string Category,
@@ -14,5 +15,5 @@ public sealed record CrawlFeedDto(
     Dictionary<string, string>? QueryParameters)
 {
     public static CrawlFeedDto FromDomain(CrawlFeed feed) => new(
-        feed.Id, feed.Provider, feed.Name, feed.Url, feed.Category, feed.Language, feed.Enabled, feed.DefaultImageUrl, feed.QueryParameters);
+        feed.Id, feed.Provider, feed.Country, feed.Name, feed.Url, feed.Category, feed.Language, feed.Enabled, feed.DefaultImageUrl, feed.QueryParameters);
 }

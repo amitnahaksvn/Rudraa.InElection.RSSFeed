@@ -65,13 +65,13 @@ public sealed class UpdateProviderScheduleCommandHandler : IRequestHandler<Updat
 
         if (request.Enabled)
         {
-            _jobTrigger.CreateOrUpdate(request.Pipeline, request.Provider, request.Cron, request.TimeZone);
+            _jobTrigger.CreateOrUpdate(request.Pipeline, request.Provider, request.Country, request.Cron, request.TimeZone);
         }
         else
         {
-            _jobTrigger.Remove(request.Pipeline, request.Provider);
+            _jobTrigger.Remove(request.Pipeline, request.Provider, request.Country);
         }
 
-        return new ProviderScheduleDto(request.Pipeline.ToString(), request.Provider, request.Enabled, request.Cron, request.TimeZone);
+        return new ProviderScheduleDto(request.Pipeline.ToString(), request.Provider, request.Country, request.Enabled, request.Cron, request.TimeZone);
     }
 }

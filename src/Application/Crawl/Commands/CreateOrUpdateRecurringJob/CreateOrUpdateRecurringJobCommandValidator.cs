@@ -9,20 +9,23 @@ public sealed class CreateOrUpdateRecurringJobCommandValidator : AbstractValidat
 {
     public CreateOrUpdateRecurringJobCommandValidator(ICrawlCountryRepository countries, IProviderScheduleRepository schedules)
     {
-        RuleFor(c => c.JobName)
-            .NotEmpty()
-            .MustAsync(async (command, name, cancellationToken) =>
+        RuleFor(c => c.JobName).NotEmpty();
+        RuleFor(c => c.Country).NotEmpty();
+
+        RuleFor(c => c)
+            .MustAsync(async (c, cancellationToken) =>
             {
-                var schedule = await schedules.GetAsync(command.Pipeline, name, cancellationToken);
+                var schedule = await schedules.GetAsync(c.Pipeline, c.JobName, c.Country, cancellationToken);
                 if (schedule is null || !schedule.Enabled)
                 {
                     return false;
                 }
 
-                var country = await countries.GetByNameAsync(command.Pipeline, schedule.Country, cancellationToken);
+                var country = await countries.GetByNameAsync(c.Pipeline, schedule.Country, cancellationToken);
                 return country is { Enabled: true };
             })
-            .WithMessage(c => $"'{c.JobName}' is not an enabled {c.Pipeline} provider - configure it first.");
+            .WithMessage(c => $"'{c.JobName}' ({c.Country}) is not an enabled {c.Pipeline} provider-country - configure it first.")
+            .WithName("JobName");
 
         RuleFor(c => c.Cron)
             .NotEmpty()
